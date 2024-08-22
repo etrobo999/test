@@ -8,26 +8,25 @@
 
 #include "app.h"
 #include "ScenarioList.h"
-#include "Drive.h"
+#include <iostream>
 
 // using宣言
-#using ev3api::ColorSensor;
+//using ev3api::ColorSensor;
 using ev3api::TouchSensor;
-using ev3api::Motor;
-#using ev3api::Clock;
+//using ev3api::Motor;
+//using ev3api::Clock;
 
 // Device objects
 // オブジェクトを静的に確保する
-ColorSensor gColorSensor(PORT_2);
+//ColorSensor gColorSensor(PORT_2);
 TouchSensor gTouchSensor(PORT_1);
-Motor       gLeftWheel(PORT_C);
-Motor       gRightWheel(PORT_B);
-#Clock       gClock;
+//Motor       gLeftWheel(PORT_C);
+//Motor       gRightWheel(PORT_B);
+//Clock       gClock;
 
 // オブジェクトの定義
 static Starter         *gStarter;
 static ScenarioList    *gScenarioList;  // グローバル変数名に "g" を追加
-static Drive           *gDrive;
 
 /**
  * EV3システム生成
@@ -38,7 +37,6 @@ static void user_system_create() {
 
     // オブジェクトの作成
     gStarter         = new Starter(gTouchSensor);
-    gDrive            = new Drive(gLeftWheel, gRightWheel);
     gScenarioList     = new ScenarioList(gStarter);  // ScenarioListのインスタンスを作成
 
     // 初期化完了通知
@@ -49,11 +47,10 @@ static void user_system_create() {
  * EV3システム破棄
  */
 static void user_system_destroy() {
-    gLeftWheel.reset();
-    gRightWheel.reset();
+//    gLeftWheel.reset();
+//    gRightWheel.reset();
 
     delete gStarter;
-    delete gDrive;
     delete gScenarioList;  // "g" プレフィックスを付けた変数名を使用
 }
 
@@ -62,15 +59,15 @@ static void user_system_destroy() {
  */
 void main_task(intptr_t unused) {
     user_system_create();  // センサやモータの初期化処理
-
+    std::cout << "1" << std::endl;
     // 周期ハンドラ開始
     sta_cyc(CYC_TRACER);
-
+    std::cout << "2" << std::endl;
     slp_tsk();  // バックボタンが押されるまで待つ
-
+    std::cout << "3" << std::endl;
     // 周期ハンドラ停止
     stp_cyc(CYC_TRACER);
-
+    std::cout << "4" << std::endl;
     user_system_destroy();  // 終了処理
 
     ext_tsk();

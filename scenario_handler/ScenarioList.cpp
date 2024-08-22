@@ -1,21 +1,25 @@
 #include "ScenarioList.h"
+#include <iostream>
 ScenarioList::ScenarioList(const Starter* starter) : scenarioNo(0), mStarter(starter), scenarioComplete(false) {
 }
 
 void ScenarioList::executeScenario() {
     switch (scenarioNo) {
         case 0:
+            std::cout << "1-1" << std::endl;
             if (mStarter->isPushed()) {
                 incrementScenarioNo();  // 次のシナリオへ移行
             }
             break;
         case 1:
+            std::cout << "1-2" << std::endl;
             doubleLoopScenario.execute(); 
             if (doubleLoopScenario.checkCompletion()) {
                 incrementScenarioNo();  // 次のシナリオへ移行
             }
             break;
         case 2:
+            std::cout << "1-2" << std::endl;
             markCompletion();
             break;
         default:
