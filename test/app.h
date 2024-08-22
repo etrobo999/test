@@ -11,7 +11,6 @@ extern "C" {
 #endif
 
 #include "ev3api.h"
-#include "Drive.h"
 
 /*
  *  各タスクの優先度の定義
