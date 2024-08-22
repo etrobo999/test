@@ -11,10 +11,10 @@
 #include "Drive.h"
 
 // using宣言
-using ev3api::ColorSensor;
+#using ev3api::ColorSensor;
 using ev3api::TouchSensor;
 using ev3api::Motor;
-using ev3api::Clock;
+#using ev3api::Clock;
 
 // Device objects
 // オブジェクトを静的に確保する
@@ -22,7 +22,7 @@ ColorSensor gColorSensor(PORT_2);
 TouchSensor gTouchSensor(PORT_1);
 Motor       gLeftWheel(PORT_C);
 Motor       gRightWheel(PORT_B);
-Clock       gClock;
+#Clock       gClock;
 
 // オブジェクトの定義
 static Starter         *gStarter;
