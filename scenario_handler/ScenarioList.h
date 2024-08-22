@@ -4,8 +4,6 @@
 #include "DoubleLoopScenario.h"
 
 // 前方宣言
-class Scenario2;
-
 class ScenarioList {
 public:
     ScenarioList(const Starter* starter);
