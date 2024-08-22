@@ -6,34 +6,37 @@
 extern "C" {
 #endif
 
-/*関数宣言*/
+/* 関数宣言 */
 struct PID {
     double Kp, Ki, Kd;
     double previous_error, integral;
 };
-static double pid_control(PID &pid, double error);
-static void Capture(void); 
-static void motor_cntrol(double left_motor_speed , double right_motor_speed);
-static cv::Mat Capture(void);
-static cv::Mat RectFrame(const cv::Mat& frame);
-static cv::Mat createMask(const cv::Mat& hsv, const std::string& color);
-static cv::Mat Morphology(const cv::Mat& mask);
-static void PIDMotor(PID &pid);
-static void Show(void);
+
+double pid_control(PID &pid, double error);
+void controlMotorsWithPID(PID &pid);
+void Capture(void); 
+void motor_cntrol(double left_motor_speed, double right_motor_speed);
+cv::Mat Capture(void);
+cv::Mat RectFrame(const cv::Mat& frame);
+cv::Mat createMask(const cv::Mat& hsv, const std::string& color);
+cv::Mat Morphology(const cv::Mat& mask);
+void PIDMotor(PID &pid);
+void Show(void);
 
 extern bool follow;
 extern uint8_t scene;
 extern int cX, cY;
 extern double BASE_SPEED;
+
 /* カラーセンサの輝度設定 */
 constexpr int WHITE_BRIGHTNESS = 180;
 constexpr int BLACK_BRIGHTNESS = 10;
 
-/*カメラの閾値設定*/
+/* カメラの閾値設定 */
 constexpr int THRESHOLDVALUE = 25;
 constexpr int MAXBINARYVALUE = 255;
 
-/*カメラのトリミング*/
+/* カメラのトリミング */
 constexpr int TRIMY = 240;
 constexpr int TRIMH = 60;
 
