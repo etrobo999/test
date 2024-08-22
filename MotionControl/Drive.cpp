@@ -14,6 +14,6 @@ void Drive::setMotorSpeeds(double leftSpeed, double rightSpeed) {
     leftSpeed = std::max(std::min(leftSpeed, 100.0), -100.0);
     rightSpeed = std::max(std::min(rightSpeed, 100.0), -100.0);
 
-    mLeftWheel.setPWM(leftSpeed);
-    mRightWheel.setPWM(rightSpeed);
+    mLeftWheel.setPWM(static_cast<int>(leftSpeed));
+    mRightWheel.setPWM(static_cast<int>(rightSpeed));
 }

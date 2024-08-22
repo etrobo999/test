@@ -1,9 +1,14 @@
-﻿#include "app.h"
-#include "ScenarioList.h"
+﻿/******************************************************************************
+ *  app.cpp (for LEGO Mindstorms EV3)
+ *  Created on: 2015/01/25
+ *  Implementation of the Task main_task
+ *  Author: Kazuhiro.Kawachi
+ *  Copyright (c) 2015 Embedded Technology Software Design Robot Contest
+ *****************************************************************************/
 
-// デストラクタ問題の回避
-// https://github.com/ETrobocon/etroboEV3/wiki/problem_and_coping
-void *__dso_handle=0;
+#include "app.h"
+#include "ScenarioList.h"
+#include "Drive.h"
 
 // using宣言
 using ev3api::ColorSensor;
@@ -20,9 +25,9 @@ Motor       gRightWheel(PORT_B);
 Clock       gClock;
 
 // オブジェクトの定義
-static Starter            *gStarter;
-static ScenarioList       *gScenarioList;  // グローバル変数名に "g" を追加
-static Drive              *gDrive;
+static Starter         *gStarter;
+static ScenarioList    *gScenarioList;  // グローバル変数名に "g" を追加
+static Drive           *gDrive;
 
 /**
  * EV3システム生成
@@ -32,9 +37,9 @@ static void user_system_create() {
     tslp_tsk(2U * 1000U);
 
     // オブジェクトの作成
-    gStarter          = new Starter(gTouchSensor);
+    gStarter         = new Starter(gTouchSensor);
     gDrive            = new Drive(gLeftWheel, gRightWheel);
-    gScenarioList     = new ScenarioList();  // ScenarioListのインスタンスを作成
+    gScenarioList     = new ScenarioList(gStarter);  // ScenarioListのインスタンスを作成
 
     // 初期化完了通知
     ev3_led_set_color(LED_ORANGE);
@@ -46,6 +51,7 @@ static void user_system_create() {
 static void user_system_destroy() {
     gLeftWheel.reset();
     gRightWheel.reset();
+
     delete gStarter;
     delete gDrive;
     delete gScenarioList;  // "g" プレフィックスを付けた変数名を使用
