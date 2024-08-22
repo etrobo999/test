@@ -26,8 +26,6 @@ static const motor_port_t
     right_motor     = EV3_PORT_B;
 
 
-extern cv::VideoCapture camera;
-
 #ifndef STACK_SIZE
 #define STACK_SIZE      (4096)
 #endif /* STACK_SIZE */
