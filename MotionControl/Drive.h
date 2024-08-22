@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ev3api.h"
 #include "Motor.h"
 
 class Drive {

@@ -1,16 +1,18 @@
 #include "ScenarioList.h"
 #include "DoubleLoopScenario.h"
 
-extern Starte* gStarte;
-ScenarioList::ScenarioList() : ScenarioNo(0), ScenarioComplete(false) {
+extern Starter* gStarter;
+
+ScenarioList::ScenarioList() : scenarioNo(0), scenarioComplete(false) {
 }
 
 void ScenarioList::executeScenario() {
-    switch (ScenarioNo) {
+    switch (scenarioNo) {
         case 0:
-             if (gStarte->isPushed()) {
-                    incrementScenarioNo();  // 次のシナリオへ移行
+            if (gStarter->isPushed()) {
+                incrementScenarioNo();  // 次のシナリオへ移行
             }
+            break;
         case 1:
             scenarioBox = std::make_unique<DoubleLoopScenario>();  // ダブルループシナリオクラスを生成
             incrementScenarioNo();
@@ -22,20 +24,21 @@ void ScenarioList::executeScenario() {
             }
             break;
         case 3:
-
+            // シナリオの処理が完了した後の処理を追加するか、空であることを明示
+            break;
         default:
             break;
     }
 }
 
 void ScenarioList::incrementScenarioNo() {
-    ScenarioNo++;  // シナリオ番号を1つ進める
+    scenarioNo++;  // シナリオ番号を1つ進める
 }
 
-void ScenarioList::ScenariomarkCompletion() {
-    ScenarioComplete = true;  // 完了フラグを設定
+void ScenarioList::markCompletion() {
+    scenarioComplete = true;  // 完了フラグを設定
 }
 
-bool ScenarioList::ScenarioCompletion() const {
-    return ScenarioComplete;
+bool ScenarioList::isCompleted() const {
+    return scenarioComplete;
 }

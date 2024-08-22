@@ -39,10 +39,7 @@ void DoubleLoopScenario::execute() {
 }
 
 void DoubleLoopScenario::update() {
-    if (isComplete) {
         sceneNo += 1;  // 次のシーンへ移行
-        isComplete = false;  // フラグをリセット
-    }
 }
 
 void DoubleLoopScenario::markCompletion() {

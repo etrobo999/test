@@ -22,7 +22,8 @@ Clock       gClock;
 // オブジェクトの定義
 static Starter            *gStarter;
 static ScenarioList       *gScenarioList;  // グローバル変数名に "g" を追加
-static Drive              *gDrive
+static Drive              *gDrive;
+
 /**
  * EV3システム生成
  */
@@ -32,7 +33,7 @@ static void user_system_create() {
 
     // オブジェクトの作成
     gStarter          = new Starter(gTouchSensor);
-    gDrive            = new Drive(gLeftWheel, gRightWheel)
+    gDrive            = new Drive(gLeftWheel, gRightWheel);
     gScenarioList     = new ScenarioList();  // ScenarioListのインスタンスを作成
 
     // 初期化完了通知
@@ -73,8 +74,8 @@ void main_task(intptr_t unused) {
  * ライントレースタスク
  */
 void tracer_task(intptr_t exinf) {
-    if (gScenarioList->ScenarioCompletion()) {
-        wup_tsk(MAIN_TASK);  // バックボタン押下
+    if (gScenarioList->isCompleted()) {
+        wup_tsk(MAIN_TASK); 
     } else {
         gScenarioList->executeScenario();  // 修正されたクラス名でメソッドを呼び出す
     }

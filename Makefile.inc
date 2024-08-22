@@ -1,9 +1,6 @@
 mkfile_path := $(dir $(lastword $(MAKEFILE_LIST)))
 INCLUDE_DIRS = -I/usr/local/include/opencv4
 
-# C言語のオブジェクトファイル
-APPL_COBJS +=
-
 # C++言語のオブジェクトファイル
 APPL_CXXOBJS += \
 	ScenarioList.o \
@@ -35,14 +32,6 @@ INCLUDES += \
 
 # プログラム言語設定
 SRCLANG := c++
-
-# EV3RTアプリケーションの設定がある場合
-ifdef CONFIG_EV3RT_APPLICATION
-
-# ライブラリのインクルード
-include $(EV3RT_SDK_LIB_DIR)/libcpp-ev3/Makefile
-
-endif
 
 # コンパイルオプション
 # COPTS += -fno-use-cxa-atexit
