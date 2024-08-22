@@ -6,16 +6,22 @@
 extern "C" {
 #endif
 
-/* 関数宣言 */
+/* PID構造体の宣言 */
 struct PID {
     double Kp, Ki, Kd;
     double previous_error, integral;
 };
 
+/* C言語用の関数宣言（C++の関数には不要） */
+void motor_cntrol(double left_motor_speed, double right_motor_speed);
+
+#ifdef __cplusplus
+}
+#endif
+
 double pid_control(PID &pid, double error);
 void controlMotorsWithPID(PID &pid);
 void Capture(void); 
-void motor_cntrol(double left_motor_speed, double right_motor_speed);
 cv::Mat Capture(void);
 cv::Mat RectFrame(const cv::Mat& frame);
 cv::Mat createMask(const cv::Mat& hsv, const std::string& color);
@@ -47,7 +53,3 @@ constexpr int ALLB_Y2 = TRIMH;
 
 /* ステアリング操舵量の係数 */
 constexpr float STEERING_COEF = 0.2F;
-
-#ifdef __cplusplus
-}
-#endif

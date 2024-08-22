@@ -3,7 +3,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include <opencv2/opencv.hpp>
 #include "ev3api.h"
 
 /* タスク優先度 */
