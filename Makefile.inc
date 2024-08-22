@@ -3,7 +3,6 @@ mkfile_path := $(dir $(lastword $(MAKEFILE_LIST)))
 APPL_CXXOBJS += \
 	Starter.o \
 	ScenarioList.o \
-	Drive.o \
 	DoubleLoopScenario.o
 
 SRCLANG := c++
@@ -17,10 +16,8 @@ endif
 
 APPL_DIRS += \
 	$(mkfile_path)scenario_handler \
-	$(mkfile_path)unit \
-	$(mkfile_path)MotionControl
+	$(mkfile_path)unit 
 
 INCLUDES += \
 	-I$(mkfile_path)scenario_handler \
-	-I$(mkfile_path)unit \
-	-I$(mkfile_path)MotionControl
+	-I$(mkfile_path)unit 
