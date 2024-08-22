@@ -54,7 +54,7 @@ void tracer_task(intptr_t unused) {
     case 11:
         BASE_SPEED = 80.0;
         frame = Capture();
-        tie(rectframe, hsv) = RectFrame(frame);
+        std::tie(rectframe, hsv) = RectFrame(frame);
         mask = createMask(hsv, "black");
         morphed = Morphology(mask);
         tie(cX, cY, result_frame) = ProcessContours(morphed);
@@ -204,10 +204,9 @@ static Mat Capture(void){
 static Mat RectFrame(const Mat& frame) {
     Mat rectframe, hsv;
     rectframe = frame(Rect(140, 240, 360, 60));
-    cvtColor(rectframe, hsv, COOR_BGR2HSV);
-    return make_tuple(rectframe, hsv);
+    cvtColor(rectframe, hsv, COLOR_BGR2HSV);
+    return std::make_tuple(rectframe, hsv);
 }
-
 
 /* マスク変換 */
 static Mat createMask(const Mat& hsv, const std::string& color) {
@@ -215,11 +214,11 @@ static Mat createMask(const Mat& hsv, const std::string& color) {
 
     if (color == "red") {
         Mat mask1, mask2;
-        inRange(hsv_frame, color_bounds["red_low"].first, color_bounds["red_low"].second, mask1);
-        inRange(hsv_frame, color_bounds["red_high"].first, color_bounds["red_high"].second, mask2);
+        inRange(hsv, color_bounds["red_low"].first, color_bounds["red_low"].second, mask1);
+        inRange(hsv, color_bounds["red_high"].first, color_bounds["red_high"].second, mask2);
         mask = mask1 | mask2;  // 両方のマスクを統合
     } else {
-        inRange(hsv_frame, color_bounds[color].first, color_bounds[color].second, mask);
+        inRange(hsv, color_bounds[color].first, color_bounds[color].second, mask);
     }
 
     return mask;
