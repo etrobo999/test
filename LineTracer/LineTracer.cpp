@@ -5,6 +5,9 @@
 #include <stdio.h>
 #include <iostream>
 #include <bitset>
+#include <pthread.h>
+#include <mutex>
+#include <condition_variable>
 
 using namespace std;
 using namespace cv;
@@ -17,12 +20,69 @@ double BASE_SPEED = 0.0;
 bool follow = true;
 Mat frame, rectframe, hsv, mask, morphed, result_frame;
 raspicam::RaspiCam_Cv Camera;
+std::mutex mtx;
+std::condition_variable cv;
+bool frame_ready = false;
 
+
+void* opencv_thread_func(void* arg) {
+    // シグナルマスクの設定
+    sigset_t set;
+    sigemptyset(&set);
+    sigaddset(&set, SIGUSR2);  // ASPカーネルが使用するシグナルをマスク
+    sigaddset(&set, SIGPOLL);  // その他のカーネルシグナルをマスク
+    sigaddset(&set, SIGALRM);  // タイマーシグナルをマスク
+    pthread_sigmask(SIG_BLOCK, &set, NULL);
+
+    // カメラ初期化 (一度だけ行う)
+    Camera.set(cv::CAP_PROP_FRAME_WIDTH, 640);
+    Camera.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
+    Camera.set(cv::CAP_PROP_FORMAT, CV_8UC3);
+    Camera.set(cv::CAP_PROP_AUTO_WB, 1);
+    if (!Camera.open()) {
+        cerr << "Error: !Camera.open" << endl;
+        pthread_exit(NULL);
+    }
+
+    while (true) {
+        Camera.grab();
+        Mat temp_frame;
+        Camera.retrieve(temp_frame);
+
+        if (temp_frame.empty()) {
+            cerr << "frame.empty" << endl;
+            continue;
+        }
+
+        // 取得したフレームを共有変数にコピー
+        {
+            std::lock_guard<std::mutex> lock(mtx);
+            temp_frame.copyTo(frame);
+            frame_ready = true;
+        }
+
+        // メインタスクにフレームが準備できたことを通知
+        cv.notify_one();
+    }
+
+    pthread_exit(NULL);
+}
 
 /* ライントレースタスク(50msec周期で関数コールされる) */
 void tracer_task(intptr_t unused) {
+    pthread_t opencv_thread;
+
+    // OpenCVスレッドを作成
+    if (pthread_create(&opencv_thread, NULL, opencv_thread_func, NULL) != 0) {
+        cerr << "Error: Failed to create OpenCV thread" << endl;
+        return;
+    }
+
     bool ext = true;
+    
     while (true){
+        std::unique_lock<std::mutex> lock(mtx);
+        cv.wait(lock, [] { return frame_ready; });
         switch (scene) {
         /* 初期化処理 */
         case 1:
@@ -35,29 +95,12 @@ void tracer_task(intptr_t unused) {
         case 8:
         case 9:
         case 10:
-            Camera.set(cv::CAP_PROP_FRAME_WIDTH, 640);
-            Camera.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
-            Camera.set(cv::CAP_PROP_FORMAT, CV_8UC3);
-
-            // 自動ホワイトバランスを有効にする
-            Camera.set(cv::CAP_PROP_AUTO_WB, 1);
-            if (!Camera.open()) {
-                cerr << "Error: !Camera.open" << endl;
-            }
-            cout << "Case 10" << endl;
             scene = 11;
             break;
-
         ///////////////////////////////////////////////////////////////
 
         case 11:
             BASE_SPEED = 80.0;
-            std::cout << "Case 1" << std::endl;
-            frame = Capture();
-            if (frame.empty()) {
-            cerr << "frame.empty" << endl;
-            break;
-            }
             std::cout << "Case 2" << std::endl;
             tie(rectframe, hsv) = RectFrame(frame);
             std::cout << "Case 3" << std::endl;
@@ -195,12 +238,13 @@ void tracer_task(intptr_t unused) {
             std::cout << "Default case" << std::endl;
             break;
         }
+        frame_ready = false;
     }
     /* タスク終了 */
     ext_tsk(); // タスクを終了
 }
 
-/* フレームの取得処理 */
+/* フレームの取得処理 
 static Mat Capture(void){
     Mat frame;
     Camera.grab();
@@ -210,7 +254,7 @@ static Mat Capture(void){
         return Mat(); // 空の Mat オブジェクトを返す
     }
     return frame; // 獲得したフレームを返す
-}
+}                                                   */
 
 
 /* フレームのトリミング＆HSV変換 */
