@@ -122,7 +122,7 @@ void tracer_task(intptr_t unused) {
         case 10:
             cout << getTime(1) <<endl;
             scene = 11;
-            startTimer(1)
+            startTimer(1);
             break;
 
 //////////////////////////////////////////////////////////////////////
