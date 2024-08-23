@@ -353,7 +353,7 @@ static std::tuple<int, int, Mat> ProcessContours(const Mat& morphed) {
         cv::Moments M = cv::moments(*target_contour);
         if (M.m00 != 0) {
         cX = static_cast<int>(M.m10 / M.m00);
-        Y = static_cast<int>(M.m01 / M.m00);
+        cY = static_cast<int>(M.m01 / M.m00);
         } else {
         std::cerr << "Error: m00 is zero, cannot calculate centroid" << std::endl;
         }
