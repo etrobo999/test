@@ -29,7 +29,7 @@ std::chrono::high_resolution_clock::time_point start_time3;
 
 std::mutex mtx;
 std::condition_variable condition_var;
-Mat frame, rectframe, hsv, mask, mask1, mask2, morphed, result_frame;
+Mat frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, morphed2, result_frame;
 
 /*使用する変数の初期化*/
 uint8_t scene = 1;
@@ -220,7 +220,6 @@ void tracer_task(intptr_t unused) {
             if(getTime(1) >=2){
                 scene = 21;
             }
-            scene = 21;
             std::cout << "Case 20" << std::endl;
             break;
 
@@ -232,32 +231,92 @@ void tracer_task(intptr_t unused) {
             BASE_SPEED = 70.0;
             scene++;
             break;
-        case 22:
-
+        case 22://シーン1
+            tie(rectframe, hsv) = RectFrame(frame);
+            createMask(hsv, "blue_black"); //Mask,Mask1
+            morphed = Morphology(mask);
+            morphed1 = Morphology(mask1); //青色モル
+            tie(cX, cY) = ProcessContours(morphed);
+            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
+            PIDMotor(straightpid);
+            if(detectCheck(morphed1,2000)){
+                scene++;
+            }
             std::cout << "Case 22" << std::endl;
             break;
-        case 23:
-            std::cout << "Case 23" << std::endl;
+        case 23://設定の読み込み
+            BASE_SPEED = 70.0;
+            follow = false;
+            scene++;
+            std::cout << follow << std::endl;
             break;
-        case 24:
+        case 24://シーン2
+            tie(rectframe, hsv) = RectFrame(frame);
+            createMask(hsv, "blue_black"); //Mask,Mask1
+            morphed = Morphology(mask);
+            morphed1 = Morphology(mask1); //青色モル
+            tie(cX, cY) = ProcessContours(morphed);
+            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
+            PIDMotor(Mcurvetpid);
+            if(detectCheck(morphed1,2000)){
+                scene++;
+            }
             std::cout << "Case 24" << std::endl;
             break;
-        case 25:
-            std::cout << "Case 25" << std::endl;
+        case 25://設定の読み込み
+            BASE_SPEED = 60.0;
+            follow = true;
+            scene++;
+            std::cout << follow << std::endl;
             break;
-        case 26:
+        case 26://シーン3
+            tie(rectframe, hsv) = RectFrame(frame);
+            createMask(hsv, "blue_black"); //Mask,Mask1
+            morphed = Morphology(mask);
+            morphed1 = Morphology(mask1); //青色モル
+            tie(cX, cY) = ProcessContours(morphed);
+            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
+            PIDMotor(Scurvetpid);
+            if(detectCheck(morphed1,2000)){
+                scene++;
+            }
             std::cout << "Case 26" << std::endl;
             break;
-        case 27:
-            std::cout << "Case 27" << std::endl;
+        case 27://設定の読み込み
+            BASE_SPEED = 60.0;
+            follow = false;
+            scene++;
+            std::cout << follow << std::endl;
             break;
-        case 28:
+        case 28://シーン4
+            tie(rectframe, hsv) = RectFrame(frame);
+            createMask(hsv, "blue_black"); //Mask,Mask1
+            morphed = Morphology(mask);
+            morphed1 = Morphology(mask1); //青色モル
+            tie(cX, cY) = ProcessContours(morphed);
+            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
+            PIDMotor(Mcurvetpid);
+            if(detectCheck(morphed1,2000)){
+                scene++;
+            }
             std::cout << "Case 28" << std::endl;
             break;
-        case 29:
-            std::cout << "Case 29" << std::endl;
+        case 29://設定の読み込み
+            BASE_SPEED = 90.0;
+            follow = true;
+            scene++;
+            std::cout << follow << std::endl;
             break;
         case 30:
+            tie(rectframe, hsv) = RectFrame(frame);
+            createMask(hsv, "black");
+            morphed = Morphology(mask);
+            tie(cX, cY) = ProcessContours(morphed);
+            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
+            PIDMotor(straightpid);         
+            if(getTime(1) >=2){
+                scene++;
+            }
             std::cout << "Case 30" << std::endl;
             break;
         case 31:
@@ -442,13 +501,12 @@ static std::tuple<int, int> ProcessContours(const Mat& morphed) {
         cX = static_cast<int>(M.m10 / M.m00);
         cY = static_cast<int>(M.m01 / M.m00);
         // 重心を描画
-        result_frame = rectframe.clone(); // 描画用にフレームをコピー
-        cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(255, 0, 0), -1);
-        cv::imshow("result_frame", result_frame);
-        cv::waitKey(1);
     }else{
         stop_count++;
     }
+    result_frame = rectframe.clone(); // 描画用にフレームをコピー
+    cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(255, 0, 0), -1);
+    Show(result_frame)
     // 結果をタプルで返す (重心のx座標, y座標, 描画済みフレーム)
     return std::make_tuple(cX, cY);
 }
