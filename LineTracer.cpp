@@ -96,7 +96,9 @@ void tracer_task(intptr_t unused) {
         case 8:
         case 9:
         case 10:
+            if(ev3_touch_sensor_is_pressed(touch_sensor)){;
             scene = 11;
+            }
             break;
         ///////////////////////////////////////////////////////////////
 
@@ -108,7 +110,6 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY, result_frame) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);         
-            std::cout << "Case 7" << std::endl;
             cout << "Case 11" << endl;
             break;
         case 12:
