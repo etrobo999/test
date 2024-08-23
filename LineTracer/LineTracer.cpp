@@ -23,6 +23,10 @@ PID Scurvetpid = {0.12, 0, 0, 0, 0}; //ゆっくりカーブPID
 
 
 /*使用する変数の宣言*/
+std::chrono::high_resolution_clock::time_point start_time1;
+std::chrono::high_resolution_clock::time_point start_time2;
+std::chrono::high_resolution_clock::time_point start_time3;
+
 std::mutex mtx;
 std::condition_variable condition_var;
 Mat frame, rectframe, hsv, mask, morphed, result_frame;
