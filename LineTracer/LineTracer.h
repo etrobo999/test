@@ -20,7 +20,7 @@ static cv::Mat createMask(const cv::Mat& hsv, const std::string& color);
 static cv::Mat Morphology(const cv::Mat& mask);
 static std::tuple<int, int, cv::Mat> ProcessContours(const cv::Mat& morphed);
 static void PIDMotor(PID &pid);
-static void Show(void);
+static void Show(const cv::Mat& showfreme);
 
 extern std::map<std::string, std::pair<cv::Scalar, cv::Scalar>> color_bounds;
 extern bool follow;

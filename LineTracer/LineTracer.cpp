@@ -102,18 +102,22 @@ void tracer_task(intptr_t unused) {
 
         case 11:
             BASE_SPEED = 80.0;
+            Show(frame);
             std::cout << "Case 2" << std::endl;
             tie(rectframe, hsv) = RectFrame(frame);
+            Show(hsv);
             std::cout << "Case 3" << std::endl;
             mask = createMask(hsv, "black");
+            Show(mask);
             std::cout << "Case 4" << std::endl;
             morphed = Morphology(mask);
+            Show(morphed);
             std::cout << "Case 5" << std::endl;
             tie(cX, cY, result_frame) = ProcessContours(morphed);
             std::cout << "Case 6" << std::endl;
             PIDMotor(straightpid);
+            Show(result_frame);            
             std::cout << "Case 7" << std::endl;
-            Show();
             std::cout << "Case 8" << std::endl;
             cout << "Case 11" << endl;
             break;
@@ -299,7 +303,7 @@ static std::tuple<int, int, Mat> ProcessContours(const Mat& morphed) {
     std::vector<std::vector<cv::Point>> contours;
     findContours(morphed, contours, RETR_TREE, CHAIN_APPROX_SIMPLE);
 
-    const double min_contour_area = 1500.0; // ピクセル数
+    const double min_contour_area = 1000.0; // ピクセル数
 
     // 最大の輪郭と2番目に大きい輪郭を見つける
     std::vector<cv::Point>* largest_contour = nullptr;
@@ -401,8 +405,8 @@ static void motor_cntrol(double left_motor_speed , double right_motor_speed){
 
 
 /* 画像の表示 */
-static void Show(void){
-    cv::imshow("result_frame", result_frame);
+static void Show(const Mat& showfreme){
+    cv::imshow("showfreme", showfreme);
     cv::waitKey(1);
     return;
 }
