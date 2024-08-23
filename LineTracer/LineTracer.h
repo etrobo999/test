@@ -1,6 +1,7 @@
 #pragma once
 #include <opencv2/opencv.hpp>
 #include <cstdint>
+#include <chrono>
 #include <string>
 #include <map>
 #ifdef __cplusplus
@@ -21,6 +22,12 @@ static cv::Mat Morphology(const cv::Mat& mask);
 static std::tuple<int, int, cv::Mat> ProcessContours(const cv::Mat& morphed);
 static void PIDMotor(PID &pid);
 static void Show(const cv::Mat& showfreme);
+
+extern std::chrono::high_resolution_clock::time_point start_time1;
+extern std::chrono::high_resolution_clock::time_point start_time2;
+extern std::chrono::high_resolution_clock::time_point start_time3;
+static void startTimer(int timer_id);
+static double getTime(int timer_id);
 
 extern std::map<std::string, std::pair<cv::Scalar, cv::Scalar>> color_bounds;
 extern bool follow;
