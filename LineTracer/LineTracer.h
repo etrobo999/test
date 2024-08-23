@@ -22,7 +22,7 @@ static std::tuple<int, int, cv::Mat> ProcessContours(const cv::Mat& morphed);
 static void PIDMotor(PID &pid);
 static void Show(void);
 
-extern static std::map<std::string, std::pair<cv::Scalar, cv::Scalar>> color_bounds;
+extern std::map<std::string, std::pair<cv::Scalar, cv::Scalar>> color_bounds;
 extern bool follow;
 extern uint8_t scene;
 extern int cX, cY;

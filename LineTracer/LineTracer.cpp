@@ -355,7 +355,7 @@ static double pid_control(PID &pid, double error) {
 }
 
 
-static std::map<std::string, std::pair<Scalar, Scalar>> color_bounds = {
+std::map<std::string, std::pair<Scalar, Scalar>> color_bounds = {
     {"black", {Scalar(0, 0, 0), Scalar(180, 255, 50)}},  // 黒色
     {"blue", {Scalar(100, 150, 0), Scalar(140, 255, 255)}},  // 青色
     {"red_low", {Scalar(0, 100, 100), Scalar(10, 255, 255)}},  // 赤色（低範囲）
