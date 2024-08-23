@@ -51,8 +51,8 @@ void* opencv_thread_func(void* arg) {
     pthread_sigmask(SIG_BLOCK, &set, NULL);
 
     // カメラ初期化 (一度だけ行う)
-    Camera.set(cv::CAP_PROP_FRAME_WIDTH, 360);
-    Camera.set(cv::CAP_PROP_FRAME_HEIGHT, 240);
+    Camera.set(cv::CAP_PROP_FRAME_WIDTH, 640);
+    Camera.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
     Camera.set(cv::CAP_PROP_FORMAT, CV_8UC3);
     Camera.set(cv::CAP_PROP_AUTO_WB, 1);
     if (!Camera.open()) {
@@ -110,13 +110,13 @@ void tracer_task(intptr_t unused) {
             break;
         case 2: //画面表示・ボタンでスタート
             tie(rectframe, hsv) = RectFrame(frame);
-            mask = createMask(hsv, "black");
+/*            mask = createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY, result_frame) = ProcessContours(morphed);
             cout << "Centroid: (" << cX << ", " << cY << ")" <<endl;
             if(ev3_touch_sensor_is_pressed(touch_sensor)){
                 scene = 3;
-            };
+            };*/
             cout << getTime(2) <<endl;
             startTimer(2);
             break;
@@ -341,7 +341,7 @@ static Mat Capture(void){
 /* フレームのトリミング＆HSV変換 */
 static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
     Mat rectframe, hsv;
-    rectframe = frame(Rect(0, 120, 360, 60));
+    rectframe = frame(Rect(140, 240, 360, 60));
     cvtColor(rectframe, hsv, COLOR_BGR2HSV);
     return make_tuple(rectframe, hsv);
 }
