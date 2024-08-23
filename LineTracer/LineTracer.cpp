@@ -144,7 +144,7 @@ void tracer_task(intptr_t unused) {
             break;
         case 12: //第一ストレート
             tie(rectframe, hsv) = RectFrame(frame);
-            mask = createMask(hsv, "black");
+            createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
@@ -161,7 +161,7 @@ void tracer_task(intptr_t unused) {
             break;
         case 14: //第一急カーブ
             tie(rectframe, hsv) = RectFrame(frame);
-            mask = createMask(hsv, "black");
+            createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
@@ -178,7 +178,7 @@ void tracer_task(intptr_t unused) {
             break;
         case 16: //第二ストレート
             tie(rectframe, hsv) = RectFrame(frame);
-            mask = createMask(hsv, "black");
+            createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
@@ -195,7 +195,7 @@ void tracer_task(intptr_t unused) {
             break;
         case 18: //第二急カーブ
             tie(rectframe, hsv) = RectFrame(frame);
-            mask = createMask(hsv, "black");
+            createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
@@ -212,7 +212,7 @@ void tracer_task(intptr_t unused) {
             break;
         case 20: //第二ストレート
             tie(rectframe, hsv) = RectFrame(frame);
-            mask = createMask(hsv, "black");
+            createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
