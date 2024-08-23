@@ -13,19 +13,30 @@
 using namespace std;
 using namespace cv;
 
-PID straightpid = {0.1, 0, 0, 0, 0}; 
+raspicam::RaspiCam_Cv Camera;
+
+/*PIDインスタンス生成*/
+PID straightpid = {0.1, 0, 0, 0, 0}; //ストレートPID
+PID Bcurvetpid = {0.18, 0, 0, 0, 0}; //急カーブPID
+PID Mcurvetpid = {0.14, 0, 0, 0, 0}; //ちょうどいいカーブPID
+PID Scurvetpid = {0.12, 0, 0, 0, 0}; //ゆっくりカーブPID
+
+
+/*使用する変数の宣言*/
+std::mutex mtx;
+std::condition_variable condition_var;
+Mat frame, rectframe, hsv, mask, morphed, result_frame;
+
+/*使用する変数の初期化*/
 uint8_t scene = 1;
 int cX = 0;
 int cY = 0;
 double BASE_SPEED = 0.0;
 bool follow = true;
-Mat frame, rectframe, hsv, mask, morphed, result_frame;
-raspicam::RaspiCam_Cv Camera;
-std::mutex mtx;
-std::condition_variable condition_var;
 bool frame_ready = false;
 
 
+/*なんかすごいcameraの処理*/
 void* opencv_thread_func(void* arg) {
     // シグナルマスクの設定
     sigset_t set;
@@ -69,7 +80,7 @@ void* opencv_thread_func(void* arg) {
     pthread_exit(NULL);
 }
 
-/* ライントレースタスク(50msec周期で関数コールされる) */
+/*走行時の根本プログラム*/
 void tracer_task(intptr_t unused) {
     pthread_t opencv_thread;
 
@@ -78,16 +89,29 @@ void tracer_task(intptr_t unused) {
         cerr << "Error: Failed to create OpenCV thread" << endl;
         return;
     }
-
     bool ext = true;
     
-    while (true){
+    while (ext){
         std::unique_lock<std::mutex> lock(mtx);
         condition_var.wait(lock, [] { return frame_ready; });
         switch (scene) {
-        /* 初期化処理 */
+
+//////////////////////////////////////////////////////////////////////
+////////　　　　　　スタート処理　　　　　　　　　　/////////////////////
+//////////////////////////////////////////////////////////////////////
+
         case 1:
-        case 2:
+            startTimer(1);
+        case 2: //画面表示・ボタンでスタート
+            tie(rectframe, hsv) = RectFrame(frame);
+            mask = createMask(hsv, "black");
+            morphed = Morphology(mask);
+            tie(cX, cY, result_frame) = ProcessContours(morphed);
+            cout << "Centroid: (" << cX << ", " << cY << ")" <<endl;
+            if(ev3_touch_sensor_is_pressed(touch_sensor)){
+                scene++;
+            };
+            break;
         case 3:
         case 4:
         case 5:
@@ -96,21 +120,16 @@ void tracer_task(intptr_t unused) {
         case 8:
         case 9:
         case 10:
-            tie(rectframe, hsv) = RectFrame(frame);
-            mask = createMask(hsv, "black");
-            morphed = Morphology(mask);
-            tie(cX, cY, result_frame) = ProcessContours(morphed);
-            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
-            if(ev3_touch_sensor_is_pressed(touch_sensor)){;
+            cout << getTime(1) <<endl;
             scene = 11;
-            }
+            startTimer(1)
             break;
 
 //////////////////////////////////////////////////////////////////////
-////////　　　　　　　　ストレート　　　　　　　　　/////////////////////
+////////　　　　　　難所前ライントレース　　　　　　/////////////////////
 //////////////////////////////////////////////////////////////////////
 
-        case 11:
+        case 11: //開幕ストレート
             BASE_SPEED = 80.0;
             tie(rectframe, hsv) = RectFrame(frame);
             mask = createMask(hsv, "black");
@@ -144,6 +163,11 @@ void tracer_task(intptr_t unused) {
         case 19:
             std::cout << "Case 19" << std::endl;
             break;
+
+//////////////////////////////////////////////////////////////////////
+////////　　　　　　　　第一難所　　　　　　　　　　/////////////////////
+//////////////////////////////////////////////////////////////////////
+
         case 20:
             std::cout << "Case 20" << std::endl;
             break;
@@ -278,6 +302,12 @@ static Mat createMask(const Mat& hsv, const std::string& color) {
         inRange(hsv, color_bounds["red_low"].first, color_bounds["red_low"].second, mask1);
         inRange(hsv, color_bounds["red_high"].first, color_bounds["red_high"].second, mask2);
         mask = mask1 | mask2;  // 両方のマスクを統合
+    } else if (color == "blue_black") {
+        Mat mask1, mask2;
+        inRange(hsv, color_bounds["blue"].first, color_bounds["blue"].second, mask1);
+        inRange(hsv, color_bounds["black"].first, color_bounds["black"].second, mask2);
+        mask = mask1 |         mask = mask1 | mask2;  // 両方のマスクを統合
+;  // 青と黒のマスクを統合
     } else {
         inRange(hsv, color_bounds[color].first, color_bounds[color].second, mask);
     }
@@ -434,3 +464,30 @@ std::map<std::string, std::pair<Scalar, Scalar>> color_bounds = {
     {"yellow", {Scalar(20, 100, 100), Scalar(30, 255, 255)}},  // 黄色
     {"green", {Scalar(40, 50, 50), Scalar(80, 255, 255)}}  // 緑色
 };
+
+// 時間のカウント開始
+static void startTimer(int timer_id) {
+    if (timer_id == 1) {
+        start_time1 = std::chrono::high_resolution_clock::now();
+    } else if (timer_id == 2) {
+        start_time2 = std::chrono::high_resolution_clock::now();
+    } else if (timer_id == 3) {
+        start_time3 = std::chrono::high_resolution_clock::now();
+    }
+}
+
+// 経過時間を取得する関数 (秒単位, 小数点以下2桁)
+static double getTime(int timer_id) {
+    auto end_time = std::chrono::high_resolution_clock::now();
+    
+    if (timer_id == 1) {
+        return std::chrono::duration_cast<std::chrono::duration<double>>(end_time - start_time1).count();
+    } else if (timer_id == 2) {
+        return std::chrono::duration_cast<std::chrono::duration<double>>(end_time - start_time2).count();
+    } else if (timer_id == 3) {
+        return std::chrono::duration_cast<std::chrono::duration<double>>(end_time - start_time3).count();
+    } else {
+        std::cerr << "Error: Invalid timer ID " << timer_id << std::endl;
+        return 0.0;
+    }
+}
