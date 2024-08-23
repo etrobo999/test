@@ -83,7 +83,7 @@ void tracer_task(intptr_t unused) {
     
     while (true){
         std::unique_lock<std::mutex> lock(mtx);
-        cv.wait(lock, [] { return frame_ready; });
+        condition_var.wait(lock, [] { return frame_ready; });
         switch (scene) {
         /* 初期化処理 */
         case 1:
