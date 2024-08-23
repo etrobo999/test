@@ -5,9 +5,6 @@
 #include <stdio.h>
 #include <iostream>
 #include <bitset>
-#include <map>
-#include <string>
-
 
 using namespace std;
 using namespace cv;
