@@ -105,6 +105,9 @@ void tracer_task(intptr_t unused) {
 //////////////////////////////////////////////////////////////////////
 
         case 1:
+            startTimer(2);
+            scene++;
+            break;
         case 2: //画面表示・ボタンでスタート
             tie(rectframe, hsv) = RectFrame(frame);
             mask = createMask(hsv, "black");
@@ -114,6 +117,8 @@ void tracer_task(intptr_t unused) {
             if(ev3_touch_sensor_is_pressed(touch_sensor)){
                 scene = 3;
             };
+            cout << getTime(2) <<endl;
+            startTimer(2);
             break;
         case 3:
         case 4:
@@ -123,6 +128,7 @@ void tracer_task(intptr_t unused) {
         case 8:
         case 9:
         case 10:
+            cout << getTime(2) <<endl;
             startTimer(2);
             scene = 11;
             break;
@@ -148,6 +154,8 @@ void tracer_task(intptr_t unused) {
                 scene++;
             }
             std::cout << "Case 12" << std::endl;
+            cout << getTime(2) <<endl;
+            startTimer(2);
             break;
         case 13: //設定の読み込み
             startTimer(1);
@@ -164,6 +172,8 @@ void tracer_task(intptr_t unused) {
             if(getTime(1) >=4){
                 scene++;
             }
+            cout << getTime(2) <<endl;
+            startTimer(2);
             std::cout << "Case 14" << std::endl;
             break;
         case 15: //設定の読み込み
@@ -181,6 +191,8 @@ void tracer_task(intptr_t unused) {
             if(getTime(1) >=6){
                 scene++;
             }
+            cout << getTime(2) <<endl;
+            startTimer(2);
             std::cout << "Case 16" << std::endl;
             break;
         case 17://設定の読み込み
@@ -198,6 +210,8 @@ void tracer_task(intptr_t unused) {
             if(getTime(1) >=4){
                 scene++;
             }
+            cout << getTime(2) <<endl;
+            startTimer(2);
             std::cout << "Case 18" << std::endl;
             break;
         case 19:
