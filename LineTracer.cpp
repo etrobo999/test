@@ -13,7 +13,7 @@
 using namespace std;
 using namespace cv;
 
-PID straightpid = {0, 0, 0, 0, 0}; 
+PID straightpid = {0.1, 0, 0, 0, 0}; 
 uint8_t scene = 1;
 int cX = 0;
 int cY = 0;
@@ -107,9 +107,6 @@ void tracer_task(intptr_t unused) {
             morphed = Morphology(mask);
             tie(cX, cY, result_frame) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
-            cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(255, 0, 0), -1);
-            cv::imshow("result_frame", result_frame);
-            cv::waitKey(1);
             PIDMotor(straightpid);         
             std::cout << "Case 7" << std::endl;
             cout << "Case 11" << endl;
@@ -326,8 +323,6 @@ static std::tuple<int, int, Mat> ProcessContours(const Mat& morphed) {
     }
 
     int cX = 0, cY = 0;
-    Mat result_frame = morphed.clone(); // 描画用にフレームをコピー
-
     // 有効な輪郭が少なくとも1つある場合に処理を行う
     if (largest_contour) {
         std::vector<cv::Point>* target_contour;
@@ -354,6 +349,10 @@ static std::tuple<int, int, Mat> ProcessContours(const Mat& morphed) {
         cX = static_cast<int>(M.m10 / M.m00);
         cY = static_cast<int>(M.m01 / M.m00);
         // 重心を描画
+        result_frame = rectframe.clone(); // 描画用にフレームをコピー
+        cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(255, 0, 0), -1);
+        cv::imshow("result_frame", result_frame);
+        cv::waitKey(1);
     }
 
     // 結果をタプルで返す (重心のx座標, y座標, 描画済みフレーム)
