@@ -115,7 +115,7 @@ void tracer_task(intptr_t unused) {
             break;
         case 2: //画面表示・ボタンでスタート
             tie(rectframe, hsv) = RectFrame(frame);
-            mask = createMask(hsv, "black");
+            createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
             cout << "Centroid: (" << cX << ", " << cY << ")" <<endl;
