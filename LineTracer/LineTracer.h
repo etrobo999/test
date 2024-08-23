@@ -27,7 +27,7 @@ extern std::chrono::high_resolution_clock::time_point start_time1;
 extern std::chrono::high_resolution_clock::time_point start_time2;
 extern std::chrono::high_resolution_clock::time_point start_time3;
 static void startTimer(int timer_id);
-static double getTime(int timer_id);
+static float getTime(int timer_id);
 
 extern std::map<std::string, std::pair<cv::Scalar, cv::Scalar>> color_bounds;
 extern bool follow;

@@ -144,7 +144,7 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY, result_frame) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);         
-            if(getTime(1) >=10000){
+            if(getTime(1) >=10){
                 scene++;
             }
             std::cout << "Case 12" << std::endl;
@@ -161,7 +161,7 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY, result_frame) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Bcurvetpid);         
-            if(getTime(1) >=4000){
+            if(getTime(1) >=4){
                 scene++;
             }
             std::cout << "Case 14" << std::endl;
@@ -178,7 +178,7 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY, result_frame) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);
-            if(getTime(1) >=6000){
+            if(getTime(1) >=6){
                 scene++;
             }
             std::cout << "Case 16" << std::endl;
@@ -195,7 +195,7 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY, result_frame) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Bcurvetpid);
-            if(getTime(1) >=4000){
+            if(getTime(1) >=4){
                 scene++;
             }
             std::cout << "Case 18" << std::endl;
@@ -516,17 +516,17 @@ static void startTimer(int timer_id) {
 }
 
 // 経過時間を取得する関数 (秒単位, 小数点以下2桁)
-static double getTime(int timer_id) {
+static float getTime(int timer_id) {
     auto end_time = std::chrono::high_resolution_clock::now();
     
     if (timer_id == 1) {
-        return std::chrono::duration_cast<std::chrono::duration<double>>(end_time - start_time1).count();
+        return std::chrono::duration_cast<std::chrono::duration<float>>(end_time - start_time1).count();
     } else if (timer_id == 2) {
-        return std::chrono::duration_cast<std::chrono::duration<double>>(end_time - start_time2).count();
+        return std::chrono::duration_cast<std::chrono::duration<float>>(end_time - start_time2).count();
     } else if (timer_id == 3) {
-        return std::chrono::duration_cast<std::chrono::duration<double>>(end_time - start_time3).count();
+        return std::chrono::duration_cast<std::chrono::duration<float>>(end_time - start_time3).count();
     } else {
         std::cerr << "Error: Invalid timer ID " << timer_id << std::endl;
-        return 0.0;
+        return 0.0f;
     }
 }
