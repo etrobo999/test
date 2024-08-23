@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <bitset>
+#include <sched.h>
 #include <signal.h>
 #include <pthread.h>
 #include <mutex>
@@ -49,6 +50,10 @@ void* opencv_thread_func(void* arg) {
     sigaddset(&set, SIGPOLL);  // その他のカーネルシグナルをマスク
     sigaddset(&set, SIGALRM);  // タイマーシグナルをマスク
     pthread_sigmask(SIG_BLOCK, &set, NULL);
+
+    struct sched_param param;
+    param.sched_priority = sched_get_priority_max(SCHED_FIFO);  // 最大の優先度を設定
+    pthread_setschedparam(pthread_self(), SCHED_FIFO, &param); 
 
     // カメラ初期化 (一度だけ行う)
     Camera.set(cv::CAP_PROP_FRAME_WIDTH, 640);
