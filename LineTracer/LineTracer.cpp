@@ -21,179 +21,183 @@ raspicam::RaspiCam_Cv Camera;
 
 /* ライントレースタスク(50msec周期で関数コールされる) */
 void tracer_task(intptr_t unused) {
-    switch (scene) {
-    /* 初期化処理 */
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-    case 5:
-    case 6:
-    case 7:
-    case 8:
-    case 9:
-    case 10:
-        Camera.set(cv::CAP_PROP_FRAME_WIDTH, 640);
-        Camera.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
-        Camera.set(cv::CAP_PROP_FORMAT, CV_8UC3);
+    bool ext = true;
+    while (true){
+        switch (scene) {
+        /* 初期化処理 */
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+        case 10:
+            Camera.set(cv::CAP_PROP_FRAME_WIDTH, 640);
+            Camera.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
+            Camera.set(cv::CAP_PROP_FORMAT, CV_8UC3);
 
-        // 自動ホワイトバランスを有効にする
-        Camera.set(cv::CAP_PROP_AUTO_WB, 1);
-        if (!Camera.open()) {
-            cerr << "Error: !Camera.open" << endl;
+            // 自動ホワイトバランスを有効にする
+            Camera.set(cv::CAP_PROP_AUTO_WB, 1);
+            if (!Camera.open()) {
+                cerr << "Error: !Camera.open" << endl;
+            }
+            cout << "Case 10" << endl;
+            scene = 11;
+            break;
+
+        ///////////////////////////////////////////////////////////////
+
+        case 11:
+            BASE_SPEED = 80.0;
+            std::cout << "Case 1" << std::endl;
+            frame = Capture();
+            if (frame.empty()) {
+            cerr << "frame.empty" << endl;
+            break;
+            }
+            std::cout << "Case 2" << std::endl;
+            tie(rectframe, hsv) = RectFrame(frame);
+            std::cout << "Case 3" << std::endl;
+            mask = createMask(hsv, "black");
+            std::cout << "Case 4" << std::endl;
+            morphed = Morphology(mask);
+            std::cout << "Case 5" << std::endl;
+            tie(cX, cY, result_frame) = ProcessContours(morphed);
+            std::cout << "Case 6" << std::endl;
+            PIDMotor(straightpid);
+            std::cout << "Case 7" << std::endl;
+            Show();
+            std::cout << "Case 8" << std::endl;
+            cout << "Case 11" << endl;
+            break;
+        case 12:
+            std::cout << "Case 12" << std::endl;
+            break;
+        case 13:
+            std::cout << "Case 13" << std::endl;
+            break;
+        case 14:
+            std::cout << "Case 14" << std::endl;
+            break;
+        case 15:
+            std::cout << "Case 15" << std::endl;
+            break;
+        case 16:
+            std::cout << "Case 16" << std::endl;
+            break;
+        case 17:
+            std::cout << "Case 17" << std::endl;
+            break;
+        case 18:
+            std::cout << "Case 18" << std::endl;
+            break;
+        case 19:
+            std::cout << "Case 19" << std::endl;
+            break;
+        case 20:
+            std::cout << "Case 20" << std::endl;
+            break;
+        case 21:
+            std::cout << "Case 21" << std::endl;
+            break;
+        case 22:
+            std::cout << "Case 22" << std::endl;
+            break;
+        case 23:
+            std::cout << "Case 23" << std::endl;
+            break;
+        case 24:
+            std::cout << "Case 24" << std::endl;
+            break;
+        case 25:
+            std::cout << "Case 25" << std::endl;
+            break;
+        case 26:
+            std::cout << "Case 26" << std::endl;
+            break;
+        case 27:
+            std::cout << "Case 27" << std::endl;
+            break;
+        case 28:
+            std::cout << "Case 28" << std::endl;
+            break;
+        case 29:
+            std::cout << "Case 29" << std::endl;
+            break;
+        case 30:
+            std::cout << "Case 30" << std::endl;
+            break;
+        case 31:
+            std::cout << "Case 31" << std::endl;
+            break;
+        case 32:
+            std::cout << "Case 32" << std::endl;
+            break;
+        case 33:
+            std::cout << "Case 33" << std::endl;
+            break;
+        case 34:
+            std::cout << "Case 34" << std::endl;
+            break;
+        case 35:
+            std::cout << "Case 35" << std::endl;
+            break;
+        case 36:
+            std::cout << "Case 36" << std::endl;
+            break;
+        case 37:
+            std::cout << "Case 37" << std::endl;
+            break;
+        case 38:
+            std::cout << "Case 38" << std::endl;
+            break;
+        case 39:
+            std::cout << "Case 39" << std::endl;
+            break;
+        case 40:
+            std::cout << "Case 40" << std::endl;
+            break;
+        case 41:
+            std::cout << "Case 41" << std::endl;
+            break;
+        case 42:
+            std::cout << "Case 42" << std::endl;
+            break;
+        case 43:
+            std::cout << "Case 43" << std::endl;
+            break;
+        case 44:
+            std::cout << "Case 44" << std::endl;
+            break;
+        case 45:
+            std::cout << "Case 45" << std::endl;
+            break;
+        case 46:
+            std::cout << "Case 46" << std::endl;
+            break;
+        case 47:
+            std::cout << "Case 47" << std::endl;
+            break;
+        case 48:
+            std::cout << "Case 48" << std::endl;
+            break;
+        case 49:
+            std::cout << "Case 49" << std::endl;
+            break;
+        case 50:
+            std::cout << "Case 50" << std::endl;
+            ext = false;
+            break;
+        default:
+            std::cout << "Default case" << std::endl;
+            break;
         }
-        cout << "Case 10" << endl;
-        scene = 11;
-        break;
-
-///////////////////////////////////////////////////////////////
-
-    case 11:
-        BASE_SPEED = 80.0;
-        std::cout << "Case 1" << std::endl;
-        frame = Capture();
-        if (frame.empty()) {
-        cerr << "frame.empty" << endl;
-        break;
-        }
-        std::cout << "Case 2" << std::endl;
-        tie(rectframe, hsv) = RectFrame(frame);
-        std::cout << "Case 3" << std::endl;
-        mask = createMask(hsv, "black");
-        std::cout << "Case 4" << std::endl;
-        morphed = Morphology(mask);
-        std::cout << "Case 5" << std::endl;
-        tie(cX, cY, result_frame) = ProcessContours(morphed);
-        std::cout << "Case 6" << std::endl;
-        PIDMotor(straightpid);
-        std::cout << "Case 7" << std::endl;
-        Show();
-        std::cout << "Case 8" << std::endl;
-        cout << "Case 11" << endl;
-        break;
-    case 12:
-        std::cout << "Case 12" << std::endl;
-        break;
-    case 13:
-        std::cout << "Case 13" << std::endl;
-        break;
-    case 14:
-        std::cout << "Case 14" << std::endl;
-        break;
-    case 15:
-        std::cout << "Case 15" << std::endl;
-        break;
-    case 16:
-        std::cout << "Case 16" << std::endl;
-        break;
-    case 17:
-        std::cout << "Case 17" << std::endl;
-        break;
-    case 18:
-        std::cout << "Case 18" << std::endl;
-        break;
-    case 19:
-        std::cout << "Case 19" << std::endl;
-        break;
-    case 20:
-        std::cout << "Case 20" << std::endl;
-        break;
-    case 21:
-        std::cout << "Case 21" << std::endl;
-        break;
-    case 22:
-        std::cout << "Case 22" << std::endl;
-        break;
-    case 23:
-        std::cout << "Case 23" << std::endl;
-        break;
-    case 24:
-        std::cout << "Case 24" << std::endl;
-        break;
-    case 25:
-        std::cout << "Case 25" << std::endl;
-        break;
-    case 26:
-        std::cout << "Case 26" << std::endl;
-        break;
-    case 27:
-        std::cout << "Case 27" << std::endl;
-        break;
-    case 28:
-        std::cout << "Case 28" << std::endl;
-        break;
-    case 29:
-        std::cout << "Case 29" << std::endl;
-        break;
-    case 30:
-        std::cout << "Case 30" << std::endl;
-        break;
-    case 31:
-        std::cout << "Case 31" << std::endl;
-        break;
-    case 32:
-        std::cout << "Case 32" << std::endl;
-        break;
-    case 33:
-        std::cout << "Case 33" << std::endl;
-        break;
-    case 34:
-        std::cout << "Case 34" << std::endl;
-        break;
-    case 35:
-        std::cout << "Case 35" << std::endl;
-        break;
-    case 36:
-        std::cout << "Case 36" << std::endl;
-        break;
-    case 37:
-        std::cout << "Case 37" << std::endl;
-        break;
-    case 38:
-        std::cout << "Case 38" << std::endl;
-        break;
-    case 39:
-        std::cout << "Case 39" << std::endl;
-        break;
-    case 40:
-        std::cout << "Case 40" << std::endl;
-        break;
-    case 41:
-        std::cout << "Case 41" << std::endl;
-        break;
-    case 42:
-        std::cout << "Case 42" << std::endl;
-        break;
-    case 43:
-        std::cout << "Case 43" << std::endl;
-        break;
-    case 44:
-        std::cout << "Case 44" << std::endl;
-        break;
-    case 45:
-        std::cout << "Case 45" << std::endl;
-        break;
-    case 46:
-        std::cout << "Case 46" << std::endl;
-        break;
-    case 47:
-        std::cout << "Case 47" << std::endl;
-        break;
-    case 48:
-        std::cout << "Case 48" << std::endl;
-        break;
-    case 49:
-        std::cout << "Case 49" << std::endl;
-        break;
-    case 50:
-        std::cout << "Case 50" << std::endl;
-        break;
-    default:
-        std::cout << "Default case" << std::endl;
-        break;
     }
     /* タスク終了 */
-    ext_tsk();
+    ext_tsk(); // タスクを終了
 }
 
 /* フレームの取得処理 */
