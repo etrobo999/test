@@ -1,0 +1,368 @@
+#include <opencv2/opencv.hpp>
+#include <raspicam/raspicam_cv.h>
+#include "app.h"
+#include "LineTracer.h"
+#include <stdio.h>
+#include <iostream>
+#include <bitset>
+#include <map>
+#include <string>
+
+
+using namespace std;
+using namespace cv;
+
+PID straightpid = {0, 0, 0, 0, 0}; 
+uint8_t scene = 1;
+int cX = 0;
+int cY = 0;
+double BASE_SPEED = 0.0;
+bool follow = true;
+Mat frame, rectframe, hsv, mask, morphed, result_frame;
+raspicam::RaspiCam_Cv Camera;
+
+
+/* ライントレースタスク(50msec周期で関数コールされる) */
+void tracer_task(intptr_t unused) {
+    switch (scene) {
+    /* 初期化処理 */
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+    case 9:
+    case 10:
+        Camera.set(cv::CAP_PROP_FRAME_WIDTH, 640);
+        Camera.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
+        Camera.set(cv::CAP_PROP_FORMAT, CV_8UC3);
+
+        // 自動ホワイトバランスを有効にする
+        Camera.set(cv::CAP_PROP_AUTO_WB, 1);
+        if (!Camera.open()) {
+            cerr << "Error: !Camera.open" << endl;
+        }
+        cout << "Case 10" << endl;
+        scene = 11;
+        break;
+
+///////////////////////////////////////////////////////////////
+
+    case 11:
+        BASE_SPEED = 80.0;
+        frame = Capture();
+        tie(rectframe, hsv) = RectFrame(frame);
+        mask = createMask(hsv, "black");
+        morphed = Morphology(mask);
+        tie(cX, cY, result_frame) = ProcessContours(morphed);
+        PIDMotor(straightpid);
+        Show();
+        cout << "Case 11" << endl;
+        break;
+    case 12:
+        std::cout << "Case 12" << std::endl;
+        break;
+    case 13:
+        std::cout << "Case 13" << std::endl;
+        break;
+    case 14:
+        std::cout << "Case 14" << std::endl;
+        break;
+    case 15:
+        std::cout << "Case 15" << std::endl;
+        break;
+    case 16:
+        std::cout << "Case 16" << std::endl;
+        break;
+    case 17:
+        std::cout << "Case 17" << std::endl;
+        break;
+    case 18:
+        std::cout << "Case 18" << std::endl;
+        break;
+    case 19:
+        std::cout << "Case 19" << std::endl;
+        break;
+    case 20:
+        std::cout << "Case 20" << std::endl;
+        break;
+    case 21:
+        std::cout << "Case 21" << std::endl;
+        break;
+    case 22:
+        std::cout << "Case 22" << std::endl;
+        break;
+    case 23:
+        std::cout << "Case 23" << std::endl;
+        break;
+    case 24:
+        std::cout << "Case 24" << std::endl;
+        break;
+    case 25:
+        std::cout << "Case 25" << std::endl;
+        break;
+    case 26:
+        std::cout << "Case 26" << std::endl;
+        break;
+    case 27:
+        std::cout << "Case 27" << std::endl;
+        break;
+    case 28:
+        std::cout << "Case 28" << std::endl;
+        break;
+    case 29:
+        std::cout << "Case 29" << std::endl;
+        break;
+    case 30:
+        std::cout << "Case 30" << std::endl;
+        break;
+    case 31:
+        std::cout << "Case 31" << std::endl;
+        break;
+    case 32:
+        std::cout << "Case 32" << std::endl;
+        break;
+    case 33:
+        std::cout << "Case 33" << std::endl;
+        break;
+    case 34:
+        std::cout << "Case 34" << std::endl;
+        break;
+    case 35:
+        std::cout << "Case 35" << std::endl;
+        break;
+    case 36:
+        std::cout << "Case 36" << std::endl;
+        break;
+    case 37:
+        std::cout << "Case 37" << std::endl;
+        break;
+    case 38:
+        std::cout << "Case 38" << std::endl;
+        break;
+    case 39:
+        std::cout << "Case 39" << std::endl;
+        break;
+    case 40:
+        std::cout << "Case 40" << std::endl;
+        break;
+    case 41:
+        std::cout << "Case 41" << std::endl;
+        break;
+    case 42:
+        std::cout << "Case 42" << std::endl;
+        break;
+    case 43:
+        std::cout << "Case 43" << std::endl;
+        break;
+    case 44:
+        std::cout << "Case 44" << std::endl;
+        break;
+    case 45:
+        std::cout << "Case 45" << std::endl;
+        break;
+    case 46:
+        std::cout << "Case 46" << std::endl;
+        break;
+    case 47:
+        std::cout << "Case 47" << std::endl;
+        break;
+    case 48:
+        std::cout << "Case 48" << std::endl;
+        break;
+    case 49:
+        std::cout << "Case 49" << std::endl;
+        break;
+    case 50:
+        std::cout << "Case 50" << std::endl;
+        break;
+    default:
+        std::cout << "Default case" << std::endl;
+        break;
+}
+    /* タスク終了 */
+    ext_tsk();
+}
+
+/* フレームの取得処理 */
+static Mat Capture(void){
+    Mat frame;
+    Camera.grab();
+    Camera.retrieve(frame);
+    if (frame.empty()){
+        cerr << "frame.empty" << endl;
+        return Mat(); // 空の Mat オブジェクトを返す
+    }
+    return frame; // 獲得したフレームを返す
+}
+
+
+/* フレームのトリミング＆HSV変換 */
+static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
+    Mat rectframe, hsv;
+    rectframe = frame(Rect(140, 240, 360, 60));
+    cvtColor(rectframe, hsv, COLOR_BGR2HSV);
+    return make_tuple(rectframe, hsv);
+}
+
+/* マスク変換 */
+static Mat createMask(const Mat& hsv, const std::string& color) {
+    Mat mask;
+
+    if (color == "red") {
+        Mat mask1, mask2;
+        inRange(hsv, color_bounds["red_low"].first, color_bounds["red_low"].second, mask1);
+        inRange(hsv, color_bounds["red_high"].first, color_bounds["red_high"].second, mask2);
+        mask = mask1 | mask2;  // 両方のマスクを統合
+    } else {
+        inRange(hsv, color_bounds[color].first, color_bounds[color].second, mask);
+    }
+
+    return mask;
+}
+
+
+/* モルフォロジー変換 */
+static Mat Morphology(const Mat& mask) {
+    Mat morphed;
+    Mat kernel = getStructuringElement(MORPH_RECT, Size(5, 5));
+    morphologyEx(mask, morphed, MORPH_OPEN, kernel);
+    morphologyEx(morphed, morphed, MORPH_CLOSE, kernel);    
+    return morphed;  // モルフォロジー変換後の画像を返す
+}
+
+
+/*追従関数*/
+static std::tuple<int, int, Mat> ProcessContours(const Mat& morphed) {
+    // 輪郭を抽出
+    std::vector<std::vector<cv::Point>> contours;
+    findContours(morphed, contours, RETR_TREE, CHAIN_APPROX_SIMPLE);
+
+    const double min_contour_area = 1500.0; // ピクセル数
+
+    // 最大の輪郭と2番目に大きい輪郭を見つける
+    std::vector<cv::Point>* largest_contour = nullptr;
+    std::vector<cv::Point>* second_largest_contour = nullptr;
+    double largest_area = min_contour_area;
+    double second_largest_area = min_contour_area;
+
+    for (auto& contour : contours) {
+        double area = contourArea(contour);
+        if (area >= largest_area) {
+            second_largest_area = largest_area;
+            second_largest_contour = largest_contour;
+
+            largest_area = area;
+            largest_contour = &contour;
+        } else if (area >= second_largest_area) {
+            second_largest_area = area;
+            second_largest_contour = &contour;
+        }
+    }
+
+    int cX = 0, cY = 0;
+    Mat result_frame = morphed.clone(); // 描画用にフレームをコピー
+
+    // 有効な輪郭が少なくとも1つある場合に処理を行う
+    if (largest_contour) {
+        std::vector<cv::Point>* target_contour;
+
+        // 2つの輪郭が存在し、followがtrueならxが小さい方、falseならxが大きい方を選ぶ
+        if (second_largest_contour) {
+            cv::Moments M1 = cv::moments(*largest_contour);
+            cv::Moments M2 = cv::moments(*second_largest_contour);
+            int cX1 = static_cast<int>(M1.m10 / M1.m00);
+            int cX2 = static_cast<int>(M2.m10 / M2.m00);
+
+            if (follow) {
+                target_contour = (cX1 < cX2) ? largest_contour : second_largest_contour;
+            } else {
+                target_contour = (cX1 > cX2) ? largest_contour : second_largest_contour;
+            }
+        } else {
+            // 輪郭が1つしかない場合、それを使用
+            target_contour = largest_contour;
+        }
+
+        // 選択された輪郭の重心を計算
+        cv::Moments M = cv::moments(*target_contour);
+        cX = static_cast<int>(M.m10 / M.m00);
+        cY = static_cast<int>(M.m01 / M.m00);
+
+        // 重心を描画
+        cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(255, 0, 0), -1);
+    }
+
+    // 結果をタプルで返す (重心のx座標, y座標, 描画済みフレーム)
+    return std::make_tuple(cX, cY, result_frame);
+}
+
+
+/*PID制御関数*/
+static void PIDMotor(PID &pid) {
+    // エラーベースのPID制御
+    double error = frame_center - cX;
+    double straight_control = pid_control(pid, error);
+
+    // モータ速度の初期化
+    double left_motor_speed = BASE_SPEED;
+    double right_motor_speed = BASE_SPEED;
+
+    // フィードバック制御のためのモータ制御
+    if (straight_control > 0) {
+        left_motor_speed -= straight_control * 2;
+    } else if (straight_control < 0) {
+        right_motor_speed += straight_control * 2;
+    } else {
+        left_motor_speed -= straight_control;
+        right_motor_speed += straight_control;
+    }
+
+    // モータ速度を表示
+    std::cout << "Left Motor: " << left_motor_speed << ", Right Motor: " << right_motor_speed << std::endl;
+    
+    // 実際のモータ制御関数を呼び出す
+    motor_cntrol(left_motor_speed, right_motor_speed);
+}
+
+
+/* 走行モータ制御 */
+static void motor_cntrol(double left_motor_speed , double right_motor_speed){
+    // モータ速度を0から100の範囲に制限
+    left_motor_speed = std::max(std::min(left_motor_speed, 100.0), -100.0);
+    right_motor_speed = std::max(std::min(right_motor_speed, 100.0), -100.0);
+
+    // 実際のモータ制御関数をここで呼び出す
+    ev3_motor_set_power(left_motor, left_motor_speed);
+    ev3_motor_set_power(right_motor, right_motor_speed);
+    return;
+}
+
+
+/* 画像の表示 */
+static void Show(void){
+    cv::imshow("result_frame", result_frame);
+    cv::waitKey(1);
+    return;
+}
+
+/* 誤差計算 */
+static double pid_control(PID &pid, double error) {
+    pid.integral += error;
+    double derivative = error - pid.previous_error;
+    pid.previous_error = error;
+    return pid.Kp * error + pid.Ki * pid.integral + pid.Kd * derivative;
+}
+
+
+static std::map<std::string, std::pair<Scalar, Scalar>> color_bounds = {
+    {"black", {Scalar(0, 0, 0), Scalar(180, 255, 50)}},  // 黒色
+    {"blue", {Scalar(100, 150, 0), Scalar(140, 255, 255)}},  // 青色
+    {"red_low", {Scalar(0, 100, 100), Scalar(10, 255, 255)}},  // 赤色（低範囲）
+    {"red_high", {Scalar(160, 100, 100), Scalar(180, 255, 255)}},  // 赤色（高範囲）
+    {"yellow", {Scalar(20, 100, 100), Scalar(30, 255, 255)}},  // 黄色
+    {"green", {Scalar(40, 50, 50), Scalar(80, 255, 255)}}  // 緑色
+};
