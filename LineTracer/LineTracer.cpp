@@ -52,6 +52,10 @@ void tracer_task(intptr_t unused) {
         BASE_SPEED = 80.0;
         std::cout << "Case 1" << std::endl;
         frame = Capture();
+        if (frame.empty()) {
+        cerr << "frame.empty" << endl;
+        break;
+        }
         std::cout << "Case 2" << std::endl;
         tie(rectframe, hsv) = RectFrame(frame);
         std::cout << "Case 3" << std::endl;
@@ -187,7 +191,7 @@ void tracer_task(intptr_t unused) {
     default:
         std::cout << "Default case" << std::endl;
         break;
-}
+    }
     /* タスク終了 */
     ext_tsk();
 }
