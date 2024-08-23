@@ -29,7 +29,7 @@ std::chrono::high_resolution_clock::time_point start_time3;
 
 std::mutex mtx;
 std::condition_variable condition_var;
-Mat frame, rectframe, hsv, mask, morphed, result_frame;
+Mat frame, rectframe, hsv, mask, mask1, mask2, morphed, result_frame;
 
 /*使用する変数の初期化*/
 uint8_t scene = 1;
@@ -38,6 +38,10 @@ int cY = 0;
 double BASE_SPEED = 0.0;
 bool follow = true;
 bool frame_ready = false;
+// 連続して検知された回数をカウントする変数
+int detection_count = 0;
+int no_detection_count = 0;
+int stop_count = 0;
 
 
 /*なんかすごいcameraの処理*/
@@ -113,14 +117,11 @@ void tracer_task(intptr_t unused) {
             tie(rectframe, hsv) = RectFrame(frame);
             mask = createMask(hsv, "black");
             morphed = Morphology(mask);
-            tie(cX, cY, result_frame) = ProcessContours(morphed);
+            tie(cX, cY) = ProcessContours(morphed);
             cout << "Centroid: (" << cX << ", " << cY << ")" <<endl;
             if(ev3_touch_sensor_is_pressed(touch_sensor)){
-                scene = 3;
+                scene = 11;
             };
-            cout << getTime(2) <<endl;
-            startTimer(2);
-            break;
         case 3:
         case 4:
         case 5:
@@ -129,9 +130,6 @@ void tracer_task(intptr_t unused) {
         case 8:
         case 9:
         case 10:
-            cout << getTime(2) <<endl;
-            startTimer(2);
-            scene = 11;
             break;
 
 //////////////////////////////////////////////////////////////////////
@@ -148,15 +146,13 @@ void tracer_task(intptr_t unused) {
             tie(rectframe, hsv) = RectFrame(frame);
             mask = createMask(hsv, "black");
             morphed = Morphology(mask);
-            tie(cX, cY, result_frame) = ProcessContours(morphed);
+            tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);         
             if(getTime(1) >=10){
                 scene++;
             }
             std::cout << "Case 12" << std::endl;
-            cout << getTime(2) <<endl;
-            startTimer(2);
             break;
         case 13: //設定の読み込み
             startTimer(1);
@@ -167,14 +163,12 @@ void tracer_task(intptr_t unused) {
             tie(rectframe, hsv) = RectFrame(frame);
             mask = createMask(hsv, "black");
             morphed = Morphology(mask);
-            tie(cX, cY, result_frame) = ProcessContours(morphed);
+            tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Bcurvetpid);         
-            if(getTime(1) >=4){
+            if(getTime(1) >=3){
                 scene++;
             }
-            cout << getTime(2) <<endl;
-            startTimer(2);
             std::cout << "Case 14" << std::endl;
             break;
         case 15: //設定の読み込み
@@ -186,14 +180,12 @@ void tracer_task(intptr_t unused) {
             tie(rectframe, hsv) = RectFrame(frame);
             mask = createMask(hsv, "black");
             morphed = Morphology(mask);
-            tie(cX, cY, result_frame) = ProcessContours(morphed);
+            tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);
-            if(getTime(1) >=6){
+            if(getTime(1) >=7){
                 scene++;
             }
-            cout << getTime(2) <<endl;
-            startTimer(2);
             std::cout << "Case 16" << std::endl;
             break;
         case 17://設定の読み込み
@@ -205,18 +197,29 @@ void tracer_task(intptr_t unused) {
             tie(rectframe, hsv) = RectFrame(frame);
             mask = createMask(hsv, "black");
             morphed = Morphology(mask);
-            tie(cX, cY, result_frame) = ProcessContours(morphed);
+            tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Bcurvetpid);
-            if(getTime(1) >=4){
+            if(getTime(1) >=3){
                 scene++;
             }
-            cout << getTime(2) <<endl;
-            startTimer(2);
             std::cout << "Case 18" << std::endl;
             break;
-        case 19:
-        case 20:
+        case 19://設定の読み込み
+            startTimer(1);
+            BASE_SPEED = 70.0;
+            scene++;
+            break;
+        case 20: //第二ストレート
+            tie(rectframe, hsv) = RectFrame(frame);
+            mask = createMask(hsv, "black");
+            morphed = Morphology(mask);
+            tie(cX, cY) = ProcessContours(morphed);
+            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
+            PIDMotor(straightpid);
+            if(getTime(1) >=2){
+                scene = 21;
+            }
             scene = 21;
             std::cout << "Case 20" << std::endl;
             break;
@@ -225,10 +228,12 @@ void tracer_task(intptr_t unused) {
 ////////　　　　　　　　第一難所　　　　　　　　　　/////////////////////
 //////////////////////////////////////////////////////////////////////
 
-        case 21:
-            std::cout << "Case 21" << std::endl;
+        case 21:://設定の読み込み
+            BASE_SPEED = 70.0;
+            scene++;
             break;
         case 22:
+
             std::cout << "Case 22" << std::endl;
             break;
         case 23:
@@ -348,25 +353,19 @@ static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
 }
 
 /* マスク変換 */
-static Mat createMask(const Mat& hsv, const std::string& color) {
-    Mat mask;
-
+static void createMask(const Mat& hsv, const std::string& color) {
     if (color == "red") {
-        Mat mask1, mask2;
         inRange(hsv, color_bounds["red_low"].first, color_bounds["red_low"].second, mask1);
         inRange(hsv, color_bounds["red_high"].first, color_bounds["red_high"].second, mask2);
         mask = mask1 | mask2;  // 両方のマスクを統合
     } else if (color == "blue_black") {
-        Mat mask1, mask2;
         inRange(hsv, color_bounds["blue"].first, color_bounds["blue"].second, mask1);
         inRange(hsv, color_bounds["black"].first, color_bounds["black"].second, mask2);
-        mask = mask1 |         mask = mask1 | mask2;  // 両方のマスクを統合
+        mask = mask1 | mask2;  // 両方のマスクを統合
 ;  // 青と黒のマスクを統合
     } else {
         inRange(hsv, color_bounds[color].first, color_bounds[color].second, mask);
     }
-
-    return mask;
 }
 
 
@@ -381,7 +380,7 @@ static Mat Morphology(const Mat& mask) {
 
 
 /*追従関数*/
-static std::tuple<int, int, Mat> ProcessContours(const Mat& morphed) {
+static std::tuple<int, int> ProcessContours(const Mat& morphed) {
     // 輪郭を抽出
     std::vector<std::vector<cv::Point>> contours;
     findContours(morphed, contours, RETR_TREE, CHAIN_APPROX_SIMPLE);
@@ -418,6 +417,7 @@ static std::tuple<int, int, Mat> ProcessContours(const Mat& morphed) {
     int cX = 0, cY = 0;
     // 有効な輪郭が少なくとも1つある場合に処理を行う
     if (largest_contour) {
+        stop_count = 0;
         std::vector<cv::Point>* target_contour;
 
         // 2つの輪郭が存在し、followがtrueならxが小さい方、falseならxが大きい方を選ぶ
@@ -446,10 +446,11 @@ static std::tuple<int, int, Mat> ProcessContours(const Mat& morphed) {
         cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(255, 0, 0), -1);
         cv::imshow("result_frame", result_frame);
         cv::waitKey(1);
+    }else{
+        stop_count++;
     }
-
     // 結果をタプルで返す (重心のx座標, y座標, 描画済みフレーム)
-    return std::make_tuple(cX, cY, result_frame);
+    return std::make_tuple(cX, cY);
 }
 
 
@@ -472,10 +473,12 @@ static void PIDMotor(PID &pid) {
         left_motor_speed -= straight_control;
         right_motor_speed += straight_control;
     }
-
+    if(stop_count >= 5){
+        left_motor_speed = 0.0;
+        right_motor_speed = 0.0
+    }
     // モータ速度を表示
     std::cout << "Left Motor: " << left_motor_speed << ", Right Motor: " << right_motor_speed << std::endl;
-    
     // 実際のモータ制御関数を呼び出す
     motor_cntrol(left_motor_speed, right_motor_speed);
 }
@@ -500,6 +503,44 @@ static void Show(const Mat& showfreme){
     cv::waitKey(1);
     return;
 }
+
+/* 青検知 */
+static bool detectCheck(const Mat& morphed, int min_area) {
+    // 輪郭を抽出
+    std::vector<std::vector<cv::Point>> contours;
+    findContours(morphed, contours, RETR_TREE, CHAIN_APPROX_SIMPLE);
+
+    // 一定以上のサイズの輪郭を持つかどうかをチェック
+    bool large_contour_detected = false;
+    for (const auto& contour : contours) {
+        double area = contourArea(contour);
+        if (area >= min_area) {
+            large_contour_detected = true;
+            break;
+        }
+    }
+    if (detection_count < 5){
+        if (large_contour_detected){
+            detection_count++;
+        }else{
+            detection_count = 0;
+        }
+    } else if (detection_count >= 5){
+        if (!large_contour_detected){
+            no_detection_count++;
+        }else{
+            no_detection_count = 0;
+        }
+    }
+    if(no_detection_count >=5 ){
+        detection_count = 0;
+        no_detection_count = 0;
+        return true;
+    }
+    return false;
+}
+
+
 
 /* 誤差計算 */
 static double pid_control(PID &pid, double error) {
