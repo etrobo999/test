@@ -96,11 +96,19 @@ void tracer_task(intptr_t unused) {
         case 8:
         case 9:
         case 10:
+            tie(rectframe, hsv) = RectFrame(frame);
+            mask = createMask(hsv, "black");
+            morphed = Morphology(mask);
+            tie(cX, cY, result_frame) = ProcessContours(morphed);
+            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             if(ev3_touch_sensor_is_pressed(touch_sensor)){;
             scene = 11;
             }
             break;
-        ///////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////
+////////　　　　　　　　ストレート　　　　　　　　　/////////////////////
+//////////////////////////////////////////////////////////////////////
 
         case 11:
             BASE_SPEED = 80.0;
