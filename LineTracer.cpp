@@ -106,12 +106,9 @@ void tracer_task(intptr_t unused) {
             mask = createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY, result_frame) = ProcessContours(morphed);
-            std::cout << "Case 6" << std::endl;
+            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);         
             std::cout << "Case 7" << std::endl;
-            cv::imshow("hsv", hsv);
-            cv::imshow("result_frame", result_frame);
-            cv::waitKey(1);
             cout << "Case 11" << endl;
             break;
         case 12:
@@ -351,16 +348,12 @@ static std::tuple<int, int, Mat> ProcessContours(const Mat& morphed) {
 
         // 選択された輪郭の重心を計算
         cv::Moments M = cv::moments(*target_contour);
-        if (M.m00 != 0) {
         cX = static_cast<int>(M.m10 / M.m00);
         cY = static_cast<int>(M.m01 / M.m00);
-        } else {
-        std::cerr << "Error: m00 is zero, cannot calculate centroid" << std::endl;
-        }
-        std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
-        std::cout << "Target contour area: " << largest_area << std::endl;
         // 重心を描画
         cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(255, 0, 0), -1);
+        cv::imshow("result_frame", result_frame);
+        cv::waitKey(1);
     }
 
     // 結果をタプルで返す (重心のx座標, y座標, 描画済みフレーム)
