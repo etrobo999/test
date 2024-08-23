@@ -144,7 +144,7 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY, result_frame) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);         
-            if(getTime >=10000){
+            if(getTime(1) >=10000){
                 scene++;
             }
             std::cout << "Case 12" << std::endl;
@@ -161,7 +161,7 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY, result_frame) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Bcurvetpid);         
-            if(getTime >=4000){
+            if(getTime(1) >=4000){
                 scene++;
             }
             std::cout << "Case 14" << std::endl;
@@ -178,7 +178,7 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY, result_frame) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);
-            if(getTime >=6000){
+            if(getTime(1) >=6000){
                 scene++;
             }
             std::cout << "Case 16" << std::endl;
@@ -195,7 +195,7 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY, result_frame) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Bcurvetpid);
-            if(getTime >=4000){
+            if(getTime(1) >=4000){
                 scene++;
             }
             std::cout << "Case 18" << std::endl;
