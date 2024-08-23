@@ -50,13 +50,21 @@ void tracer_task(intptr_t unused) {
 
     case 11:
         BASE_SPEED = 80.0;
+        std::cout << "Case 1" << std::endl;
         frame = Capture();
+        std::cout << "Case 2" << std::endl;
         tie(rectframe, hsv) = RectFrame(frame);
+        std::cout << "Case 3" << std::endl;
         mask = createMask(hsv, "black");
+        std::cout << "Case 4" << std::endl;
         morphed = Morphology(mask);
+        std::cout << "Case 5" << std::endl;
         tie(cX, cY, result_frame) = ProcessContours(morphed);
+        std::cout << "Case 6" << std::endl;
         PIDMotor(straightpid);
+        std::cout << "Case 7" << std::endl;
         Show();
+        std::cout << "Case 8" << std::endl;
         cout << "Case 11" << endl;
         break;
     case 12:
