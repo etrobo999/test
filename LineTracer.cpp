@@ -295,7 +295,7 @@ static std::tuple<int, int, Mat> ProcessContours(const Mat& morphed) {
     // 輪郭を抽出
     std::vector<std::vector<cv::Point>> contours;
     findContours(morphed, contours, RETR_TREE, CHAIN_APPROX_SIMPLE);
-    
+
     std::cout << "Number of contours found: " << contours.size() << std::endl;
 
     for (size_t i = 0; i < contours.size(); i++) {
@@ -351,9 +351,14 @@ static std::tuple<int, int, Mat> ProcessContours(const Mat& morphed) {
 
         // 選択された輪郭の重心を計算
         cv::Moments M = cv::moments(*target_contour);
+        if (M.m00 != 0) {
         cX = static_cast<int>(M.m10 / M.m00);
-        cY = static_cast<int>(M.m01 / M.m00);
-
+        Y = static_cast<int>(M.m01 / M.m00);
+        } else {
+        std::cerr << "Error: m00 is zero, cannot calculate centroid" << std::endl;
+        }
+        std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
+        std::cout << "Target contour area: " << largest_area << std::endl;
         // 重心を描画
         cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(255, 0, 0), -1);
     }
