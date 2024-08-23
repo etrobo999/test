@@ -228,7 +228,7 @@ void tracer_task(intptr_t unused) {
 ////////　　　　　　　　第一難所　　　　　　　　　　/////////////////////
 //////////////////////////////////////////////////////////////////////
 
-        case 21:://設定の読み込み
+        case 21://設定の読み込み
             BASE_SPEED = 70.0;
             scene++;
             break;
@@ -475,7 +475,7 @@ static void PIDMotor(PID &pid) {
     }
     if(stop_count >= 5){
         left_motor_speed = 0.0;
-        right_motor_speed = 0.0
+        right_motor_speed = 0.0;
     }
     // モータ速度を表示
     std::cout << "Left Motor: " << left_motor_speed << ", Right Motor: " << right_motor_speed << std::endl;
