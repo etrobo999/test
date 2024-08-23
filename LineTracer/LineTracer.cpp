@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <bitset>
+#include <signal.h>
 #include <pthread.h>
 #include <mutex>
 #include <condition_variable>
@@ -21,7 +22,7 @@ bool follow = true;
 Mat frame, rectframe, hsv, mask, morphed, result_frame;
 raspicam::RaspiCam_Cv Camera;
 std::mutex mtx;
-std::condition_variable cv;
+std::condition_variable condition_var;
 bool frame_ready = false;
 
 
@@ -62,7 +63,7 @@ void* opencv_thread_func(void* arg) {
         }
 
         // メインタスクにフレームが準備できたことを通知
-        cv.notify_one();
+        condition_var.notify_one();
     }
 
     pthread_exit(NULL);
