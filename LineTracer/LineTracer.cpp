@@ -54,6 +54,7 @@ void* opencv_thread_func(void* arg) {
     Camera.set(cv::CAP_PROP_FRAME_WIDTH, 640);
     Camera.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
     Camera.set(cv::CAP_PROP_FORMAT, CV_8UC3);
+    Camera.set(CV::CAP_PROP_FPS, 30);
     Camera.set(cv::CAP_PROP_AUTO_WB, 1);
     if (!Camera.open()) {
         cerr << "Error: !Camera.open" << endl;
@@ -110,13 +111,13 @@ void tracer_task(intptr_t unused) {
             break;
         case 2: //画面表示・ボタンでスタート
             tie(rectframe, hsv) = RectFrame(frame);
-/*            mask = createMask(hsv, "black");
+            mask = createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY, result_frame) = ProcessContours(morphed);
             cout << "Centroid: (" << cX << ", " << cY << ")" <<endl;
             if(ev3_touch_sensor_is_pressed(touch_sensor)){
                 scene = 3;
-            };*/
+            };
             cout << getTime(2) <<endl;
             startTimer(2);
             break;
