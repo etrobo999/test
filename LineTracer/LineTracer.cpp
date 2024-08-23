@@ -105,7 +105,6 @@ void tracer_task(intptr_t unused) {
 //////////////////////////////////////////////////////////////////////
 
         case 1:
-            startTimer(1);
         case 2: //画面表示・ボタンでスタート
             tie(rectframe, hsv) = RectFrame(frame);
             mask = createMask(hsv, "black");
@@ -113,7 +112,7 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY, result_frame) = ProcessContours(morphed);
             cout << "Centroid: (" << cX << ", " << cY << ")" <<endl;
             if(ev3_touch_sensor_is_pressed(touch_sensor)){
-                scene++;
+                scene = 3;
             };
             break;
         case 3:
@@ -124,57 +123,93 @@ void tracer_task(intptr_t unused) {
         case 8:
         case 9:
         case 10:
-            cout << getTime(1) <<endl;
+            startTimer(2);
             scene = 11;
-            startTimer(1);
             break;
 
 //////////////////////////////////////////////////////////////////////
 ////////　　　　　　難所前ライントレース　　　　　　/////////////////////
 //////////////////////////////////////////////////////////////////////
 
-        case 11: //開幕ストレート
-            BASE_SPEED = 80.0;
+        case 11: //設定の読み込み
+            startTimer(1);
+            follow = true;
+            BASE_SPEED = 95.0;
+            scene++;
+            break;
+        case 12: //第一ストレート
             tie(rectframe, hsv) = RectFrame(frame);
             mask = createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY, result_frame) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);         
-            cout << "Case 11" << endl;
-            break;
-        case 12:
+            if(getTime >=10000){
+                scene++;
+            }
             std::cout << "Case 12" << std::endl;
             break;
-        case 13:
-            std::cout << "Case 13" << std::endl;
+        case 13: //設定の読み込み
+            startTimer(1);
+            BASE_SPEED = 70.0;
+            scene++;
             break;
-        case 14:
+        case 14: //第一急カーブ
+            tie(rectframe, hsv) = RectFrame(frame);
+            mask = createMask(hsv, "black");
+            morphed = Morphology(mask);
+            tie(cX, cY, result_frame) = ProcessContours(morphed);
+            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
+            PIDMotor(Bcurvetpid);         
+            if(getTime >=4000){
+                scene++;
+            }
             std::cout << "Case 14" << std::endl;
             break;
-        case 15:
-            std::cout << "Case 15" << std::endl;
+        case 15: //設定の読み込み
+            startTimer(1);
+            BASE_SPEED = 95.0;
+            scene++;
             break;
-        case 16:
+        case 16: //第二ストレート
+            tie(rectframe, hsv) = RectFrame(frame);
+            mask = createMask(hsv, "black");
+            morphed = Morphology(mask);
+            tie(cX, cY, result_frame) = ProcessContours(morphed);
+            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
+            PIDMotor(straightpid);
+            if(getTime >=6000){
+                scene++;
+            }
             std::cout << "Case 16" << std::endl;
             break;
-        case 17:
-            std::cout << "Case 17" << std::endl;
+        case 17://設定の読み込み
+            startTimer(1);
+            BASE_SPEED = 70.0;
+            scene++;
             break;
-        case 18:
+        case 18: //第二急カーブ
+            tie(rectframe, hsv) = RectFrame(frame);
+            mask = createMask(hsv, "black");
+            morphed = Morphology(mask);
+            tie(cX, cY, result_frame) = ProcessContours(morphed);
+            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
+            PIDMotor(Bcurvetpid);
+            if(getTime >=4000){
+                scene++;
+            }
             std::cout << "Case 18" << std::endl;
             break;
         case 19:
-            std::cout << "Case 19" << std::endl;
+        case 20:
+            scene = 21;
+            std::cout << "Case 20" << std::endl;
             break;
 
 //////////////////////////////////////////////////////////////////////
 ////////　　　　　　　　第一難所　　　　　　　　　　/////////////////////
 //////////////////////////////////////////////////////////////////////
 
-        case 20:
-            std::cout << "Case 20" << std::endl;
-            break;
         case 21:
             std::cout << "Case 21" << std::endl;
             break;
