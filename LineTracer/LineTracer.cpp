@@ -453,7 +453,7 @@ static std::tuple<int, int> ProcessContours(const Mat& morphed) {
     std::cout << "Contour " << i << " area: " << area << std::endl;
     }
 
-    const double min_contour_area = 500.0; // ピクセル数
+    const double min_contour_area = 2000.0; // ピクセル数
 
     // 最大の輪郭と2番目に大きい輪郭を見つける
     std::vector<cv::Point>* largest_contour = nullptr;
