@@ -60,7 +60,7 @@ void* opencv_thread_func(void* arg) {
     Camera.set(cv::CAP_PROP_FRAME_WIDTH, 640);
     Camera.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
     Camera.set(cv::CAP_PROP_FORMAT, CV_8UC3);
-    Camera.set(cv::CAP_PROP_FPS, 60);
+    Camera.set(cv::CAP_PROP_FPS, 30);
     if (!Camera.open()) {
         cerr << "Error: !Camera.open" << endl;
         pthread_exit(NULL);
