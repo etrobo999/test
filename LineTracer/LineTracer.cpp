@@ -16,10 +16,10 @@ using namespace cv;
 raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
-PID straightpid = {0.05, 0, 0, 0, 0}; //ストレートPID
-PID Bcurvetpid = {0.18, 0, 0, 0, 0}; //急カーブPID
-PID Mcurvetpid = {0.14, 0, 0, 0, 0}; //ちょうどいいカーブPID
-PID Scurvetpid = {0.12, 0, 0, 0, 0}; //ゆっくりカーブPID
+PID straightpid = {0.05, 0.005, 00.05, 0, 0}; //ストレートPID
+PID Bcurvetpid = {0.05, 0, 0, 0, 0}; //急カーブPID
+PID Mcurvetpid = {0.05, 0, 0, 0, 0}; //ちょうどいいカーブPID
+PID Scurvetpid = {0.05, 0, 0, 0, 0}; //ゆっくりカーブPID
 
 
 /*使用する変数の宣言*/
@@ -148,7 +148,7 @@ void tracer_task(intptr_t unused) {
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);
             std::cout <<getTime(2)<< std::endl;
-            if(getTime(1) >=12){
+            if(getTime(1) >=6){
                 scene++;
             }
             std::cout << "Case 12" << std::endl;
@@ -166,7 +166,7 @@ void tracer_task(intptr_t unused) {
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             std::cout <<getTime(2)<< std::endl;
             PIDMotor(Bcurvetpid);         
-            if(getTime(1) >=3){
+            if(getTime(1) >=2.5){
                 scene++;
             }
             std::cout << "Case 14" << std::endl;
@@ -184,7 +184,7 @@ void tracer_task(intptr_t unused) {
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             std::cout <<getTime(2)<< std::endl;
             PIDMotor(straightpid);
-            if(getTime(1) >=7){
+            if(getTime(1) >=3.5){
                 scene++;
             }
             std::cout << "Case 16" << std::endl;
@@ -220,7 +220,7 @@ void tracer_task(intptr_t unused) {
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             std::cout <<getTime(2)<< std::endl;
             PIDMotor(straightpid);
-            if(getTime(1) >=2){
+            if(getTime(1) >=1){
                 scene = 21;
             }
             std::cout << "Case 20" << std::endl;
