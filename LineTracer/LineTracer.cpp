@@ -231,7 +231,7 @@ void tracer_task(intptr_t unused) {
 //////////////////////////////////////////////////////////////////////
 
         case 21://設定の読み込み
-            BASE_SPEED = 30.0;
+            BASE_SPEED = 50.0;
             scene++;
             break;
         case 22://シーン1
@@ -248,7 +248,7 @@ void tracer_task(intptr_t unused) {
             std::cout << "Case 22" << std::endl;
             break;
         case 23://設定の読み込み
-            BASE_SPEED = 30.0;
+            BASE_SPEED = 50.0;
             follow = false;
             scene++;
             std::cout << follow << std::endl;
@@ -267,7 +267,7 @@ void tracer_task(intptr_t unused) {
             std::cout << "Case 24" << std::endl;
             break;
         case 25://設定の読み込み
-            BASE_SPEED = 30.0;
+            BASE_SPEED = 50.0;
             follow = true;
             scene++;
             std::cout << follow << std::endl;
@@ -286,7 +286,7 @@ void tracer_task(intptr_t unused) {
             std::cout << "Case 26" << std::endl;
             break;
         case 27://設定の読み込み
-            BASE_SPEED = 30.0;
+            BASE_SPEED = 50.0;
             follow = false;
             scene++;
             std::cout << follow << std::endl;
@@ -305,7 +305,7 @@ void tracer_task(intptr_t unused) {
             std::cout << "Case 28" << std::endl;
             break;
         case 29://設定の読み込み
-            BASE_SPEED = 30.0;
+            BASE_SPEED = 50.0;
             follow = true;
             scene++;
             std::cout << follow << std::endl;
