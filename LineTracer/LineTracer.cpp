@@ -148,6 +148,9 @@ void tracer_task(intptr_t unused) {
             if(ev3_touch_sensor_is_pressed(touch_sensor)){
                 scene = 11;
             };
+            cv::imshow("frame", frame);
+            cv::imshow("morphed", morphed);
+            cv::waitKey(1);
             cout <<getTime(1)<<endl;
         case 3:
         case 4:
@@ -540,7 +543,7 @@ static std::tuple<int, int> ProcessContours(const Mat& morphed) {
     }
     result_frame = rectframe.clone(); // 描画用にフレームをコピー
     cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(255, 0, 0), -1);
-    Show(result_frame);
+//    Show(result_frame);
     // 結果をタプルで返す (重心のx座標, y座標, 描画済みフレーム)
     return std::make_tuple(cX, cY);
 }
