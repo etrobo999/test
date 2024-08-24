@@ -110,7 +110,6 @@ void tracer_task(intptr_t unused) {
 //////////////////////////////////////////////////////////////////////
 
         case 1:
-            startTimer(2);
             scene++;
             break;
         case 2: //画面表示・ボタンでスタート
@@ -120,7 +119,8 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY) = ProcessContours(morphed);
             cout << "Centroid: (" << cX << ", " << cY << ")" <<endl;
             if(ev3_touch_sensor_is_pressed(touch_sensor)){
-                scene = 21;
+                startTimer(2);
+                scene = 11;
             };
         case 3:
         case 4:
@@ -139,7 +139,7 @@ void tracer_task(intptr_t unused) {
         case 11: //設定の読み込み
             startTimer(1);
             follow = true;
-            BASE_SPEED = 95.0;
+            BASE_SPEED = 80.0;
             scene++;
             break;
         case 12: //第一ストレート
@@ -148,15 +148,16 @@ void tracer_task(intptr_t unused) {
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
-            PIDMotor(straightpid);         
-            if(getTime(1) >=10){
+            PIDMotor(straightpid);
+            std::cout <<getTime(2)<< std::endl;
+            if(getTime(1) >=12){
                 scene++;
             }
             std::cout << "Case 12" << std::endl;
             break;
         case 13: //設定の読み込み
             startTimer(1);
-            BASE_SPEED = 70.0;
+            BASE_SPEED = 50.0;
             scene++;
             break;
         case 14: //第一急カーブ
@@ -165,6 +166,7 @@ void tracer_task(intptr_t unused) {
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
+            std::cout <<getTime(2)<< std::endl;
             PIDMotor(Bcurvetpid);         
             if(getTime(1) >=3){
                 scene++;
@@ -173,7 +175,7 @@ void tracer_task(intptr_t unused) {
             break;
         case 15: //設定の読み込み
             startTimer(1);
-            BASE_SPEED = 95.0;
+            BASE_SPEED = 70.0;
             scene++;
             break;
         case 16: //第二ストレート
@@ -182,6 +184,7 @@ void tracer_task(intptr_t unused) {
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
+            std::cout <<getTime(2)<< std::endl;
             PIDMotor(straightpid);
             if(getTime(1) >=7){
                 scene++;
@@ -190,7 +193,7 @@ void tracer_task(intptr_t unused) {
             break;
         case 17://設定の読み込み
             startTimer(1);
-            BASE_SPEED = 70.0;
+            BASE_SPEED = 50.0;
             scene++;
             break;
         case 18: //第二急カーブ
@@ -199,6 +202,7 @@ void tracer_task(intptr_t unused) {
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
+            std::cout <<getTime(2)<< std::endl;
             PIDMotor(Bcurvetpid);
             if(getTime(1) >=3){
                 scene++;
@@ -207,7 +211,7 @@ void tracer_task(intptr_t unused) {
             break;
         case 19://設定の読み込み
             startTimer(1);
-            BASE_SPEED = 70.0;
+            BASE_SPEED = 50.0;
             scene++;
             break;
         case 20: //第二ストレート
@@ -216,6 +220,7 @@ void tracer_task(intptr_t unused) {
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
+            std::cout <<getTime(2)<< std::endl;
             PIDMotor(straightpid);
             if(getTime(1) >=2){
                 scene = 21;
@@ -228,7 +233,7 @@ void tracer_task(intptr_t unused) {
 //////////////////////////////////////////////////////////////////////
 
         case 21://設定の読み込み
-            BASE_SPEED = 70.0;
+            BASE_SPEED = 50.0;
             scene++;
             break;
         case 22://シーン1
@@ -245,7 +250,7 @@ void tracer_task(intptr_t unused) {
             std::cout << "Case 22" << std::endl;
             break;
         case 23://設定の読み込み
-            BASE_SPEED = 70.0;
+            BASE_SPEED = 50.0;
             follow = false;
             scene++;
             std::cout << follow << std::endl;
@@ -264,7 +269,7 @@ void tracer_task(intptr_t unused) {
             std::cout << "Case 24" << std::endl;
             break;
         case 25://設定の読み込み
-            BASE_SPEED = 60.0;
+            BASE_SPEED = 40.0;
             follow = true;
             scene++;
             std::cout << follow << std::endl;
@@ -283,7 +288,7 @@ void tracer_task(intptr_t unused) {
             std::cout << "Case 26" << std::endl;
             break;
         case 27://設定の読み込み
-            BASE_SPEED = 60.0;
+            BASE_SPEED = 40.0;
             follow = false;
             scene++;
             std::cout << follow << std::endl;
@@ -302,7 +307,7 @@ void tracer_task(intptr_t unused) {
             std::cout << "Case 28" << std::endl;
             break;
         case 29://設定の読み込み
-            BASE_SPEED = 90.0;
+            BASE_SPEED = 60.0;
             follow = true;
             scene++;
             std::cout << follow << std::endl;
@@ -408,7 +413,7 @@ static Mat Capture(void){
 /* フレームのトリミング＆HSV変換 */
 static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
     Mat rectframe, hsv;
-    rectframe = frame(Rect(140, 240, 360, 60));
+    rectframe = frame(Rect(200, 240, 240, 60));
     cvtColor(rectframe, hsv, COLOR_BGR2HSV);
     return make_tuple(rectframe, hsv);
 }
