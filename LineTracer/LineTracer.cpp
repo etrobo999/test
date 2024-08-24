@@ -148,7 +148,6 @@ void tracer_task(intptr_t unused) {
             if(ev3_touch_sensor_is_pressed(touch_sensor)){
                 scene = 11;
             };
-            cv::imshow("frame", frame);
             cv::imshow("morphed", morphed);
             cv::waitKey(1);
             cout <<getTime(1)<<endl;
