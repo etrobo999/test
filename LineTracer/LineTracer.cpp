@@ -16,7 +16,7 @@ using namespace cv;
 raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
-PID straightpid = {0.07, 0, 0, 0, 0}; //ストレートPID
+PID straightpid = {0.05, 0, 0, 0, 0}; //ストレートPID
 PID Bcurvetpid = {0.18, 0, 0, 0, 0}; //急カーブPID
 PID Mcurvetpid = {0.14, 0, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.12, 0, 0, 0, 0}; //ゆっくりカーブPID
@@ -110,8 +110,6 @@ void tracer_task(intptr_t unused) {
 //////////////////////////////////////////////////////////////////////
 
         case 1:
-            scene++;
-            break;
         case 2: //画面表示・ボタンでスタート
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
@@ -139,7 +137,7 @@ void tracer_task(intptr_t unused) {
         case 11: //設定の読み込み
             startTimer(1);
             follow = true;
-            BASE_SPEED = 80.0;
+            BASE_SPEED = 70.0;
             scene++;
             break;
         case 12: //第一ストレート
@@ -413,8 +411,7 @@ static Mat Capture(void){
 /* フレームのトリミング＆HSV変換 */
 static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
     Mat rectframe, hsv;
-    rectframe = frame.clone();
-//    rectframe = frame(Rect(200, 240, 240, 60));
+    rectframe = frame(Rect(140, 240, 360, 50));
     cvtColor(rectframe, hsv, COLOR_BGR2HSV);
     return make_tuple(rectframe, hsv);
 }
