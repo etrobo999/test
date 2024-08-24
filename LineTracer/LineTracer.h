@@ -13,6 +13,7 @@ struct PID {
     double Kp, Ki, Kd;
     double previous_error, integral;
 };
+void applyGrayWorldWhiteBalance(cv::Mat& src);
 static double pid_control(PID &pid, double error);                                //PIDの誤差計算関数
 static void motor_cntrol(double left_motor_speed , double right_motor_speed);     //モータの速度設定関数
 /*static cv::Mat Capture(void);*/                                                 //旧画像取得関数
