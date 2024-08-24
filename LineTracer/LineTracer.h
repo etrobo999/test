@@ -36,7 +36,7 @@ extern uint8_t scene;
 extern int cX, cY;
 extern double BASE_SPEED;
 
-constexpr int frame_center = 250; 
+constexpr int frame_center = 320; 
 #ifdef __cplusplus
 }
 #endif
