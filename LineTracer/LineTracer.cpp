@@ -413,7 +413,8 @@ static Mat Capture(void){
 /* フレームのトリミング＆HSV変換 */
 static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
     Mat rectframe, hsv;
-    rectframe = frame(Rect(200, 240, 240, 60));
+    rectframe = frame.clone();
+//    rectframe = frame(Rect(200, 240, 240, 60));
     cvtColor(rectframe, hsv, COLOR_BGR2HSV);
     return make_tuple(rectframe, hsv);
 }
