@@ -17,7 +17,7 @@ raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
 PID straightpid = {0.05, 0, 0, 0, 0}; //ストレートPID
-PID Bcurvetpid = {0.1, 0, 0, 0, 0}; //急カーブPID
+PID Bcurvetpid = {0.08, 0, 0, 0, 0}; //急カーブPID
 PID Mcurvetpid = {0.08, 0, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.08, 0, 0, 0, 0}; //ゆっくりカーブPID
 
@@ -43,8 +43,10 @@ int detection_count = 0;
 int no_detection_count = 0;
 int stop_count = 0;
 
+//////////////////////////////////////////////////////////////////////
+////////　　　     特殊なcamera処理　　　　　　　　/////////////////////
+//////////////////////////////////////////////////////////////////////
 
-/*なんかすごいcameraの処理*/
 void* opencv_thread_func(void* arg) {
     // シグナルマスクの設定
     sigset_t set;
@@ -59,7 +61,6 @@ void* opencv_thread_func(void* arg) {
     Camera.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
     Camera.set(cv::CAP_PROP_FORMAT, CV_8UC3);
     Camera.set(cv::CAP_PROP_FPS, 60);
-    Camera.set(cv::CAP_PROP_AUTO_WB, 1);
     if (!Camera.open()) {
         cerr << "Error: !Camera.open" << endl;
         pthread_exit(NULL);
@@ -75,6 +76,7 @@ void* opencv_thread_func(void* arg) {
             continue;
         }
 
+        applyGrayWorldWhiteBalance(temp_frame);
         // 取得したフレームを共有変数にコピー
         {
             std::lock_guard<std::mutex> lock(mtx);
@@ -89,7 +91,33 @@ void* opencv_thread_func(void* arg) {
     pthread_exit(NULL);
 }
 
-/*走行時の根本プログラム*/
+void applyGrayWorldWhiteBalance(Mat& src) {
+    // 各チャンネルの平均値を計算
+    Scalar avg_rgb = mean(src);
+    double avg_r = avg_rgb[2];
+    double avg_g = avg_rgb[1];
+    double avg_b = avg_rgb[0];
+
+    // グレイワールド仮定に基づいてスケールを計算
+    double scale_r = avg_g / avg_r;
+    double scale_b = avg_g / avg_b;
+
+    // 各チャンネルにスケールを適用
+    vector<Mat> channels(3);
+    split(src, channels);
+    channels[2] *= scale_r;
+    channels[0] *= scale_b;
+
+    // チャンネルを再結合
+    merge(channels, src); // srcに結果を格納
+}
+
+
+
+//////////////////////////////////////////////////////////////////////
+////////　　　         メイン処理　  　　　　　　　/////////////////////
+//////////////////////////////////////////////////////////////////////
+
 void tracer_task(intptr_t unused) {
     pthread_t opencv_thread;
 
@@ -111,15 +139,16 @@ void tracer_task(intptr_t unused) {
 
         case 1:
         case 2: //画面表示・ボタンでスタート
+            startTimer(1);
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
             cout << "Centroid: (" << cX << ", " << cY << ")" <<endl;
             if(ev3_touch_sensor_is_pressed(touch_sensor)){
-                startTimer(2);
                 scene = 11;
             };
+            cout <<getTime(1)<<endl;
         case 3:
         case 4:
         case 5:
