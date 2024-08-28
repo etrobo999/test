@@ -16,7 +16,7 @@ using namespace cv;
 raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
-PID straightpid = {0.06, 0, 0, 0, 0}; //ストレートPID
+PID straightpid = {0.055, 0, 0, 0, 0}; //ストレートPID
 PID Bcurvetpid = {0.05, 0, 0, 0, 0}; //急カーブPID
 PID Mcurvetpid = {0.05, 0, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.05, 0, 0, 0, 0}; //ゆっくりカーブPID
@@ -272,7 +272,7 @@ void tracer_task(intptr_t unused) {
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);
             std::cout <<getTime(2)<< std::endl;
-            if(getTime(1) >=5.5){
+            if(getTime(1) >=4.8){
                 scene++;
             }
             std::cout << "Case 12" << std::endl;
