@@ -283,7 +283,7 @@ void tracer_task(intptr_t unused) {
             break;
         case 13: //設定の読み込み
             startTimer(1);
-            set_speed(70.0);
+            set_speed(65.0);
             scene++;
             break;
         case 14: //第一急カーブ
@@ -295,7 +295,7 @@ void tracer_task(intptr_t unused) {
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             PIDMotor(Bcurvetpid);         
-            if(getTime(1) >=2.5){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 9000){
                 scene++;
             }
             std::cout << "Case 14" << std::endl;
