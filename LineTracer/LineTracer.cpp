@@ -94,7 +94,9 @@ void* opencv_thread_func(void* arg) {
             }
             // 取得したフレームを共有変数にコピー
             {
+                std::cout << "Locking mtx in opencv_thread_func" << std::endl;
                 std::lock_guard<std::mutex> lock(mtx);
+                std::cout << "Locked mtx in opencv_thread_func" << std::endl;
                 temp_frame.copyTo(orizin_frame);
                 frame_ready = true;
             }
@@ -119,7 +121,10 @@ void* white_balance_thread_func(void* arg) {
         
         // フレームが準備されるまで待機
         {
+
+            std::cout << "Locking mtx in white_balance_thread_func" << std::endl;
             std::unique_lock<std::mutex> lock(mtx);
+            std::cout << "Locked mtx in white_balance_thread_func" << std::endl;
             wb_var.wait(lock, [] { return frame_ready; });
             temp_frame = orizin_frame.clone(); // フレームをコピーしてローカルで処理
         }
@@ -205,7 +210,9 @@ void tracer_task(intptr_t unused) {
     bool ext = true;
     
     while (ext){
+        std::cout << "Locking mtx in tracer_task" << std::endl;
         std::unique_lock<std::mutex> lock(mtx);
+        std::cout << "Locked mtx in tracer_task" << std::endl;
         condition_var.wait(lock, [] { return wb_ready; });
         wb_ready = false;
         switch (scene) {
