@@ -231,12 +231,7 @@ void tracer_task(intptr_t unused) {
 ////////　　　　　　スタート処理　　　　　　　　　　/////////////////////
 //////////////////////////////////////////////////////////////////////
 
-        case 1:
-        ev3_motor_reset_counts(left_motor);
-        ev3_motor_reset_counts(right_motor);
-            scene++;
-            break;
-        case 2: //画面表示・ボタンでスタート
+        case 1: //画面表示・ボタンでスタート
             startTimer(1);
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
@@ -244,10 +239,15 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY) = ProcessContours(morphed);
             cout << "Centroid: (" << cX << ", " << cY << ")" <<endl;
             if(ev3_touch_sensor_is_pressed(touch_sensor)){
-                scene = 11;
+                scene++;
             };
             cout <<getTime(1)<<endl;
         case 3:
+        case 2:
+            ev3_motor_reset_counts(left_motor);
+            ev3_motor_reset_counts(right_motor);
+            scene = 11;
+            break;
         case 4:
         case 5:
         case 6:
