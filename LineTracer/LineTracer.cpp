@@ -92,15 +92,15 @@ void* opencv_thread_func(void* arg) {
                 cerr << "frame.empty" << endl;
                 continue;
             }
+            applyGrayWorldWhiteBalance(temp_frame);
             // 取得したフレームを共有変数にコピー
             {
                 std::lock_guard<std::mutex> lock(mtx);
                 temp_frame.copyTo(frame);
                 frame_ready = true;
             }
-
             // メインタスクにフレームが準備できたことを通知
-            wb_var.notify_one();
+            condition_var.notify_one();
 
             // ここでカメラ設定が変更されたかをチェック
             if (resetting) {
@@ -114,7 +114,7 @@ void* opencv_thread_func(void* arg) {
     pthread_exit(NULL);
 }
 
-void* white_balance_thread_func(void* arg) {
+/*void* white_balance_thread_func(void* arg) {
     while (true) {
         Mat temp_frame;
         
@@ -141,7 +141,7 @@ void* white_balance_thread_func(void* arg) {
     }
 
     pthread_exit(NULL);
-}
+}*/
 
 /* void* display_thread_func(void* arg) {
     while (true) {
@@ -166,7 +166,7 @@ void* white_balance_thread_func(void* arg) {
 
 void tracer_task(intptr_t unused) {
     pthread_t opencv_thread;
-    pthread_t white_balance_thread;
+//    pthread_t white_balance_thread;
 //    pthread_t display_thread;
 
     pthread_attr_t attr;
@@ -182,11 +182,11 @@ void tracer_task(intptr_t unused) {
         return;
     }
     
-    // ホワイトバランス処理スレッドを作成
+/*    // ホワイトバランス処理スレッドを作成
     if (pthread_create(&white_balance_thread, NULL, white_balance_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create White Balance thread" << endl;
         return;
-    }
+    }*/
 
 /*    // 画面表示スレッドを作成
     if (pthread_create(&display_thread, NULL, display_thread_func, NULL) != 0) {
@@ -200,8 +200,8 @@ void tracer_task(intptr_t unused) {
     
     while (ext){
         std::unique_lock<std::mutex> lock(mtx);
-        condition_var.wait(lock, [] { return wb_ready; });
-        wb_ready = false;
+        condition_var.wait(lock, [] { return frame_ready; });
+        frame_ready = false;
         switch (scene) {
 
 //////////////////////////////////////////////////////////////////////
