@@ -16,7 +16,7 @@ using namespace cv;
 raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
-PID straightpid = {0.055, 0, 0, 0, 0}; //ストレートPID
+PID straightpid = {0.055, 0.005, 0.005, 0, 0}; //ストレートPID
 PID Bcurvetpid = {0.12, 0, 0, 0, 0}; //急カーブPID
 PID Mcurvetpid = {0.05, 0, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.05, 0, 0, 0, 0}; //ゆっくりカーブPID
@@ -242,6 +242,7 @@ void tracer_task(intptr_t unused) {
                 scene++;
             };
             cout <<getTime(1)<<endl;
+            break;
         case 3:
         case 2:
             ev3_motor_reset_counts(left_motor);
@@ -278,7 +279,7 @@ void tracer_task(intptr_t unused) {
             std::cout <<getTime(2)<< std::endl;
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
-            if(getTime(1) >=4.8){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 6500){
                 scene++;
             }
             std::cout << "Case 12" << std::endl;
@@ -295,6 +296,8 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             std::cout <<getTime(2)<< std::endl;
+            std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
+            std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             PIDMotor(Bcurvetpid);         
             if(getTime(1) >=2.5){
                 scene++;
