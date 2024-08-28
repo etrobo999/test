@@ -174,7 +174,7 @@ void tracer_task(intptr_t unused) {
     pthread_attr_init(&attr);
 
     // スタックサイズを100MBに設定
-    size_t stacksize = 100 * 1024 * 1024; // 100MB
+    size_t stacksize = 200 * 1024 * 1024; // 100MB
     pthread_attr_setstacksize(&attr, stacksize);
 
     // OpenCVスレッドを作成
@@ -196,7 +196,7 @@ void tracer_task(intptr_t unused) {
     }
 
     pthread_attr_destroy(&attr);
-    
+
     bool ext = true;
     
     while (ext){
