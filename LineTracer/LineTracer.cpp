@@ -31,6 +31,7 @@ std::chrono::high_resolution_clock::time_point start_time3;
 
 std::mutex mtx;
 std::mutex mtx2;
+std::mutex mtx3;
 std::condition_variable condition_var;
 std::condition_variable wb_var;
 //std::condition_variable display_var;
@@ -101,7 +102,7 @@ void* opencv_thread_func(void* arg) {
                 frame_ready = true;
             }
             // メインタスクにフレームが準備できたことを通知
-            wb_var.notify_one();
+            condition_var.notify_one();
 
             // ここでカメラ設定が変更されたかをチェック
             if (resetting) {
@@ -125,7 +126,7 @@ void* white_balance_thread_func(void* arg) {
             std::cout << "Locking mtx in white_balance_thread_func" << std::endl;
             std::unique_lock<std::mutex> lock(mtx2);
             std::cout << "Locked mtx in white_balance_thread_func" << std::endl;
-            wb_var.wait(lock, [] { return frame_ready; });
+            condition_var.wait(lock, [] { return frame_ready; });
             temp_frame = orizin_frame.clone(); // フレームをコピーしてローカルで処理
         }
         
@@ -141,7 +142,7 @@ void* white_balance_thread_func(void* arg) {
         }
         
         // 次の処理をメインスレッドに通知
-        condition_var.notify_one();
+        wb_var.notify_one();
     }
 
     pthread_exit(NULL);
@@ -211,9 +212,9 @@ void tracer_task(intptr_t unused) {
     
     while (ext){
         std::cout << "Locking mtx in tracer_task" << std::endl;
-        std::unique_lock<std::mutex> lock(mtx2);
+        std::unique_lock<std::mutex> lock(mtx3);
         std::cout << "Locked mtx in tracer_task" << std::endl;
-        condition_var.wait(lock, [] { return wb_ready; });
+        wb_var.wait(lock, [] { return wb_ready; });
         wb_ready = false;
         switch (scene) {
 
