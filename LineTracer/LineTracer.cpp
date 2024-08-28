@@ -117,15 +117,20 @@ void* opencv_thread_func(void* arg) {
 }
 
 void* white_balance_thread_func(void* arg) {
+    // シグナルマスクの設定
+    sigset_t set;
+    sigemptyset(&set);
+    sigaddset(&set, SIGUSR2);  // ASPカーネルが使用するシグナルをマスク
+    sigaddset(&set, SIGPOLL);  // その他のカーネルシグナルをマスク
+    sigaddset(&set, SIGALRM);  // タイマーシグナルをマスク
+    pthread_sigmask(SIG_BLOCK, &set, NULL);
+
     while (true) {
         Mat temp_frame;
         
         // フレームが準備されるまで待機
         {
-
-            std::cout << "Locking mtx in white_balance_thread_func" << std::endl;
             std::unique_lock<std::mutex> lock(mtx2);
-            std::cout << "Locked mtx in white_balance_thread_func" << std::endl;
             frame_ready_var.wait(lock, [] { return frame_ready; });
             temp_frame = orizin_frame.clone(); // フレームをコピーしてローカルで処理
         }
@@ -212,10 +217,9 @@ void tracer_task(intptr_t unused) {
     
     while (ext){
         std::cout << "Locking mtx in tracer_task" << std::endl;
-        std::unique_lock<std::mutex> lock(mtx);
+        std::unique_lock<std::mutex> lock(mtx2);
         std::cout << "Locked mtx in tracer_task" << std::endl;
         wb_var.wait(lock, [] { return wb_ready; });
-        wb_ready = false;
         switch (scene) {
 
 //////////////////////////////////////////////////////////////////////
@@ -504,6 +508,7 @@ void tracer_task(intptr_t unused) {
             std::cout << "Default case" << std::endl;
             break;
         }
+        wb_ready = false;
         //display_ready = true;
         //condition_var.notify_one();
     }
