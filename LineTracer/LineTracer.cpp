@@ -170,6 +170,13 @@ void tracer_task(intptr_t unused) {
     pthread_t white_balance_thread;
     pthread_t display_thread;
 
+    pthread_attr_t attr;
+    pthread_attr_init(&attr);
+
+    // スタックサイズを100MBに設定
+    size_t stacksize = 100 * 1024 * 1024; // 100MB
+    pthread_attr_setstacksize(&attr, stacksize);
+
     // OpenCVスレッドを作成
     if (pthread_create(&opencv_thread, NULL, opencv_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create OpenCV thread" << endl;
@@ -188,6 +195,8 @@ void tracer_task(intptr_t unused) {
         return;
     }
 
+    pthread_attr_destroy(&attr);
+    
     bool ext = true;
     
     while (ext){
