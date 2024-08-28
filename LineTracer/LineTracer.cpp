@@ -16,10 +16,12 @@ using namespace cv;
 raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
-PID straightpid = {0.05, 0, 0, 0, 0}; //ストレートPID
-PID Bcurvetpid = {0.08, 0, 0, 0, 0}; //急カーブPID
-PID Mcurvetpid = {0.08, 0, 0, 0, 0}; //ちょうどいいカーブPID
-PID Scurvetpid = {0.08, 0, 0, 0, 0}; //ゆっくりカーブPID
+PID straightpid = {0.035, 0, 0, 0, 0}; //ストレートPID
+PID Bcurvetpid = {0.05, 0, 0, 0, 0}; //急カーブPID
+PID Mcurvetpid = {0.05, 0, 0, 0, 0}; //ちょうどいいカーブPID
+PID Scurvetpid = {0.05, 0, 0, 0, 0}; //ゆっくりカーブPID
+
+CameraSettings camera_settings = {640, 480, CV_8UC3, 60};
 
 
 /*使用する変数の宣言*/
@@ -35,9 +37,17 @@ Mat frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, morphed2, resu
 uint8_t scene = 1;
 int cX = 0;
 int cY = 0;
-double BASE_SPEED = 0.0;
+double left_speed = 0.0;
+double right_speed = 0.0;
+
+// 追従方向の変数[true = 右] [false = 左]
 bool follow = true;
+
+// スレッドの操作のための変数
+bool resetting = false;
 bool frame_ready = false;
+bool wb_ready =false;
+
 // 連続して検知された回数をカウントする変数
 int detection_count = 0;
 int no_detection_count = 0;
@@ -56,62 +66,76 @@ void* opencv_thread_func(void* arg) {
     sigaddset(&set, SIGALRM);  // タイマーシグナルをマスク
     pthread_sigmask(SIG_BLOCK, &set, NULL);
 
-    // カメラ初期化 (一度だけ行う)
-    Camera.set(cv::CAP_PROP_FRAME_WIDTH, 640);
-    Camera.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
-    Camera.set(cv::CAP_PROP_FORMAT, CV_8UC3);
-    Camera.set(cv::CAP_PROP_FPS, 30);
-    if (!Camera.open()) {
-        cerr << "Error: !Camera.open" << endl;
-        pthread_exit(NULL);
-    }
-
     while (true) {
-        Camera.grab();
-        Mat temp_frame;
-        Camera.retrieve(temp_frame);
-
-        if (temp_frame.empty()) {
-            cerr << "frame.empty" << endl;
-            continue;
+        // カメラ初期化 (設定を使用)
+        Camera.set(cv::CAP_PROP_FRAME_WIDTH, camera_settings.frame_width);
+        Camera.set(cv::CAP_PROP_FRAME_HEIGHT, camera_settings.frame_height);
+        Camera.set(cv::CAP_PROP_FORMAT, camera_settings.format);
+        Camera.set(cv::CAP_PROP_FPS, camera_settings.fps);
+        if (!Camera.open()) {
+            cerr << "Error: !Camera.open" << endl;
+            pthread_exit(NULL);
         }
 
-        applyGrayWorldWhiteBalance(temp_frame);
-        // 取得したフレームを共有変数にコピー
-        {
-            std::lock_guard<std::mutex> lock(mtx);
-            temp_frame.copyTo(frame);
-            frame_ready = true;
-        }
+        while (true) {
+            Camera.grab();
+            Mat temp_frame;
+            Camera.retrieve(temp_frame);
 
-        // メインタスクにフレームが準備できたことを通知
-        condition_var.notify_one();
+            if (temp_frame.empty()) {
+                cerr << "frame.empty" << endl;
+                continue;
+            }
+            // 取得したフレームを共有変数にコピー
+            {
+                std::lock_guard<std::mutex> lock(mtx);
+                temp_frame.copyTo(frame);
+                frame_ready = true;
+            }
+
+            // メインタスクにフレームが準備できたことを通知
+            condition_var.notify_one();
+
+            // ここでカメラ設定が変更されたかをチェック
+            if (resetting) {
+                Camera.release();  // カメラをリリース
+                resetting = false;
+                break;  // 内側のループを抜けて再初期化へ
+            }
+        }
     }
 
     pthread_exit(NULL);
 }
 
-void applyGrayWorldWhiteBalance(Mat& src) {
-    // 各チャンネルの平均値を計算
-    Scalar avg_rgb = mean(src);
-    double avg_r = avg_rgb[2];
-    double avg_g = avg_rgb[1];
-    double avg_b = avg_rgb[0];
+void* white_balance_thread_func(void* arg) {
+    while (true) {
+        Mat temp_frame;
+        
+        // フレームが準備されるまで待機
+        {
+            std::unique_lock<std::mutex> lock(mtx);
+            condition_var.wait(lock, [] { return frame_ready; });
+            temp_frame = frame.clone(); // フレームをコピーしてローカルで処理
+        }
+        
+        // ホワイトバランスを適用
+        applyGrayWorldWhiteBalance(temp_frame);
 
-    // グレイワールド仮定に基づいてスケールを計算
-    double scale_r = avg_g / avg_r;
-    double scale_b = avg_g / avg_b;
+        // 処理したフレームを戻す
+        {
+            std::lock_guard<std::mutex> lock(mtx);
+            temp_frame.copyTo(frame);
+            frame_ready = false;
+            wb_ready = true;
+        }
+        
+        // 次の処理をメインスレッドに通知
+        condition_var.notify_one();
+    }
 
-    // 各チャンネルにスケールを適用
-    vector<Mat> channels(3);
-    split(src, channels);
-    channels[2] *= scale_r;
-    channels[0] *= scale_b;
-
-    // チャンネルを再結合
-    merge(channels, src); // srcに結果を格納
+    pthread_exit(NULL);
 }
-
 
 
 //////////////////////////////////////////////////////////////////////
@@ -120,17 +144,26 @@ void applyGrayWorldWhiteBalance(Mat& src) {
 
 void tracer_task(intptr_t unused) {
     pthread_t opencv_thread;
+    pthread_t white_balance_thread;
 
     // OpenCVスレッドを作成
     if (pthread_create(&opencv_thread, NULL, opencv_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create OpenCV thread" << endl;
         return;
     }
+    
+    // ホワイトバランス処理スレッドを作成
+    if (pthread_create(&white_balance_thread, NULL, white_balance_thread_func, NULL) != 0) {
+        cerr << "Error: Failed to create White Balance thread" << endl;
+        return;
+    }
+
     bool ext = true;
     
     while (ext){
         std::unique_lock<std::mutex> lock(mtx);
-        condition_var.wait(lock, [] { return frame_ready; });
+        condition_var.wait(lock, [] { return wb_ready; });
+        wb_ready = false;
         switch (scene) {
 
 //////////////////////////////////////////////////////////////////////
@@ -141,13 +174,14 @@ void tracer_task(intptr_t unused) {
         case 2: //画面表示・ボタンでスタート
             startTimer(1);
             tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "black");
+            createMask(hsv, "black");j
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
             cout << "Centroid: (" << cX << ", " << cY << ")" <<endl;
             if(ev3_touch_sensor_is_pressed(touch_sensor)){
                 scene = 11;
             };
+            cv::imshow("hsv", hsv);
             cv::imshow("morphed", morphed);
             cv::waitKey(1);
             cout <<getTime(1)<<endl;
@@ -166,9 +200,10 @@ void tracer_task(intptr_t unused) {
 //////////////////////////////////////////////////////////////////////
 
         case 11: //設定の読み込み
+            start_time2();
             startTimer(1);
             follow = true;
-            BASE_SPEED = 70.0;
+            BASE_SPEED = 100.0;
             scene++;
             break;
         case 12: //第一ストレート
@@ -280,7 +315,7 @@ void tracer_task(intptr_t unused) {
             break;
         case 23://設定の読み込み
             BASE_SPEED = 50.0;
-            follow = false;
+            follow = !follow;
             scene++;
             std::cout << follow << std::endl;
             break;
@@ -299,7 +334,7 @@ void tracer_task(intptr_t unused) {
             break;
         case 25://設定の読み込み
             BASE_SPEED = 50.0;
-            follow = true;
+            follow = !follow;
             scene++;
             std::cout << follow << std::endl;
             break;
@@ -318,7 +353,7 @@ void tracer_task(intptr_t unused) {
             break;
         case 27://設定の読み込み
             BASE_SPEED = 50.0;
-            follow = false;
+            follow = !follow;
             scene++;
             std::cout << follow << std::endl;
             break;
@@ -337,7 +372,7 @@ void tracer_task(intptr_t unused) {
             break;
         case 29://設定の読み込み
             BASE_SPEED = 50.0;
-            follow = true;
+            follow = !follow;
             scene++;
             std::cout << follow << std::endl;
             break;
@@ -420,29 +455,38 @@ void tracer_task(intptr_t unused) {
             std::cout << "Default case" << std::endl;
             break;
         }
-        frame_ready = false;
     }
     /* タスク終了 */
     ext_tsk(); // タスクを終了
 }
 
-/* フレームの取得処理 
-static Mat Capture(void){
-    Mat frame;
-    Camera.grab();
-    Camera.retrieve(frame);
-    if (frame.empty()){
-        cerr << "frame.empty" << endl;
-        return Mat(); // 空の Mat オブジェクトを返す
-    }
-    return frame; // 獲得したフレームを返す
-}                                                   */
+/* ホワイトバランス補正 */
+void applyGrayWorldWhiteBalance(Mat& src) {
+    // 各チャンネルの平均値を計算
+    Scalar avg_rgb = mean(src);
+    double avg_r = avg_rgb[2];
+    double avg_g = avg_rgb[1];
+    double avg_b = avg_rgb[0];
+
+    // グレイワールド仮定に基づいてスケールを計算
+    double scale_r = avg_g / avg_r;
+    double scale_b = avg_g / avg_b;
+
+    // 各チャンネルにスケールを適用
+    vector<Mat> channels(3);
+    split(src, channels);
+    channels[2] *= scale_r;
+    channels[0] *= scale_b;
+
+    // チャンネルを再結合
+    merge(channels, src); // srcに結果を格納
+}
 
 
 /* フレームのトリミング＆HSV変換 */
 static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
     Mat rectframe, hsv;
-    rectframe = frame(Rect(0, 240, 640, 40));
+    rectframe = frame(Rect(140, 240, 360, 80));
     cvtColor(rectframe, hsv, COLOR_BGR2HSV);
     return make_tuple(rectframe, hsv);
 }
@@ -555,8 +599,8 @@ static void PIDMotor(PID &pid) {
     double straight_control = pid_control(pid, error);
 
     // モータ速度の初期化
-    double left_motor_speed = BASE_SPEED;
-    double right_motor_speed = BASE_SPEED;
+    double left_motor_speed = left_speed;
+    double right_motor_speed = right_speed;
 
     // フィードバック制御のためのモータ制御
     if (straight_control > 0) {
@@ -644,7 +688,14 @@ static double pid_control(PID &pid, double error) {
     return pid.Kp * error + pid.Ki * pid.integral + pid.Kd * derivative;
 }
 
+/* 誤差計算 */
+static void setspeed(double BASE_SPEED){
+    left_speed = BASE_SPEED;
+    right_speed = BASE_SPEED;
+}
 
+
+/* マスク値 */
 std::map<std::string, std::pair<Scalar, Scalar>> color_bounds = {
     {"black", {Scalar(0, 0, 0), Scalar(180, 255, 50)}},  // 黒色
     {"blue", {Scalar(100, 150, 0), Scalar(140, 255, 255)}},  // 青色
@@ -654,7 +705,7 @@ std::map<std::string, std::pair<Scalar, Scalar>> color_bounds = {
     {"green", {Scalar(40, 50, 50), Scalar(80, 255, 255)}}  // 緑色
 };
 
-// 時間のカウント開始
+/* スタートタイマー */
 static void startTimer(int timer_id) {
     if (timer_id == 1) {
         start_time1 = std::chrono::high_resolution_clock::now();
