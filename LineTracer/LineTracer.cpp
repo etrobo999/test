@@ -30,10 +30,10 @@ std::chrono::high_resolution_clock::time_point start_time2;
 std::chrono::high_resolution_clock::time_point start_time3;
 
 std::mutex mtx;
-std::mutex mtx2;
+//std::mutex mtx2;
 std::condition_variable condition_var;
 std::condition_variable wb_var;
-std::condition_variable display_var;
+//std::condition_variable display_var;
 
 
 Mat frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, morphed2, result_frame;
@@ -143,24 +143,23 @@ void* white_balance_thread_func(void* arg) {
     pthread_exit(NULL);
 }
 
-void* display_thread_func(void* arg) {
+/* void* display_thread_func(void* arg) {
     while (true) {
         // フレームが表示できるまで待機
         {
             std::unique_lock<std::mutex> lock(mtx2);
             display_var.wait(lock, [] { return display_ready; });
+
             display_ready = false;
         }
 
         // 表示処理
         cv::imshow("hsv", hsv);
-        cv::imshow("morphed", morphed);
         cv::waitKey(1);
     }
 
     pthread_exit(NULL);
-}
-
+}*/
 //////////////////////////////////////////////////////////////////////
 ////////　　　         メイン処理　  　　　　　　　/////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -168,7 +167,7 @@ void* display_thread_func(void* arg) {
 void tracer_task(intptr_t unused) {
     pthread_t opencv_thread;
     pthread_t white_balance_thread;
-    pthread_t display_thread;
+//    pthread_t display_thread;
 
     pthread_attr_t attr;
     pthread_attr_init(&attr);
@@ -189,11 +188,11 @@ void tracer_task(intptr_t unused) {
         return;
     }
 
-    // 画面表示スレッドを作成
+/*    // 画面表示スレッドを作成
     if (pthread_create(&display_thread, NULL, display_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create Display thread" << endl;
         return;
-    }
+    }*/
 
     pthread_attr_destroy(&attr);
 
@@ -491,8 +490,8 @@ void tracer_task(intptr_t unused) {
             std::cout << "Default case" << std::endl;
             break;
         }
-        display_ready = true;
-        condition_var.notify_one();
+        //display_ready = true;
+        //condition_var.notify_one();
     }
     /* タスク終了 */
     ext_tsk(); // タスクを終了
