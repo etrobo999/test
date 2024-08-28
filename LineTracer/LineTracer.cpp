@@ -16,7 +16,7 @@ using namespace cv;
 raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
-PID straightpid = {0.08, 0, 0, 0, 0}; //ストレートPID
+PID straightpid = {0.1, 0, 0, 0, 0}; //ストレートPID
 PID Bcurvetpid = {0.05, 0, 0, 0, 0}; //急カーブPID
 PID Mcurvetpid = {0.05, 0, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.05, 0, 0, 0, 0}; //ゆっくりカーブPID
@@ -366,7 +366,7 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);
-            if(detectCheck(morphed1,3000)){
+            if(detectCheck(morphed1,2000)){
                 scene++;
             }
             std::cout << "Case 22" << std::endl;
@@ -385,7 +385,7 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Mcurvetpid);
-            if(detectCheck(morphed1,3000)){
+            if(detectCheck(morphed1,2000)){
                 scene++;
             }
             std::cout << "Case 24" << std::endl;
@@ -404,7 +404,7 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Scurvetpid);
-            if(detectCheck(morphed1,3000)){
+            if(detectCheck(morphed1,2000)){
                 scene++;
             }
             std::cout << "Case 26" << std::endl;
@@ -547,7 +547,7 @@ void applyGrayWorldWhiteBalance(Mat& src) {
 /* フレームのトリミング＆HSV変換 */
 static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
     Mat rectframe, hsv;
-    rectframe = frame(Rect(120, 240, 400, 80));
+    rectframe = frame(Rect(120, 240, 400, 60));
     cvtColor(rectframe, hsv, COLOR_BGR2HSV);
     return make_tuple(rectframe, hsv);
 }
@@ -592,7 +592,7 @@ static std::tuple<int, int> ProcessContours(const Mat& morphed) {
     std::cout << "Contour " << i << " area: " << area << std::endl;
     }
 
-    const double min_contour_area = 3000.0; // ピクセル数
+    const double min_contour_area = 2000.0; // ピクセル数
 
     // 最大の輪郭と2番目に大きい輪郭を見つける
     std::vector<cv::Point>* largest_contour = nullptr;
