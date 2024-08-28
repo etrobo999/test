@@ -264,8 +264,7 @@ void tracer_task(intptr_t unused) {
             startTimer(2);
             startTimer(1);
             follow = true;
-            left_speed = 80.0;
-            right_speed = 82.0;
+            set_speed(80.0);
             scene++;
             break;
         case 12: //第一ストレート
@@ -277,7 +276,7 @@ void tracer_task(intptr_t unused) {
             PIDMotor(straightpid);
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 6100){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 6300){
                 scene++;
             }
             std::cout << "Case 12" << std::endl;
@@ -296,7 +295,7 @@ void tracer_task(intptr_t unused) {
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             PIDMotor(Bcurvetpid);         
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 9000){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 8000){
                 scene++;
             }
             std::cout << "Case 14" << std::endl;
@@ -315,7 +314,7 @@ void tracer_task(intptr_t unused) {
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             PIDMotor(straightpid);
-            if(getTime(1) >=3){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 11500){
                 scene++;
             }
             std::cout << "Case 16" << std::endl;
@@ -556,7 +555,7 @@ void applyGrayWorldWhiteBalance(Mat& src) {
 /* フレームのトリミング＆HSV変換 */
 static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
     Mat rectframe, hsv;
-    rectframe = frame(Rect(120, 240, 400, 60));
+    rectframe = frame(Rect(100, 240, 440, 80));
     cvtColor(rectframe, hsv, COLOR_BGR2HSV);
     return make_tuple(rectframe, hsv);
 }
