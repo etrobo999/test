@@ -517,7 +517,7 @@ void tracer_task(intptr_t unused) {
         }
         wb_ready = false;
         display_ready = true;
-        condition_var.notify_one();
+        display_var.notify_one();
     }
     /* タスク終了 */
     ext_tsk(); // タスクを終了
