@@ -16,7 +16,7 @@ using namespace cv;
 raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
-PID straightpid = {0.055, 0.002, 0.002, 0, 0}; //ストレートPID
+PID straightpid = {0.055, 0, 0, 0, 0}; //ストレートPID
 PID Bcurvetpid = {0.12, 0, 0, 0, 0}; //急カーブPID
 PID Mcurvetpid = {0.05, 0, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.05, 0, 0, 0, 0}; //ゆっくりカーブPID
@@ -264,7 +264,7 @@ void tracer_task(intptr_t unused) {
             startTimer(2);
             startTimer(1);
             follow = true;
-            set_speed(90.0);
+            set_speed(80.0);
             scene++;
             break;
         case 12: //第一ストレート
@@ -274,7 +274,6 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);
-            std::cout <<getTime(2)<< std::endl;
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 6100){
@@ -293,7 +292,6 @@ void tracer_task(intptr_t unused) {
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
-            std::cout <<getTime(2)<< std::endl;
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             PIDMotor(Bcurvetpid);         
@@ -304,7 +302,7 @@ void tracer_task(intptr_t unused) {
             break;
         case 15: //設定の読み込み
             startTimer(1);
-            set_speed(90.0);
+            set_speed(80.0);
             scene++;
             break;
         case 16: //第二ストレート
@@ -313,7 +311,8 @@ void tracer_task(intptr_t unused) {
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
-            std::cout <<getTime(2)<< std::endl;
+            std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
+            std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             PIDMotor(straightpid);
             if(getTime(1) >=3){
                 scene++;
@@ -331,7 +330,8 @@ void tracer_task(intptr_t unused) {
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
-            std::cout <<getTime(2)<< std::endl;
+                std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
+            std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             PIDMotor(Bcurvetpid);
             if(getTime(1) >=3){
                 scene++;
@@ -340,7 +340,7 @@ void tracer_task(intptr_t unused) {
             break;
         case 19://設定の読み込み
             startTimer(1);
-            set_speed(70.0);
+            set_speed(80.0);
             scene++;
             break;
         case 20: //第二ストレート
@@ -349,7 +349,8 @@ void tracer_task(intptr_t unused) {
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
-            std::cout <<getTime(2)<< std::endl;
+            std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
+            std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             PIDMotor(straightpid);
             if(getTime(1) >=1){
                 scene = 21;
