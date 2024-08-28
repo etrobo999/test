@@ -194,7 +194,7 @@ void tracer_task(intptr_t unused) {
         return;
     }
 
-/   // 画面表示スレッドを作成
+    // 画面表示スレッドを作成
     if (pthread_create(&display_thread, NULL, display_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create Display thread" << endl;
         return;
