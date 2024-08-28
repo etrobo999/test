@@ -45,7 +45,7 @@ extern uint8_t scene;
 extern int cX, cY;
 extern double left_speed, right_speed;
 
-constexpr int frame_center = 320; 
+constexpr int frame_center = 200; 
 #ifdef __cplusplus
 }
 #endif
