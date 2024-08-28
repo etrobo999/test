@@ -16,12 +16,12 @@ using namespace cv;
 raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
-PID straightpid = {0.035, 0, 0, 0, 0}; //ストレートPID
+PID straightpid = {0.05, 0, 0, 0, 0}; //ストレートPID
 PID Bcurvetpid = {0.05, 0, 0, 0, 0}; //急カーブPID
 PID Mcurvetpid = {0.05, 0, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.05, 0, 0, 0, 0}; //ゆっくりカーブPID
 
-CameraSettings camera_settings = {640, 480, CV_8UC3, 60};
+CameraSettings camera_settings = {640, 480, CV_8UC3, 40};
 
 
 /*使用する変数の宣言*/
