@@ -174,7 +174,7 @@ void tracer_task(intptr_t unused) {
         case 2: //画面表示・ボタンでスタート
             startTimer(1);
             tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "black");j
+            createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
             cout << "Centroid: (" << cX << ", " << cY << ")" <<endl;
@@ -689,7 +689,7 @@ static double pid_control(PID &pid, double error) {
 }
 
 /* 誤差計算 */
-static void setspeed(double BASE_SPEED){
+static void set_speed(double BASE_SPEED){
     left_speed = BASE_SPEED;
     right_speed = BASE_SPEED;
 }

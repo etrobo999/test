@@ -30,7 +30,7 @@ static cv::Mat Morphology(const cv::Mat& mask);                                 
 static std::tuple<int, int> ProcessContours(const cv::Mat& morphed);              //追従座標計算関数
 static void PIDMotor(PID &pid);                                                   //PID走行関数
 static void Show(const cv::Mat& showfreme);                                       //画像表示関数
-static void setspeed(double BASE_SPEED);
+static void set_speed(double BASE_SPEED);
 static bool detectCheck(const cv::Mat& morphed, int min_area);                    //輪郭検知関数
 
 extern std::chrono::high_resolution_clock::time_point start_time1;                //経過時間の箱1
