@@ -34,7 +34,7 @@ std::mutex mtx2;
 std::mutex mtx3;
 std::condition_variable frame_ready_var;
 std::condition_variable wb_var;
-//std::condition_variable display_var;
+std::condition_variable display_var;
 
 
 Mat orizin_frame, frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, morphed2, result_frame;
@@ -153,12 +153,19 @@ void* white_balance_thread_func(void* arg) {
     pthread_exit(NULL);
 }
 
-/*void* display_thread_func(void* arg) {
+void* display_thread_func(void* arg) {
+    sigset_t set;
+    sigemptyset(&set);
+    sigaddset(&set, SIGUSR2);  // ASPカーネルが使用するシグナルをマスク
+    sigaddset(&set, SIGPOLL);  // その他のカーネルシグナルをマスク
+    sigaddset(&set, SIGALRM);  // タイマーシグナルをマスク
+    pthread_sigmask(SIG_BLOCK, &set, NULL);
+
     while (true) {
         // フレームが表示できるまで待機
         Mat temp_frame1, temp_frame2;
         {
-            std::unique_lock<std::mutex> lock(mtx2);
+            std::unique_lock<std::mutex> lock(mtx3);
             display_var.wait(lock, [] { return display_ready; });
             temp_frame1 = hsv.clone();
             temp_frame2 = morphed.clone();
@@ -176,7 +183,7 @@ void* white_balance_thread_func(void* arg) {
     }
 
     pthread_exit(NULL);
-}*/
+}
 //////////////////////////////////////////////////////////////////////
 ////////　　　         メイン処理　  　　　　　　　/////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -184,7 +191,7 @@ void* white_balance_thread_func(void* arg) {
 void tracer_task(intptr_t unused) {
     pthread_t opencv_thread;
     pthread_t white_balance_thread;
-//    pthread_t display_thread;
+    pthread_t display_thread;
 
     pthread_attr_t attr;
     pthread_attr_init(&attr);
@@ -205,11 +212,11 @@ void tracer_task(intptr_t unused) {
         return;
     }
 
-/*    // 画面表示スレッドを作成
+    // 画面表示スレッドを作成
     if (pthread_create(&display_thread, NULL, display_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create Display thread" << endl;
         return;
-    }*/
+    }
 
     pthread_attr_destroy(&attr);
 
@@ -509,8 +516,8 @@ void tracer_task(intptr_t unused) {
             break;
         }
         wb_ready = false;
-        //display_ready = true;
-        //condition_var.notify_one();
+        display_ready = true;
+        condition_var.notify_one();
     }
     /* タスク終了 */
     ext_tsk(); // タスクを終了
