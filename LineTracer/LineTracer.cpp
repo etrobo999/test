@@ -30,7 +30,7 @@ std::chrono::high_resolution_clock::time_point start_time2;
 std::chrono::high_resolution_clock::time_point start_time3;
 
 std::mutex mtx;
-//std::mutex mtx2;
+std::mutex mtx2;
 std::condition_variable condition_var;
 std::condition_variable wb_var;
 //std::condition_variable display_var;
