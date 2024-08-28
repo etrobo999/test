@@ -264,7 +264,8 @@ void tracer_task(intptr_t unused) {
             startTimer(2);
             startTimer(1);
             follow = true;
-            set_speed(80.0);
+            left_speed = 80.0
+            right_speed = 82.0
             scene++;
             break;
         case 12: //第一ストレート
@@ -680,7 +681,7 @@ static void PIDMotor(PID &pid) {
         left_motor_speed -= straight_control;
         right_motor_speed += straight_control;
     }
-    if(stop_count >= 5){
+    if(stop_count >= 50){
         left_motor_speed = 0.0;
         right_motor_speed = 0.0;
     }
