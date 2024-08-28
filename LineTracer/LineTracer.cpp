@@ -16,7 +16,7 @@ using namespace cv;
 raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
-PID straightpid = {0.05, 0, 0, 0, 0}; //ストレートPID
+PID straightpid = {0.08, 0, 0, 0, 0}; //ストレートPID
 PID Bcurvetpid = {0.05, 0, 0, 0, 0}; //急カーブPID
 PID Mcurvetpid = {0.05, 0, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.05, 0, 0, 0, 0}; //ゆっくりカーブPID
@@ -95,9 +95,7 @@ void* opencv_thread_func(void* arg) {
             }
             // 取得したフレームを共有変数にコピー
             {
-                std::cout << "Locking mtx in opencv_thread_func" << std::endl;
                 std::lock_guard<std::mutex> lock(mtx);
-                std::cout << "Locked mtx in opencv_thread_func" << std::endl;
                 temp_frame.copyTo(orizin_frame);
                 frame_ready = true;
             }
@@ -168,7 +166,7 @@ void* display_thread_func(void* arg) {
             std::unique_lock<std::mutex> lock(mtx3);
             display_var.wait(lock, [] { return display_ready; });
             temp_frame1 = hsv.clone();
-            temp_frame2 = morphed.clone();
+            temp_frame2 = result_frame.clone();
 
         }
 
