@@ -96,7 +96,7 @@ void* opencv_thread_func(void* arg) {
             // 取得したフレームを共有変数にコピー
             {
                 std::cout << "Locking mtx in opencv_thread_func" << std::endl;
-                std::lock_guard<std::mutex> lock(mtx2);
+                std::lock_guard<std::mutex> lock(mtx);
                 std::cout << "Locked mtx in opencv_thread_func" << std::endl;
                 temp_frame.copyTo(orizin_frame);
                 frame_ready = true;
