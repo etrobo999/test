@@ -17,7 +17,7 @@ raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
 PID straightpid = {0.055, 0, 0, 0, 0}; //ストレートPID
-PID Bcurvetpid = {0.05, 0, 0, 0, 0}; //急カーブPID
+PID Bcurvetpid = {0.12, 0, 0, 0, 0}; //急カーブPID
 PID Mcurvetpid = {0.05, 0, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.05, 0, 0, 0, 0}; //ゆっくりカーブPID
 
@@ -232,6 +232,10 @@ void tracer_task(intptr_t unused) {
 //////////////////////////////////////////////////////////////////////
 
         case 1:
+        ev3_motor_reset_counts(left_motor);
+        ev3_motor_reset_counts(right_motor);
+            scene++;
+            break;
         case 2: //画面表示・ボタンでスタート
             startTimer(1);
             tie(rectframe, hsv) = RectFrame(frame);
@@ -272,6 +276,8 @@ void tracer_task(intptr_t unused) {
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);
             std::cout <<getTime(2)<< std::endl;
+            std::cout <<ev3_motor_get_counts(left_motor)< std::endl;
+            std::cout <<ev3_motor_get_counts(right_motor)< std::endl;
             if(getTime(1) >=4.8){
                 scene++;
             }
