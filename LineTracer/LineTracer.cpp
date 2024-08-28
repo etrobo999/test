@@ -523,7 +523,7 @@ void applyGrayWorldWhiteBalance(Mat& src) {
 /* フレームのトリミング＆HSV変換 */
 static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
     Mat rectframe, hsv;
-    rectframe = frame(Rect(140, 240, 360, 80));
+    rectframe = frame(Rect(140, 240, 360, 40));
     cvtColor(rectframe, hsv, COLOR_BGR2HSV);
     return make_tuple(rectframe, hsv);
 }
