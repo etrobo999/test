@@ -276,8 +276,8 @@ void tracer_task(intptr_t unused) {
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);
             std::cout <<getTime(2)<< std::endl;
-            std::cout <<ev3_motor_get_counts(left_motor)< std::endl;
-            std::cout <<ev3_motor_get_counts(right_motor)< std::endl;
+            std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
+            std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             if(getTime(1) >=4.8){
                 scene++;
             }
