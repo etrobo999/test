@@ -368,7 +368,7 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);
-            if(detectCheck(morphed1,1600)){
+            if(detectCheck(morphed1,3000)){
                 scene++;
             }
             std::cout << "Case 22" << std::endl;
@@ -387,7 +387,7 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Mcurvetpid);
-            if(detectCheck(morphed1,1600)){
+            if(detectCheck(morphed1,3000)){
                 scene++;
             }
             std::cout << "Case 24" << std::endl;
@@ -406,7 +406,7 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Scurvetpid);
-            if(detectCheck(morphed1,1600)){
+            if(detectCheck(morphed1,3000)){
                 scene++;
             }
             std::cout << "Case 26" << std::endl;
@@ -425,7 +425,7 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Mcurvetpid);
-            if(detectCheck(morphed1,1600)){
+            if(detectCheck(morphed1,3000)){
                 scene++;
             }
             std::cout << "Case 28" << std::endl;
@@ -549,7 +549,7 @@ void applyGrayWorldWhiteBalance(Mat& src) {
 /* フレームのトリミング＆HSV変換 */
 static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
     Mat rectframe, hsv;
-    rectframe = frame(Rect(140, 240, 360, 40));
+    rectframe = frame(Rect(120, 240, 400, 80));
     cvtColor(rectframe, hsv, COLOR_BGR2HSV);
     return make_tuple(rectframe, hsv);
 }
@@ -594,7 +594,7 @@ static std::tuple<int, int> ProcessContours(const Mat& morphed) {
     std::cout << "Contour " << i << " area: " << area << std::endl;
     }
 
-    const double min_contour_area = 1600.0; // ピクセル数
+    const double min_contour_area = 3000.0; // ピクセル数
 
     // 最大の輪郭と2番目に大きい輪郭を見つける
     std::vector<cv::Point>* largest_contour = nullptr;
