@@ -16,7 +16,7 @@ using namespace cv;
 raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
-PID straightpid = {0.055, 0.001, 0.001, 0, 0}; //ストレートPID
+PID straightpid = {0.055, 0.002, 0.002, 0, 0}; //ストレートPID
 PID Bcurvetpid = {0.12, 0, 0, 0, 0}; //急カーブPID
 PID Mcurvetpid = {0.05, 0, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.05, 0, 0, 0, 0}; //ゆっくりカーブPID
@@ -221,9 +221,7 @@ void tracer_task(intptr_t unused) {
     bool ext = true;
     
     while (ext){
-        std::cout << "Locking mtx in tracer_task" << std::endl;
         std::unique_lock<std::mutex> lock(mtx2);
-        std::cout << "Locked mtx in tracer_task" << std::endl;
         wb_var.wait(lock, [] { return wb_ready; });
         switch (scene) {
 
@@ -279,7 +277,7 @@ void tracer_task(intptr_t unused) {
             std::cout <<getTime(2)<< std::endl;
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 6500){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 6100){
                 scene++;
             }
             std::cout << "Case 12" << std::endl;
