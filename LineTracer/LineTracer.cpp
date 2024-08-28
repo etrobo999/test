@@ -30,7 +30,12 @@ std::chrono::high_resolution_clock::time_point start_time2;
 std::chrono::high_resolution_clock::time_point start_time3;
 
 std::mutex mtx;
+std::mutex mtx2;
 std::condition_variable condition_var;
+std::condition_variable wb_var;
+std::condition_variable display_var;
+
+
 Mat frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, morphed2, result_frame;
 
 /*使用する変数の初期化*/
@@ -95,7 +100,7 @@ void* opencv_thread_func(void* arg) {
             }
 
             // メインタスクにフレームが準備できたことを通知
-            condition_var.notify_one();
+            wb_var.notify_one();
 
             // ここでカメラ設定が変更されたかをチェック
             if (resetting) {
@@ -116,7 +121,7 @@ void* white_balance_thread_func(void* arg) {
         // フレームが準備されるまで待機
         {
             std::unique_lock<std::mutex> lock(mtx);
-            condition_var.wait(lock, [] { return frame_ready; });
+            wb_var.wait(lock, [] { return frame_ready; });
             temp_frame = frame.clone(); // フレームをコピーしてローカルで処理
         }
         
@@ -142,7 +147,7 @@ void* display_thread_func(void* arg) {
     while (true) {
         // フレームが表示できるまで待機
         {
-            std::unique_lock<std::mutex> lock(mtx);
+            std::unique_lock<std::mutex> lock(mtx2);
             display_var.wait(lock, [] { return display_ready; });
             display_ready = false;
         }
@@ -478,6 +483,7 @@ void tracer_task(intptr_t unused) {
             break;
         }
         display_ready = true;
+        condition_var.notify_one();
     }
     /* タスク終了 */
     ext_tsk(); // タスクを終了
