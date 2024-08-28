@@ -264,8 +264,8 @@ void tracer_task(intptr_t unused) {
             startTimer(2);
             startTimer(1);
             follow = true;
-            left_speed = 80.0
-            right_speed = 82.0
+            left_speed = 80.0;
+            right_speed = 82.0;
             scene++;
             break;
         case 12: //第一ストレート
