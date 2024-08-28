@@ -30,10 +30,10 @@ std::chrono::high_resolution_clock::time_point start_time2;
 std::chrono::high_resolution_clock::time_point start_time3;
 
 std::mutex mtx;
-//std::mutex mtx2;
+std::mutex mtx2;
 std::condition_variable condition_var;
 std::condition_variable wb_var;
-//std::condition_variable display_var;
+std::condition_variable display_var;
 
 
 Mat orizin_frame, frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, morphed2, result_frame;
@@ -149,8 +149,8 @@ void* display_thread_func(void* arg) {
         {
             std::unique_lock<std::mutex> lock(mtx2);
             display_var.wait(lock, [] { return display_ready; });
-            temp_frame1 = hsv.clone()
-            temp_frame2 = morphed.clone()
+            temp_frame1 = hsv.clone();
+            temp_frame2 = morphed.clone();
 
         }
 
