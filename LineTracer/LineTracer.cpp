@@ -46,7 +46,8 @@ bool follow = true;
 // スレッドの操作のための変数
 bool resetting = false;
 bool frame_ready = false;
-bool wb_ready =false;
+bool wb_ready = false;
+bool display_ready = false;
 
 // 連続して検知された回数をカウントする変数
 int detection_count = 0;
@@ -137,6 +138,23 @@ void* white_balance_thread_func(void* arg) {
     pthread_exit(NULL);
 }
 
+void* display_thread_func(void* arg) {
+    while (true) {
+        // フレームが表示できるまで待機
+        {
+            std::unique_lock<std::mutex> lock(mtx);
+            display_var.wait(lock, [] { return display_ready; });
+            display_ready = false;
+        }
+
+        // 表示処理
+        cv::imshow("hsv", hsv);
+        cv::imshow("morphed", morphed);
+        cv::waitKey(1);
+    }
+
+    pthread_exit(NULL);
+}
 
 //////////////////////////////////////////////////////////////////////
 ////////　　　         メイン処理　  　　　　　　　/////////////////////
@@ -145,6 +163,7 @@ void* white_balance_thread_func(void* arg) {
 void tracer_task(intptr_t unused) {
     pthread_t opencv_thread;
     pthread_t white_balance_thread;
+    pthread_t display_thread;
 
     // OpenCVスレッドを作成
     if (pthread_create(&opencv_thread, NULL, opencv_thread_func, NULL) != 0) {
@@ -155,6 +174,12 @@ void tracer_task(intptr_t unused) {
     // ホワイトバランス処理スレッドを作成
     if (pthread_create(&white_balance_thread, NULL, white_balance_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create White Balance thread" << endl;
+        return;
+    }
+
+    // 画面表示スレッドを作成
+    if (pthread_create(&display_thread, NULL, display_thread_func, NULL) != 0) {
+        cerr << "Error: Failed to create Display thread" << endl;
         return;
     }
 
@@ -181,9 +206,6 @@ void tracer_task(intptr_t unused) {
             if(ev3_touch_sensor_is_pressed(touch_sensor)){
                 scene = 11;
             };
-            cv::imshow("hsv", hsv);
-            cv::imshow("morphed", morphed);
-            cv::waitKey(1);
             cout <<getTime(1)<<endl;
         case 3:
         case 4:
@@ -455,6 +477,7 @@ void tracer_task(intptr_t unused) {
             std::cout << "Default case" << std::endl;
             break;
         }
+        display_ready = true;
     }
     /* タスク終了 */
     ext_tsk(); // タスクを終了
