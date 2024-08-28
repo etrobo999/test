@@ -36,7 +36,7 @@ std::condition_variable wb_var;
 //std::condition_variable display_var;
 
 
-Mat frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, morphed2, result_frame;
+Mat orizin_frame, frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, morphed2, result_frame;
 
 /*使用する変数の初期化*/
 uint8_t scene = 1;
@@ -92,15 +92,14 @@ void* opencv_thread_func(void* arg) {
                 cerr << "frame.empty" << endl;
                 continue;
             }
-            applyGrayWorldWhiteBalance(temp_frame);
             // 取得したフレームを共有変数にコピー
             {
                 std::lock_guard<std::mutex> lock(mtx);
-                temp_frame.copyTo(frame);
+                temp_frame.copyTo(orizin_frame);
                 frame_ready = true;
             }
             // メインタスクにフレームが準備できたことを通知
-            condition_var.notify_one();
+            wb_var.notify_one();
 
             // ここでカメラ設定が変更されたかをチェック
             if (resetting) {
@@ -114,7 +113,7 @@ void* opencv_thread_func(void* arg) {
     pthread_exit(NULL);
 }
 
-/*void* white_balance_thread_func(void* arg) {
+void* white_balance_thread_func(void* arg) {
     while (true) {
         Mat temp_frame;
         
@@ -122,7 +121,7 @@ void* opencv_thread_func(void* arg) {
         {
             std::unique_lock<std::mutex> lock(mtx);
             wb_var.wait(lock, [] { return frame_ready; });
-            temp_frame = frame.clone(); // フレームをコピーしてローカルで処理
+            temp_frame = orizin_frame.clone(); // フレームをコピーしてローカルで処理
         }
         
         // ホワイトバランスを適用
@@ -141,33 +140,40 @@ void* opencv_thread_func(void* arg) {
     }
 
     pthread_exit(NULL);
-}*/
+}
 
-/* void* display_thread_func(void* arg) {
+void* display_thread_func(void* arg) {
     while (true) {
         // フレームが表示できるまで待機
+        Mat temp_frame1, temp_frame2;
         {
             std::unique_lock<std::mutex> lock(mtx2);
             display_var.wait(lock, [] { return display_ready; });
+            temp_frame1 = hsv.clone()
+            temp_frame2 = morphed.clone()
 
+        }
+
+        {
             display_ready = false;
         }
 
         // 表示処理
-        cv::imshow("hsv", hsv);
+        cv::imshow("temp_frame1", temp_frame1);
+        cv::imshow("temp_frame2", temp_frame2);
         cv::waitKey(1);
     }
 
     pthread_exit(NULL);
-}*/
+}
 //////////////////////////////////////////////////////////////////////
 ////////　　　         メイン処理　  　　　　　　　/////////////////////
 //////////////////////////////////////////////////////////////////////
 
 void tracer_task(intptr_t unused) {
     pthread_t opencv_thread;
-//    pthread_t white_balance_thread;
-//    pthread_t display_thread;
+    pthread_t white_balance_thread;
+    pthread_t display_thread;
 
     pthread_attr_t attr;
     pthread_attr_init(&attr);
@@ -182,17 +188,17 @@ void tracer_task(intptr_t unused) {
         return;
     }
     
-/*    // ホワイトバランス処理スレッドを作成
+    // ホワイトバランス処理スレッドを作成
     if (pthread_create(&white_balance_thread, NULL, white_balance_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create White Balance thread" << endl;
         return;
-    }*/
+    }
 
-/*    // 画面表示スレッドを作成
+/   // 画面表示スレッドを作成
     if (pthread_create(&display_thread, NULL, display_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create Display thread" << endl;
         return;
-    }*/
+    }
 
     pthread_attr_destroy(&attr);
 
@@ -200,8 +206,8 @@ void tracer_task(intptr_t unused) {
     
     while (ext){
         std::unique_lock<std::mutex> lock(mtx);
-        condition_var.wait(lock, [] { return frame_ready; });
-        frame_ready = false;
+        condition_var.wait(lock, [] { return wb_ready; });
+        wb_ready = false;
         switch (scene) {
 
 //////////////////////////////////////////////////////////////////////
@@ -490,8 +496,8 @@ void tracer_task(intptr_t unused) {
             std::cout << "Default case" << std::endl;
             break;
         }
-        //display_ready = true;
-        //condition_var.notify_one();
+        display_ready = true;
+        condition_var.notify_one();
     }
     /* タスク終了 */
     ext_tsk(); // タスクを終了
