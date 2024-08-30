@@ -16,7 +16,7 @@ using namespace cv;
 raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
-PID straightpid = {0.055, 0, 0.0002, 0, 0}; //ストレートPID
+PID straightpid = {0.055, 0, 0.000, 0, 0}; //ストレートPID
 PID Bcurvetpid = {0.12, 0.005, 0, 0, 0}; //急カーブPID
 PID Mcurvetpid = {0.1, 0.004, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.09, 0.005, 0, 0, 0}; //ゆっくりカーブPID
@@ -165,7 +165,7 @@ void* display_thread_func(void* arg) {
         {
             std::unique_lock<std::mutex> lock(mtx3);
             display_var.wait(lock, [] { return display_ready; });
-            temp_frame1 = hsv.clone();
+            temp_frame1 = frame.clone();
             temp_frame2 = result_frame.clone();
 
         }
