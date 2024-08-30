@@ -22,8 +22,9 @@ struct CameraSettings {
 
 void applyGrayWorldWhiteBalance(cv::Mat& src);                                    //ホワイトバランス補正関数
 static double pid_control(PID &pid, double error);                                //PIDの誤差計算関数
-static void motor_cntrol(double left_motor_speed , double right_motor_speed);     //モータの速度設定関数
-/*static cv::Mat Capture(void);*/                                                 //旧画像取得関数
+static void motor_cntrol(double left_motor_speed , double right_motor_speed);     //モータの速度設定関数                                            //旧画像取得関数
+void cv::Hsv(cv::Mat& hsv);                                                       //画像のトリミング
+void cv::RectFrame(cv::Mat& rectframe);                                           //HSV変換関数
 static std::tuple<cv::Mat, cv::Mat> RectFrame(const cv::Mat& frame);              //画像のトリミング＆HSV変換関数
 static void createMask(const cv::Mat& hsv, const std::string& color);             //マスク変換関数
 static cv::Mat Morphology(const cv::Mat& mask);                                   //モルフォロジー変換関数
@@ -45,7 +46,7 @@ extern uint8_t scene;
 extern int cX, cY;
 extern double left_speed, right_speed;
 
-constexpr int frame_center = 200; 
+extern int frame_center; 
 #ifdef __cplusplus
 }
 #endif
