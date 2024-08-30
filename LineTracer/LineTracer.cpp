@@ -314,7 +314,7 @@ void tracer_task(intptr_t unused) {
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             PIDMotor(straightpid);
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 11500){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 11300){
                 scene++;
             }
             std::cout << "Case 16" << std::endl;
@@ -334,7 +334,7 @@ void tracer_task(intptr_t unused) {
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             PIDMotor(Bcurvetpid);
-            if(getTime(1) >=2){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 13000){
                 scene++;
             }
             std::cout << "Case 18" << std::endl;
@@ -342,7 +342,7 @@ void tracer_task(intptr_t unused) {
         case 19://設定の読み込み
             follow = true;
             startTimer(1);
-            set_speed(75.0);
+            set_speed(70.0);
             scene++;
             break;
         case 20: //第三ストレート
@@ -354,7 +354,7 @@ void tracer_task(intptr_t unused) {
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             PIDMotor(straightpid);
-            if(getTime(1) >=1){
+            if(getTime(1) >=2){
                 scene = 21;
             }
             std::cout << "Case 20" << std::endl;
