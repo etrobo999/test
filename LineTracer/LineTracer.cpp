@@ -264,7 +264,7 @@ void tracer_task(intptr_t unused) {
             startTimer(2);
             startTimer(1);
             follow = true;
-            set_speed(80.0);
+            set_speed(78.0);
             scene++;
             break;
         case 12: //第一ストレート
@@ -302,7 +302,7 @@ void tracer_task(intptr_t unused) {
             break;
         case 15: //設定の読み込み
             startTimer(1);
-            set_speed(80.0);
+            set_speed(78.0);
             scene++;
             break;
         case 16: //第二ストレート
@@ -320,8 +320,9 @@ void tracer_task(intptr_t unused) {
             std::cout << "Case 16" << std::endl;
             break;
         case 17://設定の読み込み
+            follow = false;
             startTimer(1);
-            set_speed(70.0);
+            set_speed(65.0);
             scene++;
             break;
         case 18: //第二急カーブ
@@ -333,14 +334,15 @@ void tracer_task(intptr_t unused) {
                 std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             PIDMotor(Bcurvetpid);
-            if(getTime(1) >=3){
+            if(getTime(1) >=2){
                 scene++;
             }
             std::cout << "Case 18" << std::endl;
             break;
         case 19://設定の読み込み
+            follow = true;
             startTimer(1);
-            set_speed(80.0);
+            set_speed(78.0);
             scene++;
             break;
         case 20: //第二ストレート
@@ -374,7 +376,7 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);
-            if(detectCheck(morphed1,2000)){
+            if(detectCheck(morphed1,3000)){
                 scene++;
             }
             std::cout << "Case 22" << std::endl;
@@ -393,7 +395,7 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Mcurvetpid);
-            if(detectCheck(morphed1,2000)){
+            if(detectCheck(morphed1,3000)){
                 scene++;
             }
             std::cout << "Case 24" << std::endl;
@@ -412,7 +414,7 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Scurvetpid);
-            if(detectCheck(morphed1,2000)){
+            if(detectCheck(morphed1,3000)){
                 scene++;
             }
             std::cout << "Case 26" << std::endl;
@@ -555,7 +557,7 @@ void applyGrayWorldWhiteBalance(Mat& src) {
 /* フレームのトリミング＆HSV変換 */
 static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
     Mat rectframe, hsv;
-    rectframe = frame(Rect(100, 240, 440, 80));
+    rectframe = frame(Rect(120, 200, 400, 160));
     cvtColor(rectframe, hsv, COLOR_BGR2HSV);
     return make_tuple(rectframe, hsv);
 }
@@ -600,7 +602,7 @@ static std::tuple<int, int> ProcessContours(const Mat& morphed) {
     std::cout << "Contour " << i << " area: " << area << std::endl;
     }
 
-    const double min_contour_area = 2000.0; // ピクセル数
+    const double min_contour_area = 3000.0; // ピクセル数
 
     // 最大の輪郭と2番目に大きい輪郭を見つける
     std::vector<cv::Point>* largest_contour = nullptr;
@@ -665,20 +667,21 @@ static std::tuple<int, int> ProcessContours(const Mat& morphed) {
 static void PIDMotor(PID &pid) {
     // エラーベースのPID制御
     double error = frame_center - cX;
-    double straight_control = pid_control(pid, error);
+    double control = pid_control(pid, error);
 
     // モータ速度の初期化
     double left_motor_speed = left_speed;
     double right_motor_speed = right_speed;
 
     // フィードバック制御のためのモータ制御
-    if (straight_control > 0) {
-        left_motor_speed -= straight_control * 2;
-    } else if (straight_control < 0) {
-        right_motor_speed += straight_control * 2;
+    if (control > 0) {
+        left_motor_speed -= control * 2;
+    } else if (control < 0) {
+        right_motor_speed += control * 2;
     } else {
-        left_motor_speed -= straight_control;
-        right_motor_speed += straight_control;
+        left_motor_speed -= control;
+        right_motor_speed += control;
+
     }
     if(stop_count >= 50){
         left_motor_speed = 0.0;
