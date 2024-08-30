@@ -16,7 +16,7 @@ using namespace cv;
 raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
-PID straightpid = {0.055, 0, 0, 0, 0}; //ストレートPID
+PID straightpid = {0.055, 0, 0.0001, 0, 0}; //ストレートPID
 PID Bcurvetpid = {0.12, 0, 0, 0, 0}; //急カーブPID
 PID Mcurvetpid = {0.05, 0, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.05, 0, 0, 0, 0}; //ゆっくりカーブPID
@@ -264,7 +264,7 @@ void tracer_task(intptr_t unused) {
             startTimer(2);
             startTimer(1);
             follow = true;
-            set_speed(78.0);
+            set_speed(75.0);
             scene++;
             break;
         case 12: //第一ストレート
@@ -283,7 +283,7 @@ void tracer_task(intptr_t unused) {
             break;
         case 13: //設定の読み込み
             startTimer(1);
-            set_speed(65.0);
+            set_speed(60.0);
             scene++;
             break;
         case 14: //第一急カーブ
@@ -302,7 +302,7 @@ void tracer_task(intptr_t unused) {
             break;
         case 15: //設定の読み込み
             startTimer(1);
-            set_speed(78.0);
+            set_speed(75.0);
             scene++;
             break;
         case 16: //第二ストレート
@@ -322,7 +322,7 @@ void tracer_task(intptr_t unused) {
         case 17://設定の読み込み
             follow = false;
             startTimer(1);
-            set_speed(65.0);
+            set_speed(60.0);
             scene++;
             break;
         case 18: //第二急カーブ
@@ -331,7 +331,7 @@ void tracer_task(intptr_t unused) {
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
-                std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
+            std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             PIDMotor(Bcurvetpid);
             if(getTime(1) >=2){
@@ -342,10 +342,10 @@ void tracer_task(intptr_t unused) {
         case 19://設定の読み込み
             follow = true;
             startTimer(1);
-            set_speed(78.0);
+            set_speed(75.0);
             scene++;
             break;
-        case 20: //第二ストレート
+        case 20: //第三ストレート
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
             morphed = Morphology(mask);
