@@ -16,7 +16,7 @@ using namespace cv;
 raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
-PID straightpid = {0.055, 0, 0.00015, 0, 0}; //ストレートPID
+PID straightpid = {0.055, 0, 0.0002, 0, 0}; //ストレートPID
 PID Bcurvetpid = {0.12, 0.005, 0, 0, 0}; //急カーブPID
 PID Mcurvetpid = {0.1, 0.004, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.09, 0.005, 0, 0, 0}; //ゆっくりカーブPID
@@ -365,7 +365,7 @@ void tracer_task(intptr_t unused) {
 //////////////////////////////////////////////////////////////////////
 
         case 21://設定の読み込み
-            set_speed(50.0);
+            set_speed(60.0);
             scene++;
             break;
         case 22://シーン1
@@ -382,7 +382,7 @@ void tracer_task(intptr_t unused) {
             std::cout << "Case 22" << std::endl;
             break;
         case 23://設定の読み込み
-            set_speed(50.0);
+            set_speed(60.0);
             follow = !follow;
             scene++;
             std::cout << follow << std::endl;
@@ -401,7 +401,7 @@ void tracer_task(intptr_t unused) {
             std::cout << "Case 24" << std::endl;
             break;
         case 25://設定の読み込み
-            set_speed(50.0);
+            set_speed(60.0);
             follow = !follow;
             scene++;
             std::cout << follow << std::endl;
@@ -420,7 +420,7 @@ void tracer_task(intptr_t unused) {
             std::cout << "Case 26" << std::endl;
             break;
         case 27://設定の読み込み
-            set_speed(50.0);
+            set_speed(60.0);
             follow = !follow;
             scene++;
             std::cout << follow << std::endl;
@@ -439,7 +439,7 @@ void tracer_task(intptr_t unused) {
             std::cout << "Case 28" << std::endl;
             break;
         case 29://設定の読み込み
-            set_speed(50.0);
+            set_speed(60.0);
             follow = !follow;
             scene++;
             std::cout << follow << std::endl;
