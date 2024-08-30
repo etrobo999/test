@@ -240,7 +240,6 @@ void tracer_task(intptr_t unused) {
 
         case 1: //画面表示・ボタンでスタート
             startTimer(1);
-            tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
