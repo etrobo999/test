@@ -354,7 +354,7 @@ void tracer_task(intptr_t unused) {
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             PIDMotor(straightpid);
-            if(getTime(1) >=1){
+            if(getTime(1) >=0.5){
                 scene = 21;
             }
             std::cout << "Case 20" << std::endl;
@@ -376,7 +376,7 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);
-            if(detectCheck(morphed1,3000)){
+            if(detectCheck(morphed1,2000)){
                 scene++;
             }
             std::cout << "Case 22" << std::endl;
@@ -395,7 +395,7 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Mcurvetpid);
-            if(detectCheck(morphed1,3000)){
+            if(detectCheck(morphed1,2000)){
                 scene++;
             }
             std::cout << "Case 24" << std::endl;
@@ -414,7 +414,7 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Scurvetpid);
-            if(detectCheck(morphed1,3000)){
+            if(detectCheck(morphed1,2000)){
                 scene++;
             }
             std::cout << "Case 26" << std::endl;
@@ -433,7 +433,7 @@ void tracer_task(intptr_t unused) {
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Mcurvetpid);
-            if(detectCheck(morphed1,3000)){
+            if(detectCheck(morphed1,2000)){
                 scene++;
             }
             std::cout << "Case 28" << std::endl;
