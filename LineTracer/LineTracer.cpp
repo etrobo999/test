@@ -354,7 +354,7 @@ void tracer_task(intptr_t unused) {
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             PIDMotor(straightpid);
-            if(getTime(1) >=2){
+            if(getTime(1) >=1){
                 scene = 21;
             }
             std::cout << "Case 20" << std::endl;
