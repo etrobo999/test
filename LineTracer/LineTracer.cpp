@@ -21,7 +21,7 @@ PID Bcurvetpid = {0.12, 0.005, 0, 0, 0}; //急カーブPID
 PID Mcurvetpid = {0.1, 0.004, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.09, 0.005, 0, 0, 0}; //ゆっくりカーブPID
 
-CameraSettings camera_settings = {1640, 1232, CV_8UC3, 10};
+CameraSettings camera_settings = {1640, 1232, CV_8UC3, 15};
 
 
 /*使用する変数の宣言*/
