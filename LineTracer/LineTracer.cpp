@@ -213,32 +213,32 @@ void* main_thread_func(void* arg) {
     pthread_t white_balance_thread;
     pthread_t display_thread;
 
-    pthread_attr_t attr;
-    pthread_attr_init(&attr);
+//    pthread_attr_t attr;
+//    pthread_attr_init(&attr);
 
     // スタックサイズを100MBに設定
-    size_t stacksize = 200 * 1024 * 1024; // 200MB
-    pthread_attr_setstacksize(&attr, stacksize);
+//    size_t stacksize = 200 * 1024 * 1024; // 200MB
+//    pthread_attr_setstacksize(&attr, stacksize);
 
     // OpenCVスレッドを作成
-    if (pthread_create(&opencv_thread, &attr, opencv_thread_func, NULL) != 0) {
+    if (pthread_create(&opencv_thread, NULL, opencv_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create OpenCV thread" << endl;
         pthread_exit(NULL);
     }
     
     // ホワイトバランス処理スレッドを作成
-    if (pthread_create(&white_balance_thread, &attr, white_balance_thread_func, NULL) != 0) {
+    if (pthread_create(&white_balance_thread, NULL, white_balance_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create White Balance thread" << endl;
         pthread_exit(NULL);
     }
 
     // 画面表示スレッドを作成
-    if (pthread_create(&display_thread, &attr, display_thread_func, NULL) != 0) {
+    if (pthread_create(&display_thread, NULL, display_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create Display thread" << endl;
         pthread_exit(NULL);
     }
 
-    pthread_attr_destroy(&attr);
+//    pthread_attr_destroy(&attr);
 
     bool ext = true;
     
@@ -556,19 +556,19 @@ void* main_thread_func(void* arg) {
 
 void tracer_task(intptr_t unused) {
     pthread_t main_thread;
-    pthread_attr_t attr;
-    pthread_attr_init(&attr);
+//    pthread_attr_t attr;
+//    pthread_attr_init(&attr);
 
     // スタックサイズを100MBに設定
-    size_t stacksize = 400 * 1024 * 1024; // 200MB
-    pthread_attr_setstacksize(&attr, stacksize);
+//    size_t stacksize = 400 * 1024 * 1024; // 200MB
+//    pthread_attr_setstacksize(&attr, stacksize);
     
     // メインスレッドを生成
-    if (pthread_create(&main_thread, &attr, main_thread_func, NULL) != 0) {
+    if (pthread_create(&main_thread, NULL, main_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create Main thread" << endl;
         pthread_exit(NULL);
     }
-    pthread_attr_destroy(&attr);
+//    pthread_attr_destroy(&attr);
     ext_tsk(); // タスクを終了
 }
 
