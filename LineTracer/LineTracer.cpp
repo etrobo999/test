@@ -666,7 +666,8 @@ static std::tuple<int, int> ProcessContours(const Mat& morphed) {
     }
     result_frame = rectframe.clone(); // 描画用にフレームをコピー
     cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(255, 0, 0), -1);
-//    Show(result_frame);
+    cv::imshow("result_frame", result_frame);
+    cv::waitKey(10);
     // 結果をタプルで返す (重心のx座標, y座標, 描画済みフレーム)
     return std::make_tuple(cX, cY);
 }
