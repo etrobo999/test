@@ -573,7 +573,7 @@ void applyGrayWorldWhiteBalance(Mat& src) {
 
 static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
     Mat rectframe, hsv;
-    rectframe = frame(Rect(0, 0, 0, 0));
+    rectframe = frame(Rect(0, 0, 640, 480));
     cvtColor(rectframe, hsv, COLOR_BGR2HSV);
     return make_tuple(rectframe, hsv);
 }
