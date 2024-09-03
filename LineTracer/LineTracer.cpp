@@ -166,37 +166,6 @@ void* white_balance_thread_func(void* arg) {
     pthread_exit(NULL);
 }
 
-void* display_thread_func(void* arg) {
-    sigset_t set;
-    sigemptyset(&set);
-    sigaddset(&set, SIGUSR2);  // ASPカーネルが使用するシグナルをマスク
-    sigaddset(&set, SIGPOLL);  // その他のカーネルシグナルをマスク
-    sigaddset(&set, SIGALRM);  // タイマーシグナルをマスク
-    pthread_sigmask(SIG_BLOCK, &set, NULL);
-
-    while (true) {
-        // フレームが表示できるまで待機
-        Mat temp_frame1, temp_frame2;
-        {
-            std::unique_lock<std::mutex> lock(mtx3);
-            display_var.wait(lock, [] { return display_ready; });
-            temp_frame1 = frame.clone();
-            temp_frame2 = result_frame.clone();
-
-        }
-
-        {
-            display_ready = false;
-        }
-
-        // 表示処理
-        cv::imshow("temp_frame1", temp_frame1);
-        cv::imshow("temp_frame2", temp_frame2);
-        cv::waitKey(1);
-    }
-
-    pthread_exit(NULL);
-}
 //////////////////////////////////////////////////////////////////////
 ////////　　　         メイン処理　  　　　　　　　/////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -211,7 +180,6 @@ void* main_thread_func(void* arg) {
 
     pthread_t opencv_thread;
     pthread_t white_balance_thread;
-    pthread_t display_thread;
 
 //    pthread_attr_t attr;
 //    pthread_attr_init(&attr);
@@ -232,18 +200,12 @@ void* main_thread_func(void* arg) {
         pthread_exit(NULL);
     }
 
-    // 画面表示スレッドを作成
-    if (pthread_create(&display_thread, NULL, display_thread_func, NULL) != 0) {
-        cerr << "Error: Failed to create Display thread" << endl;
-        pthread_exit(NULL);
-    }
-
 //    pthread_attr_destroy(&attr);
 
     bool ext = true;
     
     while (ext) {
-        std::unique_lock<std::mutex> lock(mtx2);
+        std::unique_lock<std::mutex> lock(mtx3);
         wb_var.wait(lock, [] { return wb_ready; });
         switch (scene) {
 //////////////////////////////////////////////////////////////////////
@@ -548,8 +510,6 @@ void* main_thread_func(void* arg) {
             break;
         }
         wb_ready = false;
-        display_ready = true;
-        display_var.notify_one();
     }
     pthread_exit(NULL);
 }
