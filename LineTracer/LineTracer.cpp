@@ -28,7 +28,7 @@ int rect_width = 400;
 int rect_height = 160;
 
 /*cameraの初期設定*/
-CameraSettings camera_settings = {2560, 1920, CV_8UC3, 15};
+CameraSettings camera_settings = {2560, 1920, CV_8UC3, 30};
 
 
 /*使用する変数の宣言*/
@@ -56,7 +56,7 @@ double right_speed = 0.0;
 
 // 追従方向の変数[true = 右] [false = 左]
 bool follow = true;
-bool resize_on = false;
+bool resize_on = true;
 
 // スレッドの操作のための変数
 bool resetting = false;
@@ -540,6 +540,7 @@ void applyGrayWorldWhiteBalance(Mat& src) {
 static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
     Mat resizeframe, rectframe, hsv;
     resizeframe = frame.clone();
+    std::cout << "Cols: " << frame.cols << ", Rows: " << frame.rows << std::endl;
     if (resize_on) {
         cv::resize(resizeframe, resizeframe, cv::Size(640, 480), 0, 0, cv::INTER_LINEAR);
     }
