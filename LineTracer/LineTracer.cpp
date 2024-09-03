@@ -201,7 +201,7 @@ void* display_thread_func(void* arg) {
 ////////　　　         メイン処理　  　　　　　　　/////////////////////
 //////////////////////////////////////////////////////////////////////
 
-void tracer_task(intptr_t unused) {
+void* main_thread_func(void* arg) {
     pthread_t opencv_thread;
     pthread_t white_balance_thread;
     pthread_t display_thread;
@@ -210,7 +210,7 @@ void tracer_task(intptr_t unused) {
     pthread_attr_init(&attr);
 
     // スタックサイズを100MBに設定
-    size_t stacksize = 200 * 1024 * 1024; // 100MB
+    size_t stacksize = 200 * 1024 * 1024; // 200MB
     pthread_attr_setstacksize(&attr, stacksize);
 
     // OpenCVスレッドを作成
@@ -235,11 +235,10 @@ void tracer_task(intptr_t unused) {
 
     bool ext = true;
     
-    while (ext){
+    while (ext) {
         std::unique_lock<std::mutex> lock(mtx2);
         wb_var.wait(lock, [] { return wb_ready; });
         switch (scene) {
-
 //////////////////////////////////////////////////////////////////////
 ////////　　　　　　スタート処理　　　　　　　　　　/////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -545,7 +544,24 @@ void tracer_task(intptr_t unused) {
         display_ready = true;
         display_var.notify_one();
     }
-    /* タスク終了 */
+    pthread_exit(NULL);
+}
+
+void tracer_task(intptr_t unused) {
+    pthread_t main_thread;
+    pthread_attr_t attr;
+    pthread_attr_init(&attr);
+
+    // スタックサイズを100MBに設定
+    size_t stacksize = 1000 * 1024 * 1024; // 200MB
+    pthread_attr_setstacksize(&attr, stacksize);
+    
+    // メインスレッドを生成
+    if (pthread_create(&main_thread, &attr, main_thread_func, NULL) != 0) {
+        cerr << "Error: Failed to create Main thread" << endl;
+        return;
+    }
+    pthread_attr_destroy(&attr);
     ext_tsk(); // タスクを終了
 }
 
