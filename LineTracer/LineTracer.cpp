@@ -216,19 +216,19 @@ void* main_thread_func(void* arg) {
     // OpenCVスレッドを作成
     if (pthread_create(&opencv_thread, NULL, opencv_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create OpenCV thread" << endl;
-        return;
+        pthread_exit(NULL);
     }
     
     // ホワイトバランス処理スレッドを作成
     if (pthread_create(&white_balance_thread, NULL, white_balance_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create White Balance thread" << endl;
-        return;
+        pthread_exit(NULL);
     }
 
     // 画面表示スレッドを作成
     if (pthread_create(&display_thread, NULL, display_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create Display thread" << endl;
-        return;
+        pthread_exit(NULL);
     }
 
     pthread_attr_destroy(&attr);
@@ -559,7 +559,7 @@ void tracer_task(intptr_t unused) {
     // メインスレッドを生成
     if (pthread_create(&main_thread, &attr, main_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create Main thread" << endl;
-        return;
+        pthread_exit(NULL);
     }
     pthread_attr_destroy(&attr);
     ext_tsk(); // タスクを終了
@@ -614,7 +614,7 @@ static void createMask(const Mat& hsv, const std::string& color) {
         inRange(hsv, color_bounds["blue"].first, color_bounds["blue"].second, mask1);
         inRange(hsv, color_bounds["black"].first, color_bounds["black"].second, mask2);
         mask = mask1 | mask2;  // 両方のマスクを統合
-;  // 青と黒のマスクを統合
+    // 青と黒のマスクを統合
     } else {
         inRange(hsv, color_bounds[color].first, color_bounds[color].second, mask);
     }
