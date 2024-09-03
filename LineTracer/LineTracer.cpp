@@ -21,6 +21,13 @@ PID Bcurvetpid = {0.12, 0.005, 0, 0, 0}; //急カーブPID
 PID Mcurvetpid = {0.1, 0.004, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.09, 0.005, 0, 0, 0}; //ゆっくりカーブPID
 
+/*rectの値初期化*/
+int rect_x = 120;
+int rect_y = 180;
+int rect_width = 400;
+int rect_height = 160;
+
+/*cameraの初期設定*/
 CameraSettings camera_settings = {640, 480, CV_8UC3, 40};
 
 
@@ -36,7 +43,7 @@ std::condition_variable frame_ready_var;
 std::condition_variable wb_var;
 std::condition_variable display_var;
 
-
+/*使用する（かもしれない）cv::MATの変数宣言*/
 Mat orizin_frame, frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, morphed2, result_frame;
 
 /*使用する変数の初期化*/
@@ -80,7 +87,6 @@ void* opencv_thread_func(void* arg) {
         Camera.set(cv::CAP_PROP_FRAME_HEIGHT, camera_settings.frame_height);
         Camera.set(cv::CAP_PROP_FORMAT, camera_settings.format);
         Camera.set(cv::CAP_PROP_FPS, camera_settings.fps);
-        Camera.set(cv::CAP_PROP_ZOOM, 1);
         if (!Camera.open()) {
             cerr << "Error: !Camera.open" << endl;
             pthread_exit(NULL);
@@ -126,7 +132,7 @@ void* white_balance_thread_func(void* arg) {
     pthread_sigmask(SIG_BLOCK, &set, NULL);
 
     while (true) {
-        Mat temp_frame1,temp_frame2, temp_frame3;
+        Mat temp_frame1;
         
         // フレームが準備されるまで待機
         {
@@ -137,18 +143,18 @@ void* white_balance_thread_func(void* arg) {
         
         // ホワイトバランスを適用
         applyGrayWorldWhiteBalance(temp_frame1);
-        temp_frame2 = temp_frame1.clone();
-        RectFrame(temp_frame2);
-        temp_frame3 = temp_frame2.clone();
-        Hsv(temp_frame3);
+        //temp_frame2 = temp_frame1.clone();
+        //RectFrame(temp_frame2);
+        //temp_frame3 = temp_frame2.clone();
+        //Hsv(temp_frame3);
 
 
         // 処理したフレームを戻す
         {
             std::lock_guard<std::mutex> lock(mtx2);
             temp_frame1.copyTo(frame);
-            temp_frame2.copyTo(rectframe);
-            temp_frame3.copyTo(hsv);
+            //temp_frame2.copyTo(rectframe);
+            //temp_frame3.copyTo(hsv);
             frame_ready = false;
             wb_ready = true;
         }
@@ -240,6 +246,7 @@ void tracer_task(intptr_t unused) {
 
         case 1: //画面表示・ボタンでスタート
             startTimer(1);
+            tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
@@ -275,6 +282,7 @@ void tracer_task(intptr_t unused) {
             scene++;
             break;
         case 12: //第一ストレート
+            tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
@@ -293,6 +301,7 @@ void tracer_task(intptr_t unused) {
             scene++;
             break;
         case 14: //第一急カーブ
+            tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
@@ -311,6 +320,7 @@ void tracer_task(intptr_t unused) {
             scene++;
             break;
         case 16: //第二ストレート
+            tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
@@ -330,6 +340,7 @@ void tracer_task(intptr_t unused) {
             scene++;
             break;
         case 18: //第二急カーブ
+            tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
@@ -349,6 +360,7 @@ void tracer_task(intptr_t unused) {
             scene++;
             break;
         case 20: //第三ストレート
+            tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
@@ -371,6 +383,7 @@ void tracer_task(intptr_t unused) {
             scene++;
             break;
         case 22://シーン1
+            tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "blue_black"); //Mask,Mask1
             morphed = Morphology(mask);
             morphed1 = Morphology(mask1); //青色モル
@@ -389,6 +402,7 @@ void tracer_task(intptr_t unused) {
             std::cout << follow << std::endl;
             break;
         case 24://シーン2
+            tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "blue_black"); //Mask,Mask1
             morphed = Morphology(mask);
             morphed1 = Morphology(mask1); //青色モル
@@ -407,6 +421,7 @@ void tracer_task(intptr_t unused) {
             std::cout << follow << std::endl;
             break;
         case 26://シーン3
+            tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "blue_black"); //Mask,Mask1
             morphed = Morphology(mask);
             morphed1 = Morphology(mask1); //青色モル
@@ -425,6 +440,7 @@ void tracer_task(intptr_t unused) {
             std::cout << follow << std::endl;
             break;
         case 28://シーン4
+            tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "blue_black"); //Mask,Mask1
             morphed = Morphology(mask);
             morphed1 = Morphology(mask1); //青色モル
@@ -443,6 +459,7 @@ void tracer_task(intptr_t unused) {
             std::cout << follow << std::endl;
             break;
         case 30:
+            tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
@@ -554,15 +571,22 @@ void applyGrayWorldWhiteBalance(Mat& src) {
     merge(channels, src); // srcに結果を格納
 }
 
-/* フレームのトリミング */
+static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
+    Mat rectframe, hsv;
+    rectframe = frame(Rect(0, 0, 0, 0));
+    cvtColor(rectframe, hsv, COLOR_BGR2HSV);
+    return make_tuple(rectframe, hsv);
+}
+
+/* フレームのトリミング 
 void RectFrame(Mat& rectframe) {
     rectframe = rectframe(Rect(120, 180, 400, 160));
 }
 
-/* HSV変換 */
+/* HSV変換 
 void Hsv(Mat& hsv) {
     cvtColor(hsv, hsv, COLOR_BGR2HSV);
-};
+};*/
 
 /* マスク変換 */
 static void createMask(const Mat& hsv, const std::string& color) {
