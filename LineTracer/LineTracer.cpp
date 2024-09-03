@@ -142,13 +142,10 @@ void* white_balance_thread_func(void* arg) {
             temp_frame1 = orizin_frame.clone(); // フレームをコピーしてローカルで処理
         }
         
-        // ホワイトバランスを適用
+        if (resize_on) {
+        cv::resize(temp_frame1, temp_frame1, cv::Size(640, 480), 0, 0, cv::INTER_LINEAR);
+        }
         applyGrayWorldWhiteBalance(temp_frame1);
-        //temp_frame2 = temp_frame1.clone();
-        //RectFrame(temp_frame2);
-        //temp_frame3 = temp_frame2.clone();
-        //Hsv(temp_frame3);
-
 
         // 処理したフレームを戻す
         {
@@ -540,10 +537,7 @@ void applyGrayWorldWhiteBalance(Mat& src) {
 static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
     Mat resizeframe, rectframe, hsv;
     resizeframe = frame.clone();
-    std::cout << "Cols: " << frame.cols << ", Rows: " << frame.rows << std::endl;
-    if (resize_on) {
-        cv::resize(resizeframe, resizeframe, cv::Size(640, 480), 0, 0, cv::INTER_LINEAR);
-    }
+
     
     rectframe = resizeframe(Rect(0, 0, 640, 480));
     cvtColor(rectframe, hsv, COLOR_BGR2HSV);
