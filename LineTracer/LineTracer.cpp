@@ -202,6 +202,13 @@ void* display_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
 void* main_thread_func(void* arg) {
+    sigset_t set;
+    sigemptyset(&set);
+    sigaddset(&set, SIGUSR2);  // ASPカーネルが使用するシグナルをマスク
+    sigaddset(&set, SIGPOLL);  // その他のカーネルシグナルをマスク
+    sigaddset(&set, SIGALRM);  // タイマーシグナルをマスク
+    pthread_sigmask(SIG_BLOCK, &set, NULL);
+
     pthread_t opencv_thread;
     pthread_t white_balance_thread;
     pthread_t display_thread;
