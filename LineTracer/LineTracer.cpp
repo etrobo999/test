@@ -28,7 +28,7 @@ int rect_width = 400;
 int rect_height = 160;
 
 /*cameraの初期設定*/
-CameraSettings camera_settings = {640, 480, CV_8UC3, 40};
+CameraSettings camera_settings = {3280, 2464, CV_8UC3, 15};
 
 
 /*使用する変数の宣言*/
@@ -56,6 +56,7 @@ double right_speed = 0.0;
 
 // 追従方向の変数[true = 右] [false = 左]
 bool follow = true;
+bool resize_on = false;
 
 // スレッドの操作のための変数
 bool resetting = false;
@@ -181,13 +182,6 @@ void* main_thread_func(void* arg) {
     pthread_t opencv_thread;
     pthread_t white_balance_thread;
 
-//    pthread_attr_t attr;
-//    pthread_attr_init(&attr);
-
-    // スタックサイズを100MBに設定
-//    size_t stacksize = 200 * 1024 * 1024; // 200MB
-//    pthread_attr_setstacksize(&attr, stacksize);
-
     // OpenCVスレッドを作成
     if (pthread_create(&opencv_thread, NULL, opencv_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create OpenCV thread" << endl;
@@ -199,9 +193,6 @@ void* main_thread_func(void* arg) {
         cerr << "Error: Failed to create White Balance thread" << endl;
         pthread_exit(NULL);
     }
-
-//    pthread_attr_destroy(&attr);
-
     bool ext = true;
     
     while (ext) {
@@ -516,19 +507,11 @@ void* main_thread_func(void* arg) {
 
 void tracer_task(intptr_t unused) {
     pthread_t main_thread;
-//    pthread_attr_t attr;
-//    pthread_attr_init(&attr);
-
-    // スタックサイズを100MBに設定
-//    size_t stacksize = 400 * 1024 * 1024; // 200MB
-//    pthread_attr_setstacksize(&attr, stacksize);
-    
     // メインスレッドを生成
     if (pthread_create(&main_thread, NULL, main_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create Main thread" << endl;
         pthread_exit(NULL);
     }
-//    pthread_attr_destroy(&attr);
     ext_tsk(); // タスクを終了
 }
 
@@ -555,8 +538,13 @@ void applyGrayWorldWhiteBalance(Mat& src) {
 }
 
 static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
-    Mat rectframe, hsv;
-    rectframe = frame(Rect(0, 0, 640, 480));
+    Mat resizeframe, rectframe, hsv;
+    resizeframe = frame.clone();
+    if (resize_on) {
+        cv::resize(resizeframe, resizeframe, cv::Size(640, 480), 0, 0, cv::INTER_LINEAR);
+    }
+    
+    rectframe = resizeframe(Rect(0, 0, 640, 480));
     cvtColor(rectframe, hsv, COLOR_BGR2HSV);
     return make_tuple(rectframe, hsv);
 }
@@ -666,8 +654,6 @@ static std::tuple<int, int> ProcessContours(const Mat& morphed) {
     }
     result_frame = rectframe.clone(); // 描画用にフレームをコピー
     cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(255, 0, 0), -1);
-    cv::imshow("result_frame", result_frame);
-    cv::waitKey(10);
     // 結果をタプルで返す (重心のx座標, y座標, 描画済みフレーム)
     return std::make_tuple(cX, cY);
 }
@@ -718,7 +704,9 @@ static void motor_cntrol(double left_motor_speed , double right_motor_speed){
 
 
 /* 画像の表示 */
-static void Show(const Mat& showfreme){
+static void Show(const Mat& freme){
+    Mat showfreme;
+    cv::resize(freme, showfreme, cv::Size(320, 240), 0, 0, cv::INTER_LINEAR);
     cv::imshow("showfreme", showfreme);
     cv::waitKey(1);
     return;
