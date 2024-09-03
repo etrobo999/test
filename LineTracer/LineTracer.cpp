@@ -28,7 +28,7 @@ int rect_width = 400;
 int rect_height = 160;
 
 /*cameraの初期設定*/
-CameraSettings camera_settings = {3280, 2464, CV_8UC3, 15};
+CameraSettings camera_settings = {3280, 2464, CV_8UC3, 10};
 
 
 /*使用する変数の宣言*/
