@@ -221,19 +221,19 @@ void* main_thread_func(void* arg) {
     pthread_attr_setstacksize(&attr, stacksize);
 
     // OpenCVスレッドを作成
-    if (pthread_create(&opencv_thread, NULL, opencv_thread_func, NULL) != 0) {
+    if (pthread_create(&opencv_thread, &attr, opencv_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create OpenCV thread" << endl;
         pthread_exit(NULL);
     }
     
     // ホワイトバランス処理スレッドを作成
-    if (pthread_create(&white_balance_thread, NULL, white_balance_thread_func, NULL) != 0) {
+    if (pthread_create(&white_balance_thread, &attr, white_balance_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create White Balance thread" << endl;
         pthread_exit(NULL);
     }
 
     // 画面表示スレッドを作成
-    if (pthread_create(&display_thread, NULL, display_thread_func, NULL) != 0) {
+    if (pthread_create(&display_thread, &attr, display_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create Display thread" << endl;
         pthread_exit(NULL);
     }
@@ -560,7 +560,7 @@ void tracer_task(intptr_t unused) {
     pthread_attr_init(&attr);
 
     // スタックサイズを100MBに設定
-    size_t stacksize = 1000 * 1024 * 1024; // 200MB
+    size_t stacksize = 400 * 1024 * 1024; // 200MB
     pthread_attr_setstacksize(&attr, stacksize);
     
     // メインスレッドを生成
