@@ -48,7 +48,7 @@ Mat orizin_frame, frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, 
 
 /*使用する変数の初期化*/
 uint8_t scene = 1;
-int frame_center = 0;
+int frame_center = 200;
 int cX = 0;
 int cY = 0;
 double left_speed = 0.0;
