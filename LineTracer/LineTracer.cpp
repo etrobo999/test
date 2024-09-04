@@ -56,7 +56,7 @@ double right_speed = 0.0;
 
 // 追従方向の変数[true = 右] [false = 左]
 bool follow = true;
-bool resize_on = true;
+bool resize_on = false;
 
 // スレッドの操作のための変数
 bool resetting = false;
