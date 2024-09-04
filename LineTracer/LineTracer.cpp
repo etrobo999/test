@@ -245,7 +245,7 @@ void* main_thread_func(void* arg) {
             PIDMotor(straightpid);
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 6200){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 6300){
                 scene++;
             }
             std::cout << "Case 12" << std::endl;
@@ -334,7 +334,7 @@ void* main_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
         case 21://設定の読み込み
-            set_speed(60.0);
+            set_speed(50.0);
             scene++;
             break;
         case 22://シーン1
@@ -351,7 +351,7 @@ void* main_thread_func(void* arg) {
             std::cout << "Case 22" << std::endl;
             break;
         case 23://設定の読み込み
-            set_speed(60.0);
+            set_speed(50.0);
             follow = !follow;
             scene++;
             std::cout << follow << std::endl;
@@ -370,7 +370,7 @@ void* main_thread_func(void* arg) {
             std::cout << "Case 24" << std::endl;
             break;
         case 25://設定の読み込み
-            set_speed(60.0);
+            set_speed(50.0);
             follow = !follow;
             scene++;
             std::cout << follow << std::endl;
@@ -389,7 +389,7 @@ void* main_thread_func(void* arg) {
             std::cout << "Case 26" << std::endl;
             break;
         case 27://設定の読み込み
-            set_speed(60.0);
+            set_speed(50.0);
             follow = !follow;
             scene++;
             std::cout << follow << std::endl;
@@ -408,7 +408,7 @@ void* main_thread_func(void* arg) {
             std::cout << "Case 28" << std::endl;
             break;
         case 29://設定の読み込み
-            set_speed(60.0);
+            set_speed(50.0);
             follow = !follow;
             scene++;
             std::cout << follow << std::endl;
