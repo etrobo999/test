@@ -10,7 +10,7 @@ APPL_CXXOBJS += \
 
 # 使用するライブラリ
 APPL_LIBS += -lm
-APPL_LIBS += -L/usr/lib/arm-linux-gnueabihf -lopencv_core -lopencv_imgproc -lopencv_highgui
+APPL_LIBS += `pkg-config --libs opencv4`
 APPL_LIBS += -lraspicam -lraspicam_cv
 
 # ソースディレクトリ
@@ -20,9 +20,8 @@ APPL_DIRS += \
 # インクルードパス
 INCLUDES += \
 	-I$(mkfile_path)LineTracer \
-	-I/usr/local/include/opencv4 \
+	-I/usr/local/include/opencv4\
 	-I/usr/local/include/raspicam_cv
-
 # プログラム言語設定
 SRCLANG := c++
 

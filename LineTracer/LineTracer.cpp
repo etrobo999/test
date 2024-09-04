@@ -28,7 +28,7 @@ int rect_width = 400;
 int rect_height = 160;
 
 /*cameraの初期設定*/
-CameraSettings camera_settings = {2560, 1920, CV_8UC3, 30};
+CameraSettings camera_settings = {640, 480, CV_8UC3, 40};
 
 
 /*使用する変数の宣言*/
@@ -56,7 +56,7 @@ double right_speed = 0.0;
 
 // 追従方向の変数[true = 右] [false = 左]
 bool follow = true;
-bool resize_on = true;
+bool resize_on = false;
 
 // スレッドの操作のための変数
 bool resetting = false;
@@ -102,6 +102,9 @@ void* opencv_thread_func(void* arg) {
                 cerr << "frame.empty" << endl;
                 continue;
             }
+            if (resize_on) {
+            cv::resize(temp_frame, temp_frame, cv::Size(640, 480), 0, 0, cv::INTER_LINEAR);
+            }
             // 取得したフレームを共有変数にコピー
             {
                 std::lock_guard<std::mutex> lock(mtx);
@@ -140,10 +143,6 @@ void* white_balance_thread_func(void* arg) {
             std::unique_lock<std::mutex> lock(mtx2);
             frame_ready_var.wait(lock, [] { return frame_ready; });
             temp_frame1 = orizin_frame.clone(); // フレームをコピーしてローカルで処理
-        }
-        
-        if (resize_on) {
-        cv::resize(temp_frame1, temp_frame1, cv::Size(640, 480), 0, 0, cv::INTER_LINEAR);
         }
         applyGrayWorldWhiteBalance(temp_frame1);
 
