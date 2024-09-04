@@ -28,7 +28,7 @@ int rect_width = 400;
 int rect_height = 160;
 
 /*cameraの初期設定*/
-CameraSettings camera_settings = {1280, 960, CV_8UC3, 30};
+CameraSettings camera_settings = {1920, 1440, CV_8UC3, 20};
 
 
 /*使用する変数の宣言*/
@@ -56,7 +56,7 @@ double right_speed = 0.0;
 
 // 追従方向の変数[true = 右] [false = 左]
 bool follow = true;
-bool resize_on = false;
+bool resize_on = true;
 
 // スレッドの操作のための変数
 bool resetting = false;
