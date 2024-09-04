@@ -18,17 +18,17 @@ raspicam::RaspiCam_Cv Camera;
 /*PIDインスタンス生成*/
 PID straightpid = {0.055, 0, 0.000, 0, 0}; //ストレートPID
 PID Bcurvetpid = {0.12, 0.005, 0, 0, 0}; //急カーブPID
-PID Mcurvetpid = {0.1, 0.005, 0, 0, 0}; //ちょうどいいカーブPID
+PID Mcurvetpid = {0.11, 0.005, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.09, 0.005, 0, 0, 0}; //ゆっくりカーブPID
 
 /*rectの値初期化*/
-int rect_x = 120;
-int rect_y = 180;
+int rect_x = 80;
+int rect_y = 210;
 int rect_width = 400;
-int rect_height = 160;
+int rect_height = 140;
 
 /*cameraの初期設定*/
-CameraSettings camera_settings = {1920, 1440, CV_8UC3, 20};
+CameraSettings camera_settings = {640, 480, CV_8UC3, 40};
 
 
 /*使用する変数の宣言*/
@@ -56,7 +56,7 @@ double right_speed = 0.0;
 
 // 追従方向の変数[true = 右] [false = 左]
 bool follow = true;
-bool resize_on = true;
+bool resize_on = false;
 
 // スレッドの操作のための変数
 bool resetting = false;
@@ -201,6 +201,7 @@ void* main_thread_func(void* arg) {
 
         case 1: //画面表示・ボタンでスタート
             startTimer(1);
+            ev3_gyro_sensor_reset(gyro_sensor);
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
             morphed = Morphology(mask);
@@ -215,7 +216,7 @@ void* main_thread_func(void* arg) {
         case 2:
             ev3_motor_reset_counts(left_motor);
             ev3_motor_reset_counts(right_motor);
-            scene = 11;
+            scene = 21;
             break;
         case 4:
         case 5:
@@ -422,6 +423,8 @@ void* main_thread_func(void* arg) {
             PIDMotor(straightpid);         
             if(getTime(1) >=2){
                 scene++;
+                ev3_motor_set_power(left_motor, 0);
+                ev3_motor_set_power(right_motor, 0);
             }
             std::cout << "Case 30" << std::endl;
             break;
@@ -431,10 +434,22 @@ void* main_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
         case 31://設定の読み込み
-            camera_settings = {1280, 960, CV_8UC3, 30};
+            camera_settings = {1920, 1440, CV_8UC3, 20};
+            int rect_x = 0;
+            int rect_y = 0;  
+            int rect_width = 640;
+            int rect_height = 480;
+            resetting = true;
+            ev3_motor_reset_counts(left_motor);
+            ev3_motor_reset_counts(right_motor);
+            ev3_gyro_sensor_reset(gyro_sensor);
+            scene++;
             std::cout << "Case 31" << std::endl;
             break;
         case 32:
+            std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
+            std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
+            std::cout <<ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
             std::cout << "Case 32" << std::endl;
             break;
         case 33:
@@ -538,7 +553,7 @@ static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
     resizeframe = frame.clone();
 
     
-    rectframe = resizeframe(Rect(0, 0, 640, 480));
+    rectframe = resizeframe(Rect(rect_x, rect_y, rect_width, rect_height));
     //rectframe = resizeframe(Rect(80, 200, 480, 140));
     cvtColor(rectframe, hsv, COLOR_BGR2HSV);
     return make_tuple(rectframe, hsv);
