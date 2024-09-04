@@ -700,9 +700,9 @@ static void motor_cntrol(double left_motor_speed , double right_motor_speed){
 
 /* 画像の表示 */
 static void Show(const Mat& freme){
-    Mat showfreme;
+    //Mat showfreme;
     //cv::resize(freme, showfreme, cv::Size(320, 240), 0, 0, cv::INTER_NEAREST);
-    cv::imshow("showfreme", showfreme);
+    cv::imshow("freme", freme);
     cv::waitKey(1);
     return;
 }
