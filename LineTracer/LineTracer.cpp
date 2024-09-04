@@ -23,9 +23,9 @@ PID Scurvetpid = {0.09, 0.005, 0, 0, 0}; //ゆっくりカーブPID
 
 /*rectの値初期化*/
 int rect_x = 140;
-int rect_y = 220;
+int rect_y = 270;
 int rect_width = 360;
-int rect_height = 130;
+int rect_height = 80;
 
 /*cameraの初期設定*/
 CameraSettings camera_settings = {640, 480, CV_8UC3, 40};
@@ -216,7 +216,7 @@ void* main_thread_func(void* arg) {
         case 2:
             ev3_motor_reset_counts(left_motor);
             ev3_motor_reset_counts(right_motor);
-            scene = 21;
+            scene = 11;
             break;
         case 4:
         case 5:
