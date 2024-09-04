@@ -28,7 +28,7 @@ int rect_width = 400;
 int rect_height = 160;
 
 /*cameraの初期設定*/
-CameraSettings camera_settings = {640, 480, CV_8UC3, 40};
+CameraSettings camera_settings = {2560, 1920, CV_8UC3, 30};
 
 
 /*使用する変数の宣言*/
@@ -56,7 +56,7 @@ double right_speed = 0.0;
 
 // 追従方向の変数[true = 右] [false = 左]
 bool follow = true;
-bool resize_on = false;
+bool resize_on = true;
 
 // スレッドの操作のための変数
 bool resetting = false;
@@ -538,7 +538,8 @@ static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
     resizeframe = frame.clone();
 
     
-    rectframe = resizeframe(Rect(80, 200, 480, 140));
+    rectframe = resizeframe(Rect(0, 0, 640, 480));
+    //rectframe = resizeframe(Rect(80, 200, 480, 140));
     cvtColor(rectframe, hsv, COLOR_BGR2HSV);
     return make_tuple(rectframe, hsv);
 }
