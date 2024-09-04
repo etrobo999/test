@@ -538,7 +538,7 @@ static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
     resizeframe = frame.clone();
 
     
-    rectframe = resizeframe(Rect(120, 180, 400, 160));
+    rectframe = resizeframe(Rect(80, 200, 480, 140));
     cvtColor(rectframe, hsv, COLOR_BGR2HSV);
     return make_tuple(rectframe, hsv);
 }
