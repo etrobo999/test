@@ -22,9 +22,9 @@ PID Mcurvetpid = {0.11, 0.005, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.09, 0.005, 0, 0, 0}; //ゆっくりカーブPID
 
 /*rectの値初期化*/
-int rect_x = 80;
-int rect_y = 230;
-int rect_width = 4830;
+int rect_x = 140;
+int rect_y = 220;
+int rect_width = 360;
 int rect_height = 130;
 
 /*cameraの初期設定*/
