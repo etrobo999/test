@@ -216,7 +216,7 @@ void* main_thread_func(void* arg) {
         case 2:
             ev3_motor_reset_counts(left_motor);
             ev3_motor_reset_counts(right_motor);
-            scene = 21;
+            scene = 11;
             break;
         case 4:
         case 5:
