@@ -24,7 +24,7 @@ PID Scurvetpid = {0.09, 0.005, 0, 0, 0}; //ゆっくりカーブPID
 /*rectの値初期化*/
 int rect_x = 80;
 int rect_y = 230;
-int rect_width = 480;
+int rect_width = 4830;
 int rect_height = 130;
 
 /*cameraの初期設定*/
@@ -450,6 +450,7 @@ void* main_thread_func(void* arg) {
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             std::cout <<ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
+            Show(frame);
             std::cout << "Case 32" << std::endl;
             break;
         case 33:
