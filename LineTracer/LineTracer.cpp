@@ -216,7 +216,7 @@ void* main_thread_func(void* arg) {
         case 2:
             ev3_motor_reset_counts(left_motor);
             ev3_motor_reset_counts(right_motor);
-            scene = 11;
+            scene = 21;
             break;
         case 4:
         case 5:
@@ -435,10 +435,10 @@ void* main_thread_func(void* arg) {
 
         case 31://設定の読み込み
             camera_settings = {1920, 1440, CV_8UC3, 20};
-            int rect_x = 0;
-            int rect_y = 0;  
-            int rect_width = 640;
-            int rect_height = 480;
+            rect_x = 0;
+            rect_y = 0;  
+            rect_width = 640;
+            rect_height = 480;
             resetting = true;
             ev3_motor_reset_counts(left_motor);
             ev3_motor_reset_counts(right_motor);
