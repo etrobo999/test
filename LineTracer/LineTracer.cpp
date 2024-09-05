@@ -23,13 +23,13 @@ PID Mcurvetpid = {0.11, 0.005, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.09, 0.005, 0, 0, 0}; //ゆっくりカーブPID
 
 /*rectの値初期化*/
-int rect_x = 140;
-int rect_y = 270;
-int rect_width = 360;
-int rect_height = 80;
+int rect_x = 0;
+int rect_y = 0;
+int rect_width = 400;
+int rect_height = 160;
 
 /*cameraの初期設定*/
-CameraSettings camera_settings = {640, 480, CV_8UC3, 40};
+CameraSettings camera_settings = {400, 160, CV_8UC3, 60};
 
 
 /*使用する変数の宣言*/
@@ -50,7 +50,7 @@ Mat orizin_frame, frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, 
 
 /*使用する変数の初期化*/
 uint8_t scene = 1;
-int frame_center = 180;
+int frame_center = 200;
 int cX = 0;
 int cY = 0;
 double left_speed = 0.0;
@@ -120,9 +120,6 @@ void* opencv_thread_func(void* arg) {
                 cerr << "frame.empty" << endl;
                 continue;
             }
-            if (resize_on) {
-            cv::resize(temp_frame, temp_frame, cv::Size(640, 480), 0, 0, cv::INTER_LINEAR);
-            }
             // 取得したフレームを共有変数にコピー
             {
                 std::lock_guard<std::mutex> lock(mtx);
@@ -161,19 +158,24 @@ void* white_balance_thread_func(void* arg) {
         {
             std::unique_lock<std::mutex> lock(mtx2);
             frame_ready_var.wait(lock, [] { return frame_ready; });
+            startTimer(3);
             temp_frame1 = orizin_frame.clone(); // フレームをコピーしてローカルで処理
         }
+        
+        if (resize_on) {
+            cv::resize(temp_frame1, temp_frame1, cv::Size(640, 480), 0, 0, cv::INTER_LINEAR);
+        }
+        
         applyGrayWorldWhiteBalance(temp_frame1);
 
         // 処理したフレームを戻す
         {
             std::lock_guard<std::mutex> lock(mtx2);
             temp_frame1.copyTo(frame);
-            //temp_frame2.copyTo(rectframe);
-            //temp_frame3.copyTo(hsv);
             frame_ready = false;
             wb_ready = true;
         }
+        cout << "WB "  << getTime(3) <<endl;
         
         // 次の処理をメインスレッドに通知
         wb_var.notify_one();
@@ -200,9 +202,9 @@ void* display_thread_func(void* arg) {
         }
 
         //resize
-        if(resize_on){
-            cv::resize(temp_frame1, temp_frame1, cv::Size(320, 240), 0, 0, cv::INTER_LINEAR);
-        }
+//        if(resize_on){
+//            cv::resize(temp_frame1, temp_frame1, cv::Size(320, 240), 0, 0, cv::INTER_LINEAR);
+//        }
         // 表示処理
         cv::imshow("temp_frame1", temp_frame1);
         cv::waitKey(1);
@@ -269,19 +271,42 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
             if(touch_sensor_bool){
-                scene++;
+                scene = 4;
             };
             cout <<getTime(1)<<endl;
             break;
-        case 3:
         case 2:
+        case 3:
             left_motor_reset = true;
             right_motor_reset = true;
             scene = 11;
             break;
         case 4:
+            camera_settings = {2560, 1920, CV_8UC3, 25};
+            resetting = true;
+            resize_on = true;
+            cv::waitKey(500);
+            scene++;
+            break;
         case 5:
+            rect_x = 0;
+            rect_y = 0;
+            rect_width = 640;
+            rect_height = 4800;
+            scene++;
+            break;
         case 6:
+            startTimer(1);
+            ev3_gyro_sensor_reset(gyro_sensor);
+            tie(rectframe, hsv) = RectFrame(frame);
+            createMask(hsv, "black");
+            morphed = Morphology(mask);
+            tie(cX, cY) = ProcessContours(morphed);
+            if(touch_sensor_bool){
+                scene = 4;
+            };
+            cout <<getTime(1)<<endl;
+            break;
         case 7:
         case 8:
         case 9:
