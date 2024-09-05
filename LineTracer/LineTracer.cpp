@@ -19,8 +19,8 @@ raspicam::RaspiCam_Cv Camera;
 /*PIDインスタンス生成*/
 PID straightpid = {0.06, 0, 0.005, 0, 0}; //ストレートPID
 PID Bcurvetpid = {0.12, 0.004, 0, 0, 0}; //急カーブPID
-PID Mcurvetpid = {0.8, 0.003, 0, 0, 0}; //ちょうどいいカーブPID
-PID Scurvetpid = {0.8, 0.004, 0, 0, 0}; //ゆっくりカーブPID
+PID Mcurvetpid = {0.08, 0.003, 0, 0, 0}; //ちょうどいいカーブPID
+PID Scurvetpid = {0.08, 0.004, 0, 0, 0}; //ゆっくりカーブPID
 
 /*rectの値初期化*/
 int rect_x = 0;
