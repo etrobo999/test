@@ -1,5 +1,4 @@
 mkfile_path := $(dir $(lastword $(MAKEFILE_LIST)))
-INCLUDE_DIRS = -I/usr/local/include/opencv4
 
 # C言語のオブジェクトファイル
 APPL_COBJS +=
@@ -20,7 +19,7 @@ APPL_DIRS += \
 # インクルードパス
 INCLUDES += \
 	-I$(mkfile_path)LineTracer \
-	-I/usr/local/include/opencv4\
+	-I/usr/include/opencv4 \
 	-I/usr/local/include/raspicam_cv
 
 # プログラム言語設定
