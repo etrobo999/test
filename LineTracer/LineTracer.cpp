@@ -480,9 +480,9 @@ void tracer_task(intptr_t unused) {
             std::cout << "Case 31" << std::endl;
             break;
         case 32:
-            std::cout <<ev3_gyro_sensor_get_angle(gyro_sensor);<< std::endl;
-            std::cout <<ev3_motor_get_counts(left_motor);<< std::endl;
-            std::cout <<ev3_motor_get_counts(right_motor);<< std::endl;
+            std::cout <<ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
+            std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
+            std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             std::cout << "Case 32" << std::endl;
             break;
         case 33:
