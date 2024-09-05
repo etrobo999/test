@@ -247,7 +247,7 @@ void tracer_task(intptr_t unused) {
             };
             cout <<getTime(1)<<endl;
             break;
-        case 3:
+        case 2:
             camera_settings = {640, 480, CV_8UC3, 40};
             rect_x = 0;
             rect_y = 0;  
@@ -256,7 +256,7 @@ void tracer_task(intptr_t unused) {
             resetting = true;
             scene = 4;
             break;
-        case 2:
+        case 3:
             ev3_motor_reset_counts(left_motor);
             ev3_motor_reset_counts(right_motor);
             scene = 11;
