@@ -17,9 +17,9 @@ using namespace cv;
 raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
-PID straightpid = {0.055, 0, 0.0005, 0, 0}; //ストレートPID
+PID straightpid = {0.055, 0, 0.000, 0, 0}; //ストレートPID
 PID Bcurvetpid = {0.12, 0.005, 0, 0, 0}; //急カーブPID
-PID Mcurvetpid = {0.11, 0.005, 0, 0, 0}; //ちょうどいいカーブPID
+PID Mcurvetpid = {0.1, 0.004, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.09, 0.005, 0, 0, 0}; //ゆっくりカーブPID
 
 /*rectの値初期化*/
@@ -29,7 +29,7 @@ int rect_width = 400;
 int rect_height = 160;
 
 /*cameraの初期設定*/
-CameraSettings camera_settings = {640, 480, CV_8UC3, 40};
+CameraSettings camera_settings = {400, 160, CV_8UC3, 60};
 
 
 /*使用する変数の宣言*/
@@ -268,9 +268,9 @@ void* main_thread_func(void* arg) {
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
             morphed = Morphology(mask);
-            tie(cX, cY) = ProcessContours(morphed);
+            tie(cX, cY) = Follow_1(morphed);
             if(touch_sensor_bool){
-                scene = 4;
+                scene++;
             };
             cout <<getTime(1)<<endl;
             std::cout << "Case 1" << std::endl;
@@ -282,28 +282,8 @@ void* main_thread_func(void* arg) {
             scene = 11;
             break;
         case 4:
-            camera_settings = {1280, 960, CV_8UC3, 30};
-            resetting = true;
-            resize_on = true;  
-            cv::waitKey(200);
-            scene++;
-            break;
         case 5:
-            scene++;
-            break;
         case 6:
-            startTimer(1);
-            ev3_gyro_sensor_reset(gyro_sensor);
-            tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "black");
-            morphed = Morphology(mask);
-            tie(cX, cY) = ProcessContours(morphed);
-            if(touch_sensor_bool){
-                scene = 4;
-            };
-            cout <<getTime(1)<<endl;
-            std::cout << "Case 6" << std::endl;
-            break;
         case 7:
         case 8:
         case 9:
@@ -324,7 +304,7 @@ void* main_thread_func(void* arg) {
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
             morphed = Morphology(mask);
-            tie(cX, cY) = ProcessContours(morphed);
+            tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);
             std::cout <<left_motor_counts<< std::endl;
@@ -343,7 +323,7 @@ void* main_thread_func(void* arg) {
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
             morphed = Morphology(mask);
-            tie(cX, cY) = ProcessContours(morphed);
+            tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             std::cout <<left_motor_counts<< std::endl;
             std::cout <<right_motor_counts<< std::endl;
@@ -362,7 +342,7 @@ void* main_thread_func(void* arg) {
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
             morphed = Morphology(mask);
-            tie(cX, cY) = ProcessContours(morphed);
+            tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             std::cout <<left_motor_counts<< std::endl;
             std::cout <<right_motor_counts<< std::endl;
@@ -382,7 +362,7 @@ void* main_thread_func(void* arg) {
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
             morphed = Morphology(mask);
-            tie(cX, cY) = ProcessContours(morphed);
+            tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             std::cout <<left_motor_counts<< std::endl;
             std::cout <<right_motor_counts<< std::endl;
@@ -402,7 +382,7 @@ void* main_thread_func(void* arg) {
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
             morphed = Morphology(mask);
-            tie(cX, cY) = ProcessContours(morphed);
+            tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             std::cout <<left_motor_counts<< std::endl;
             std::cout <<right_motor_counts<< std::endl;
@@ -426,7 +406,7 @@ void* main_thread_func(void* arg) {
             createMask(hsv, "blue_black"); //Mask,Mask1
             morphed = Morphology(mask);
             morphed1 = Morphology(mask1); //青色モル
-            tie(cX, cY) = ProcessContours(morphed);
+            tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);
             if(detectCheck(morphed1,2000)){
@@ -445,7 +425,7 @@ void* main_thread_func(void* arg) {
             createMask(hsv, "blue_black"); //Mask,Mask1
             morphed = Morphology(mask);
             morphed1 = Morphology(mask1); //青色モル
-            tie(cX, cY) = ProcessContours(morphed);
+            tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Mcurvetpid);
             if(detectCheck(morphed1,2000)){
@@ -464,7 +444,7 @@ void* main_thread_func(void* arg) {
             createMask(hsv, "blue_black"); //Mask,Mask1
             morphed = Morphology(mask);
             morphed1 = Morphology(mask1); //青色モル
-            tie(cX, cY) = ProcessContours(morphed);
+            tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Scurvetpid);
             if(detectCheck(morphed1,2000)){
@@ -483,7 +463,7 @@ void* main_thread_func(void* arg) {
             createMask(hsv, "blue_black"); //Mask,Mask1
             morphed = Morphology(mask);
             morphed1 = Morphology(mask1); //青色モル
-            tie(cX, cY) = ProcessContours(morphed);
+            tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Mcurvetpid);
             if(detectCheck(morphed1,2000)){
@@ -501,7 +481,7 @@ void* main_thread_func(void* arg) {
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
             morphed = Morphology(mask);
-            tie(cX, cY) = ProcessContours(morphed);
+            tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);         
             if(getTime(1) >=2){
@@ -517,15 +497,17 @@ void* main_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
         case 31://設定の読み込み
-            camera_settings = {1920, 1440, CV_8UC3, 20};
-            rect_x = 0;
-            rect_y = 0;  
-            rect_width = 640;
-            rect_height = 480;
+            camera_settings = {640, 480, CV_8UC3, 40};
+            resetting = true;
+            cv::waitKey(200);
             resetting = true;
             gyro_reset = true;
             left_motor_reset = true;
             right_motor_reset = true;
+            rect_x = 0;
+            rect_y = 0;  
+            rect_width = 640;
+            rect_height = 480;
             scene++;
             std::cout << "Case 31" << std::endl;
             break;
@@ -536,6 +518,13 @@ void* main_thread_func(void* arg) {
             std::cout << "Case 32" << std::endl;
             break;
         case 33:
+            tie(rectframe, hsv) = RectFrame(frame);
+            createMask(hsv, "white"); //Mask,Mask1
+            morphed = Morphology(mask1);//白色モル
+            morphed1 = Morphology(mask2); //青色モル
+            tie(cX, cY) = Follow_2(morphed);
+            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
+            PIDMotor(Mcurvetpid);
             std::cout << "Case 33" << std::endl;
             break;
         case 34:
@@ -687,6 +676,10 @@ static void createMask(const Mat& hsv, const std::string& color) {
         inRange(hsv, color_bounds["blue"].first, color_bounds["blue"].second, mask1);
         inRange(hsv, color_bounds["black"].first, color_bounds["black"].second, mask2);
         mask = mask1 | mask2;  // 両方のマスクを統合
+    } else if (color == "blue_white") {
+        inRange(hsv, color_bounds["white"].first, color_bounds["white"].second, mask1);
+        inRange(hsv, color_bounds["blue"].first, color_bounds["blue"].second, mask2);
+        mask = mask1 | mask2;  // 両方のマスクを統合
     // 青と黒のマスクを統合
     } else {
         inRange(hsv, color_bounds[color].first, color_bounds[color].second, mask);
@@ -704,8 +697,8 @@ static Mat Morphology(const Mat& mask) {
 }
 
 
-/*追従関数*/
-static std::tuple<int, int> ProcessContours(const Mat& morphed) {
+/*ライン切り替え追従関数*/
+static std::tuple<int, int> Follow_1(const Mat& morphed) {
     // 輪郭を抽出
     std::vector<std::vector<cv::Point>> contours;
     findContours(morphed, contours, RETR_TREE, CHAIN_APPROX_SIMPLE);
@@ -772,10 +765,59 @@ static std::tuple<int, int> ProcessContours(const Mat& morphed) {
     }
     result_frame = rectframe.clone(); // 描画用にフレームをコピー
     cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(255, 0, 0), -1);
-    //Show(result_frame);
     // 結果をタプルで返す (重心のx座標, y座標, 描画済みフレーム)
     return std::make_tuple(cX, cY);
 }
+
+
+
+/*最大の輪郭追従関数*/
+static std::tuple<int, int> Follow_2(const Mat& morphed) {
+    // 輪郭を抽出
+    std::vector<std::vector<cv::Point>> contours;
+    findContours(morphed, contours, RETR_TREE, CHAIN_APPROX_SIMPLE);
+
+    std::cout << "Number of contours found: " << contours.size() << std::endl;
+
+    for (size_t i = 0; i < contours.size(); i++) {
+        double area = contourArea(contours[i]);
+        std::cout << "Contour " << i << " area: " << area << std::endl;
+    }
+
+    const double min_contour_area = 3000.0; // ピクセル数
+
+    // 最大の輪郭を見つける
+    std::vector<cv::Point>* largest_contour = nullptr;
+    double largest_area = min_contour_area;
+
+    for (auto& contour : contours) {
+        double area = contourArea(contour);
+        if (area >= largest_area) {
+            largest_area = area;
+            largest_contour = &contour;
+        }
+    }
+
+    int cX = 0, cY = 0;
+    // 有効な輪郭が少なくとも1つある場合に処理を行う
+    if (largest_contour) {
+        stop_count = 0;
+
+        // 最大の輪郭の重心を計算
+        cv::Moments M = cv::moments(*largest_contour);
+        cX = static_cast<int>(M.m10 / M.m00);
+        cY = static_cast<int>(M.m01 / M.m00);
+    } else {
+        stop_count++;
+    }
+
+    result_frame = rectframe.clone(); // 描画用にフレームをコピー
+    cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(255, 0, 0), -1);
+    
+    // 結果をタプルで返す (重心のx座標, y座標, 描画済みフレーム)
+    return std::make_tuple(cX, cY);
+}
+
 
 
 /*PID制御関数*/
@@ -889,7 +931,8 @@ std::map<std::string, std::pair<Scalar, Scalar>> color_bounds = {
     {"red_low", {Scalar(0, 100, 100), Scalar(10, 255, 255)}},  // 赤色（低範囲）
     {"red_high", {Scalar(160, 100, 100), Scalar(180, 255, 255)}},  // 赤色（高範囲）
     {"yellow", {Scalar(20, 100, 100), Scalar(30, 255, 255)}},  // 黄色
-    {"green", {Scalar(40, 50, 50), Scalar(80, 255, 255)}}  // 緑色
+    {"green", {Scalar(40, 50, 50), Scalar(80, 255, 255)}},  // 緑色
+    {"white", {Scalar(0, 0, 200), Scalar(180, 50, 255)}}  // 白色
 };
 
 /* スタートタイマー */
