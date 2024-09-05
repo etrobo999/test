@@ -251,7 +251,7 @@ void tracer_task(intptr_t unused) {
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
             cout << "Centroid: (" << cX << ", " << cY << ")" <<endl;
-            if(ev3_touch_sensor_is_pressed(touch_sensor)){j
+            if(ev3_touch_sensor_is_pressed(touch_sensor)){
                 scene++;
             };
             cout <<getTime(1)<<endl;
@@ -573,7 +573,7 @@ void applyGrayWorldWhiteBalance(Mat& src) {
 
 static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
     Mat rectframe, hsv;
-    rectframe = frame(Rect(0, 0, 640, 480));
+    rectframe = frame(Rect(140, 180, 400, 160));
     cvtColor(rectframe, hsv, COLOR_BGR2HSV);
     return make_tuple(rectframe, hsv);
 }
