@@ -41,7 +41,7 @@ static void startTimer(int timer_id);                                           
 static float getTime(int timer_id);                                               //時間の取得関数
 
 extern std::map<std::string, std::pair<cv::Scalar, cv::Scalar>> color_bounds;
-extern bool follow, resetting, resize_on;
+extern bool follow, resetting;
 extern uint8_t scene;
 extern int cX, cY;
 extern double left_speed, right_speed;

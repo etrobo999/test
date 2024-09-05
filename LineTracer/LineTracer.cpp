@@ -16,16 +16,16 @@ using namespace cv;
 raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
-PID straightpid = {0.055, 0, 0.0005, 0, 0}; //ストレートPID
+PID straightpid = {0.055, 0, 0.000, 0, 0}; //ストレートPID
 PID Bcurvetpid = {0.12, 0.005, 0, 0, 0}; //急カーブPID
-PID Mcurvetpid = {0.11, 0.005, 0, 0, 0}; //ちょうどいいカーブPID
+PID Mcurvetpid = {0.1, 0.004, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.09, 0.005, 0, 0, 0}; //ゆっくりカーブPID
 
 /*rectの値初期化*/
-int rect_x = 140;
-int rect_y = 270;
-int rect_width = 360;
-int rect_height = 80;
+int rect_x = 120;
+int rect_y = 180;
+int rect_width = 400;
+int rect_height = 160;
 
 /*cameraの初期設定*/
 CameraSettings camera_settings = {640, 480, CV_8UC3, 40};
@@ -48,7 +48,7 @@ Mat orizin_frame, frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, 
 
 /*使用する変数の初期化*/
 uint8_t scene = 1;
-int frame_center = 180;
+int frame_center = 0;
 int cX = 0;
 int cY = 0;
 double left_speed = 0.0;
@@ -56,7 +56,6 @@ double right_speed = 0.0;
 
 // 追従方向の変数[true = 右] [false = 左]
 bool follow = true;
-bool resize_on = false;
 
 // スレッドの操作のための変数
 bool resetting = false;
@@ -102,9 +101,6 @@ void* opencv_thread_func(void* arg) {
                 cerr << "frame.empty" << endl;
                 continue;
             }
-            if (resize_on) {
-            cv::resize(temp_frame, temp_frame, cv::Size(640, 480), 0, 0, cv::INTER_LINEAR);
-            }
             // 取得したフレームを共有変数にコピー
             {
                 std::lock_guard<std::mutex> lock(mtx);
@@ -144,7 +140,14 @@ void* white_balance_thread_func(void* arg) {
             frame_ready_var.wait(lock, [] { return frame_ready; });
             temp_frame1 = orizin_frame.clone(); // フレームをコピーしてローカルで処理
         }
+        
+        // ホワイトバランスを適用
         applyGrayWorldWhiteBalance(temp_frame1);
+        //temp_frame2 = temp_frame1.clone();
+        //RectFrame(temp_frame2);
+        //temp_frame3 = temp_frame2.clone();
+        //Hsv(temp_frame3);
+
 
         // 処理したフレームを戻す
         {
@@ -163,11 +166,7 @@ void* white_balance_thread_func(void* arg) {
     pthread_exit(NULL);
 }
 
-//////////////////////////////////////////////////////////////////////
-////////　　　         メイン処理　  　　　　　　　/////////////////////
-//////////////////////////////////////////////////////////////////////
-
-void* main_thread_func(void* arg) {
+void* display_thread_func(void* arg) {
     sigset_t set;
     sigemptyset(&set);
     sigaddset(&set, SIGUSR2);  // ASPカーネルが使用するシグナルをマスク
@@ -175,39 +174,84 @@ void* main_thread_func(void* arg) {
     sigaddset(&set, SIGALRM);  // タイマーシグナルをマスク
     pthread_sigmask(SIG_BLOCK, &set, NULL);
 
+    while (true) {
+        // フレームが表示できるまで待機
+        Mat temp_frame1, temp_frame2;
+        {
+            std::unique_lock<std::mutex> lock(mtx3);
+            display_var.wait(lock, [] { return display_ready; });
+            temp_frame1 = frame.clone();
+            temp_frame2 = result_frame.clone();
+
+        }
+
+        {
+            display_ready = false;
+        }
+
+        // 表示処理
+        cv::imshow("temp_frame1", temp_frame1);
+        cv::imshow("temp_frame2", temp_frame2);
+        cv::waitKey(1);
+    }
+
+    pthread_exit(NULL);
+}
+//////////////////////////////////////////////////////////////////////
+////////　　　         メイン処理　  　　　　　　　/////////////////////
+//////////////////////////////////////////////////////////////////////
+
+void tracer_task(intptr_t unused) {
     pthread_t opencv_thread;
     pthread_t white_balance_thread;
+    pthread_t display_thread;
+
+    pthread_attr_t attr;
+    pthread_attr_init(&attr);
+
+    // スタックサイズを100MBに設定
+    size_t stacksize = 200 * 1024 * 1024; // 100MB
+    pthread_attr_setstacksize(&attr, stacksize);
 
     // OpenCVスレッドを作成
     if (pthread_create(&opencv_thread, NULL, opencv_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create OpenCV thread" << endl;
-        pthread_exit(NULL);
+        return;
     }
     
     // ホワイトバランス処理スレッドを作成
     if (pthread_create(&white_balance_thread, NULL, white_balance_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create White Balance thread" << endl;
-        pthread_exit(NULL);
+        return;
     }
+
+    // 画面表示スレッドを作成
+    if (pthread_create(&display_thread, NULL, display_thread_func, NULL) != 0) {
+        cerr << "Error: Failed to create Display thread" << endl;
+        return;
+    }
+
+    pthread_attr_destroy(&attr);
+
     bool ext = true;
     
-    while (ext) {
-        std::unique_lock<std::mutex> lock(mtx3);
+    while (ext){
+        std::unique_lock<std::mutex> lock(mtx2);
         wb_var.wait(lock, [] { return wb_ready; });
         switch (scene) {
+
 //////////////////////////////////////////////////////////////////////
 ////////　　　　　　スタート処理　　　　　　　　　　/////////////////////
 //////////////////////////////////////////////////////////////////////
 
         case 1: //画面表示・ボタンでスタート
             startTimer(1);
-            ev3_gyro_sensor_reset(gyro_sensor);
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
             cout << "Centroid: (" << cX << ", " << cY << ")" <<endl;
-            if(ev3_touch_sensor_is_pressed(touch_sensor)){
+            if(ev3_touch_sensor_is_pressed(touch_sensor)){j
                 scene++;
             };
             cout <<getTime(1)<<endl;
@@ -246,14 +290,14 @@ void* main_thread_func(void* arg) {
             PIDMotor(straightpid);
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 6300){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 6200){
                 scene++;
             }
             std::cout << "Case 12" << std::endl;
             break;
         case 13: //設定の読み込み
             startTimer(1);
-            set_speed(75.0);
+            set_speed(60.0);
             scene++;
             break;
         case 14: //第一急カーブ
@@ -292,7 +336,7 @@ void* main_thread_func(void* arg) {
         case 17://設定の読み込み
             follow = false;
             startTimer(1);
-            set_speed(75.0);
+            set_speed(60.0);
             scene++;
             break;
         case 18: //第二急カーブ
@@ -312,7 +356,7 @@ void* main_thread_func(void* arg) {
         case 19://設定の読み込み
             follow = true;
             startTimer(1);
-            set_speed(75.0);
+            set_speed(70.0);
             scene++;
             break;
         case 20: //第三ストレート
@@ -335,7 +379,7 @@ void* main_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
         case 21://設定の読み込み
-            set_speed(75.0);
+            set_speed(60.0);
             scene++;
             break;
         case 22://シーン1
@@ -352,7 +396,7 @@ void* main_thread_func(void* arg) {
             std::cout << "Case 22" << std::endl;
             break;
         case 23://設定の読み込み
-            set_speed(75.0);
+            set_speed(60.0);
             follow = !follow;
             scene++;
             std::cout << follow << std::endl;
@@ -371,7 +415,7 @@ void* main_thread_func(void* arg) {
             std::cout << "Case 24" << std::endl;
             break;
         case 25://設定の読み込み
-            set_speed(75.0);
+            set_speed(60.0);
             follow = !follow;
             scene++;
             std::cout << follow << std::endl;
@@ -390,7 +434,7 @@ void* main_thread_func(void* arg) {
             std::cout << "Case 26" << std::endl;
             break;
         case 27://設定の読み込み
-            set_speed(75.0);
+            set_speed(60.0);
             follow = !follow;
             scene++;
             std::cout << follow << std::endl;
@@ -409,7 +453,7 @@ void* main_thread_func(void* arg) {
             std::cout << "Case 28" << std::endl;
             break;
         case 29://設定の読み込み
-            set_speed(75.0);
+            set_speed(60.0);
             follow = !follow;
             scene++;
             std::cout << follow << std::endl;
@@ -423,8 +467,6 @@ void* main_thread_func(void* arg) {
             PIDMotor(straightpid);         
             if(getTime(1) >=2){
                 scene++;
-                ev3_motor_set_power(left_motor, 0);
-                ev3_motor_set_power(right_motor, 0);
             }
             std::cout << "Case 30" << std::endl;
             break;
@@ -434,23 +476,10 @@ void* main_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
         case 31://設定の読み込み
-            camera_settings = {1920, 1440, CV_8UC3, 20};
-            rect_x = 0;
-            rect_y = 0;  
-            rect_width = 640;
-            rect_height = 480;
-            resetting = true;
-            ev3_motor_reset_counts(left_motor);
-            ev3_motor_reset_counts(right_motor);
-            ev3_gyro_sensor_reset(gyro_sensor);
-            scene++;
+            camera_settings = {1280, 960, CV_8UC3, 30};
             std::cout << "Case 31" << std::endl;
             break;
         case 32:
-            std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
-            std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
-            std::cout <<ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
-            Show(frame);
             std::cout << "Case 32" << std::endl;
             break;
         case 33:
@@ -513,17 +542,10 @@ void* main_thread_func(void* arg) {
             break;
         }
         wb_ready = false;
+        display_ready = true;
+        display_var.notify_one();
     }
-    pthread_exit(NULL);
-}
-
-void tracer_task(intptr_t unused) {
-    pthread_t main_thread;
-    // メインスレッドを生成
-    if (pthread_create(&main_thread, NULL, main_thread_func, NULL) != 0) {
-        cerr << "Error: Failed to create Main thread" << endl;
-        pthread_exit(NULL);
-    }
+    /* タスク終了 */
     ext_tsk(); // タスクを終了
 }
 
@@ -550,12 +572,8 @@ void applyGrayWorldWhiteBalance(Mat& src) {
 }
 
 static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
-    Mat resizeframe, rectframe, hsv;
-    resizeframe = frame.clone();
-
-    
-    rectframe = resizeframe(Rect(rect_x, rect_y, rect_width, rect_height));
-    //rectframe = resizeframe(Rect(80, 200, 480, 140));
+    Mat rectframe, hsv;
+    rectframe = frame(Rect(0, 0, 640, 480));
     cvtColor(rectframe, hsv, COLOR_BGR2HSV);
     return make_tuple(rectframe, hsv);
 }
@@ -580,7 +598,7 @@ static void createMask(const Mat& hsv, const std::string& color) {
         inRange(hsv, color_bounds["blue"].first, color_bounds["blue"].second, mask1);
         inRange(hsv, color_bounds["black"].first, color_bounds["black"].second, mask2);
         mask = mask1 | mask2;  // 両方のマスクを統合
-    // 青と黒のマスクを統合
+;  // 青と黒のマスクを統合
     } else {
         inRange(hsv, color_bounds[color].first, color_bounds[color].second, mask);
     }
@@ -665,7 +683,7 @@ static std::tuple<int, int> ProcessContours(const Mat& morphed) {
     }
     result_frame = rectframe.clone(); // 描画用にフレームをコピー
     cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(255, 0, 0), -1);
-    Show(result_frame);
+//    Show(result_frame);
     // 結果をタプルで返す (重心のx座標, y座標, 描画済みフレーム)
     return std::make_tuple(cX, cY);
 }
@@ -716,10 +734,8 @@ static void motor_cntrol(double left_motor_speed , double right_motor_speed){
 
 
 /* 画像の表示 */
-static void Show(const Mat& freme){
-    //Mat showfreme;
-    //cv::resize(freme, showfreme, cv::Size(320, 240), 0, 0, cv::INTER_NEAREST);
-    cv::imshow("freme", freme);
+static void Show(const Mat& showfreme){
+    cv::imshow("showfreme", showfreme);
     cv::waitKey(1);
     return;
 }
