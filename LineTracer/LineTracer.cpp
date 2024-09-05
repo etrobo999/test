@@ -24,12 +24,12 @@ PID Scurvetpid = {0.07, 0.004, 0, 0, 0}; //ゆっくりカーブPID
 
 /*rectの値初期化*/
 int rect_x = 0;
-int rect_y = 0;
+int rect_y = 100;
 int rect_width = 400;
-int rect_height = 160;
+int rect_height = 150;
 
 /*cameraの初期設定*/
-CameraSettings camera_settings = {400, 160, CV_8UC3, 60};
+CameraSettings camera_settings = {400, 250, CV_8UC3, 60};
 
 
 /*使用する変数の宣言*/
