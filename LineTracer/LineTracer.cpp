@@ -229,7 +229,6 @@ void tracer_task(intptr_t unused) {
     while (ext){
         std::unique_lock<std::mutex> lock(mtx2);
         wb_var.wait(lock, [] { return wb_ready; });
-        wb_ready = false;
         switch (scene) {
 
 //////////////////////////////////////////////////////////////////////
@@ -565,6 +564,7 @@ void tracer_task(intptr_t unused) {
             std::cout << "Default case" << std::endl;
             break;
         }
+        wb_ready = false;
         display_ready = true;
         display_var.notify_one();
     }
