@@ -198,7 +198,7 @@ void* display_thread_func(void* arg) {
         {
             std::unique_lock<std::mutex> lock(mtx4);
             display_var.wait(lock, [] { return display_ready; });
-            temp_frame1 = rectframe.clone();
+            temp_frame1 = result_frame.clone();
         }
 
         //resize
@@ -410,7 +410,7 @@ void* main_thread_func(void* arg) {
             tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);
-            if(detectCheck(morphed1,2000)){
+            if(detectCheck(morphed1,3000)){
                 scene++;
             }
             std::cout << "Case 22" << std::endl;
@@ -429,7 +429,7 @@ void* main_thread_func(void* arg) {
             tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Mcurvetpid);
-            if(detectCheck(morphed1,2000)){
+            if(detectCheck(morphed1,3000)){
                 scene++;
             }
             std::cout << "Case 24" << std::endl;
@@ -448,7 +448,7 @@ void* main_thread_func(void* arg) {
             tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Scurvetpid);
-            if(detectCheck(morphed1,2000)){
+            if(detectCheck(morphed1,3000)){
                 scene++;
             }
             std::cout << "Case 26" << std::endl;
@@ -467,7 +467,7 @@ void* main_thread_func(void* arg) {
             tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Mcurvetpid);
-            if(detectCheck(morphed1,2000)){
+            if(detectCheck(morphed1,3000)){
                 scene++;
             }
             std::cout << "Case 28" << std::endl;
