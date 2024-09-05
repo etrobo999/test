@@ -251,7 +251,7 @@ void tracer_task(intptr_t unused) {
         case 2:
             camera_settings = {640, 480, CV_8UC3, 40};
             resetting = true;
-            cv::waitKey(25);
+            cv::waitKey(1000);
             rect_x = 0;
             rect_y = 0;  
             rect_width = 640;
