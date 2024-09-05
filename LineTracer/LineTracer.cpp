@@ -235,21 +235,22 @@ void* main_thread_func(void* arg) {
     // OpenCVスレッドを作成
     if (pthread_create(&opencv_thread, NULL, opencv_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create OpenCV thread" << endl;
-        return;
+        pthread_exit(NULL);
     }
     
     // ホワイトバランス処理スレッドを作成
     if (pthread_create(&white_balance_thread, NULL, white_balance_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create White Balance thread" << endl;
-        return;
+        pthread_exit(NULL);
     }
 
     // 画面表示スレッドを作成
     if (pthread_create(&display_thread, NULL, display_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create Display thread" << endl;
-        return;
+        pthread_exit(NULL);
     }
 
+    bool ext = true;
     
     while (ext) {
         std::unique_lock<std::mutex> lock(mtx3);
