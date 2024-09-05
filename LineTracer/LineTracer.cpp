@@ -24,11 +24,11 @@ PID Scurvetpid = {0.09, 0.005, 0, 0, 0}; //ゆっくりカーブPID
 /*rectの値初期化*/
 int rect_x = 0;
 int rect_y = 0;
-int rect_width = 400;
-int rect_height = 160;
+int rect_width = 640;
+int rect_height = 480;
 
 /*cameraの初期設定*/
-CameraSettings camera_settings = {400, 160, CV_8UC3, 60};
+CameraSettings camera_settings = {640, 480, CV_8UC3, 40};
 
 
 /*使用する変数の宣言*/
@@ -249,13 +249,13 @@ void tracer_task(intptr_t unused) {
             cout <<getTime(1)<<endl;
             break;
         case 2:
-            camera_settings = {640, 480, CV_8UC3, 40};
+            camera_settings = {400, 160, CV_8UC3, 60};
             resetting = true;
             cv::waitKey(1000);
             rect_x = 0;
             rect_y = 0;  
-            rect_width = 640;
-            rect_height = 480;
+            rect_width = 400;
+            rect_height = 160;
             scene = 4;
             break;
         case 3:
