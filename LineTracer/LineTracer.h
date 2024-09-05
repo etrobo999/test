@@ -22,7 +22,7 @@ struct CameraSettings {
 
 void applyGrayWorldWhiteBalance(cv::Mat& src);                                    //ホワイトバランス補正関数
 static double pid_control(PID &pid, double error);                                //PIDの誤差計算関数
-static void motor_cntrol(double _left_motor_speed , double _right_motor_speed);     //モータの速度設定関数                                            //旧画像取得関数                                           //旧画像取得関数
+static void motor_cntrol(double left_motor_speed , double right_motor_speed);     //モータの速度設定関数                                            //旧画像取得関数
 //void Hsv(cv::Mat& hsv);                                                           //画像のトリミング
 //void RectFrame(cv::Mat& rectframe);                                               //HSV変換関数
 static std::tuple<cv::Mat, cv::Mat> RectFrame(const cv::Mat& frame);    
@@ -33,7 +33,6 @@ static void PIDMotor(PID &pid);                                                 
 static void Show(const cv::Mat& showfreme);                                       //画像表示関数
 static void set_speed(double BASE_SPEED);
 static bool detectCheck(const cv::Mat& morphed, int min_area);                    //輪郭検知関数
-void set_cpu_affinity(int core_id) ;
 
 extern std::chrono::high_resolution_clock::time_point start_time1;                //経過時間の箱1
 extern std::chrono::high_resolution_clock::time_point start_time2;                //経過時間の箱2
@@ -42,12 +41,10 @@ static void startTimer(int timer_id);                                           
 static float getTime(int timer_id);                                               //時間の取得関数
 
 extern std::map<std::string, std::pair<cv::Scalar, cv::Scalar>> color_bounds;
-extern bool follow, resetting, resize_on;
-extern bool resetting, frame_ready, wb_ready, display_ready;
-extern bool create_main_thread, left_motor_reset, right_motor_reset, gyro_reset;
+extern bool follow, resetting;
 extern uint8_t scene;
 extern int cX, cY;
-extern double left_speed, right_speed, left_motor_speed, right_motor_speed;
+extern double left_speed, right_speed;
 
 extern int frame_center; 
 #ifdef __cplusplus
