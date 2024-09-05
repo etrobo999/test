@@ -282,7 +282,7 @@ void* main_thread_func(void* arg) {
         case 3:
             left_motor_reset = true;
             right_motor_reset = true;
-            scene = 11;
+            scene = 21;
             break;
         case 4:
         case 5:
