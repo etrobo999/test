@@ -50,7 +50,7 @@ Mat orizin_frame, frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, 
 
 /*使用する変数の初期化*/
 uint8_t scene = 1;
-int frame_center = 200;
+int frame_center = 190;
 int cX = 0;
 int cY = 0;
 double left_speed = 0.0;
@@ -270,7 +270,7 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
-            if(touch_sensor_bool){
+            if(ev3_touch_sensor_is_pressed(touch_sensor)){
                 scene++;
             };
             cout <<getTime(1)<<endl;
@@ -329,7 +329,7 @@ void* main_thread_func(void* arg) {
             std::cout <<left_motor_counts<< std::endl;
             std::cout <<right_motor_counts<< std::endl;
             PIDMotor(Bcurvetpid);         
-            if(left_motor_counts + right_motor_counts >= 8000){
+            if(left_motor_counts + right_motor_counts >= 7900){
                 scene++;
             }
             std::cout << "Case 14" << std::endl;
@@ -348,7 +348,7 @@ void* main_thread_func(void* arg) {
             std::cout <<left_motor_counts<< std::endl;
             std::cout <<right_motor_counts<< std::endl;
             PIDMotor(straightpid);
-            if(left_motor_counts + right_motor_counts >= 11300){
+            if(left_motor_counts + right_motor_counts >= 11400){
                 scene++;
             }
             std::cout << "Case 16" << std::endl;
@@ -615,7 +615,6 @@ void tracer_task(intptr_t unused) {
     }
     //センサーの値を取得
     gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-    touch_sensor_bool = ev3_touch_sensor_is_pressed(touch_sensor);
     cout <<touch_sensor_bool<<endl;
     left_motor_counts = ev3_motor_get_counts(left_motor);
     right_motor_counts = ev3_motor_get_counts(right_motor);
