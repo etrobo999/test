@@ -198,7 +198,7 @@ void* display_thread_func(void* arg) {
         {
             std::unique_lock<std::mutex> lock(mtx4);
             display_var.wait(lock, [] { return display_ready; });
-            temp_frame1 = frame.clone();
+            temp_frame1 = rectframe.clone();
         }
 
         //resize
@@ -269,6 +269,7 @@ void* main_thread_func(void* arg) {
             createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = Follow_1(morphed);
+            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             if(touch_sensor_bool){
                 scene++;
             };
