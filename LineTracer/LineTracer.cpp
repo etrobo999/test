@@ -179,7 +179,7 @@ void* display_thread_func(void* arg) {
         {
             std::unique_lock<std::mutex> lock(mtx3);
             display_var.wait(lock, [] { return display_ready; });
-            temp_frame1 = result_frame.clone();
+            temp_frame1 = frame.clone();
         }
 
         //resize
