@@ -222,7 +222,6 @@ void* display_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
 void* main_thread_func(void* arg) {
-    set_cpu_affinity(1);
     sigset_t set;
     sigemptyset(&set);
     sigaddset(&set, SIGUSR2);  // ASPカーネルが使用するシグナルをマスク
@@ -285,7 +284,7 @@ void* main_thread_func(void* arg) {
             camera_settings = {2560, 1920, CV_8UC3, 25};
             resetting = true;
             resize_on = true;
-            cv::waitKey(500);
+            cv::waitKey(1000);
             scene++;
             break;
         case 5:
