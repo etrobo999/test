@@ -18,9 +18,9 @@ raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
 PID straightpid = {0.06, 0, 0.005, 0, 0}; //ストレートPID
-PID Bcurvetpid = {0.13, 0.005, 0, 0, 0}; //急カーブPID
-PID Mcurvetpid = {0.10, 0.004, 0, 0, 0}; //ちょうどいいカーブPID
-PID Scurvetpid = {0.9, 0.005, 0, 0, 0}; //ゆっくりカーブPID
+PID Bcurvetpid = {0.12, 0.004, 0, 0, 0}; //急カーブPID
+PID Mcurvetpid = {0.10, 0.003, 0, 0, 0}; //ちょうどいいカーブPID
+PID Scurvetpid = {0.9, 0.004, 0, 0, 0}; //ゆっくりカーブPID
 
 /*rectの値初期化*/
 int rect_x = 0;
@@ -44,6 +44,7 @@ std::mutex mtx4;
 std::condition_variable frame_ready_var;
 std::condition_variable wb_var;
 std::condition_variable display_var;
+std::condition_variable main_var;
 
 /*使用する（かもしれない）cv::MATの変数宣言*/
 Mat orizin_frame, frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, morphed2, result_frame;
@@ -73,6 +74,7 @@ bool resetting = false;
 bool frame_ready = false;
 bool wb_ready = false;
 bool display_ready = false;
+bool main_ready = false;
 
 // タスクを操作するための変数
 bool create_main_thread = true;
@@ -317,7 +319,7 @@ void* main_thread_func(void* arg) {
             break;
         case 13: //設定の読み込み
             startTimer(1);
-            set_speed(60.0);
+            set_speed(65.0);
             scene++;
             break;
         case 14: //第一急カーブ
@@ -356,7 +358,7 @@ void* main_thread_func(void* arg) {
         case 17://設定の読み込み
             follow = false;
             startTimer(1);
-            set_speed(60.0);
+            set_speed(65.0);
             scene++;
             break;
         case 18: //第二急カーブ
@@ -399,7 +401,7 @@ void* main_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
         case 21://設定の読み込み
-            set_speed(60.0);
+            set_speed(65.0);
             scene++;
             break;
         case 22://シーン1
@@ -416,7 +418,7 @@ void* main_thread_func(void* arg) {
             std::cout << "Case 22" << std::endl;
             break;
         case 23://設定の読み込み
-            set_speed(60.0);
+            set_speed(65.0);
             follow = !follow;
             scene++;
             std::cout << follow << std::endl;
@@ -435,7 +437,7 @@ void* main_thread_func(void* arg) {
             std::cout << "Case 24" << std::endl;
             break;
         case 25://設定の読み込み
-            set_speed(60.0);
+            set_speed(65.0);
             follow = !follow;
             scene++;
             std::cout << follow << std::endl;
@@ -454,7 +456,7 @@ void* main_thread_func(void* arg) {
             std::cout << "Case 26" << std::endl;
             break;
         case 27://設定の読み込み
-            set_speed(60.0);
+            set_speed(65.0);
             follow = !follow;
             scene++;
             std::cout << follow << std::endl;
@@ -473,7 +475,7 @@ void* main_thread_func(void* arg) {
             std::cout << "Case 28" << std::endl;
             break;
         case 29://設定の読み込み
-            set_speed(60.0);
+            set_speed(65.0);
             follow = !follow;
             scene++;
             std::cout << follow << std::endl;
@@ -584,6 +586,8 @@ void* main_thread_func(void* arg) {
             std::cout << "Default case" << std::endl;
             break;
         }
+        main_ready = true;
+        main_var.notify_one();
         display_ready = true;
         display_var.notify_one();
     }
@@ -591,35 +595,38 @@ void* main_thread_func(void* arg) {
 }
 
 void tracer_task(intptr_t unused) {
-    // メインスレッドを生成
-    if (create_main_thread) {
-        pthread_t main_thread;
-        if (pthread_create(&main_thread, NULL, main_thread_func, NULL) != 0) {
-            cerr << "Error: Failed to create Main thread" << endl;
-            pthread_exit(NULL);
+    pthread_t main_thread;
+    if (pthread_create(&main_thread, NULL, main_thread_func, NULL) != 0) {
+        cerr << "Error: Failed to create Main thread" << endl;
+        pthread_exit(NULL);
+    }
+    while (true) {
+        std::unique_lock<std::mutex> lock(mtx3);
+        main_var.wait(lock, [] { return main_ready;});
+        main_ready = false;
+        //モータの回転数reset
+        if (left_motor_reset) {
+            ev3_motor_reset_counts(left_motor);
+            left_motor_reset = false;
         }
-        create_main_thread = false;
-    }
-    //モータの回転数reset
-    if (left_motor_reset) {
-        ev3_motor_reset_counts(left_motor);
-        left_motor_reset = false;
-    }
-    if (right_motor_reset) {
-        ev3_motor_reset_counts(right_motor);
-        right_motor_reset = false;
-    }
-    if (gyro_reset) {
-        ev3_gyro_sensor_reset(gyro_sensor);
-        gyro_reset = false;
-    }
-    //センサーの値を取得
-    gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-    cout <<touch_sensor_bool<<endl;
-    left_motor_counts = ev3_motor_get_counts(left_motor);
-    right_motor_counts = ev3_motor_get_counts(right_motor);
+        if (right_motor_reset) {
+            ev3_motor_reset_counts(right_motor);
+            right_motor_reset = false;
+        }
+        if (gyro_reset) {
+            ev3_gyro_sensor_reset(gyro_sensor);
+            gyro_reset = false;
+        }
+        //センサーの値を取得
+        gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
+        cout <<touch_sensor_bool<<endl;
+        left_motor_counts = ev3_motor_get_counts(left_motor);
+        right_motor_counts = ev3_motor_get_counts(right_motor);
+
+        motor_cntrol(left_motor_speed, right_motor_speed);
+}
     
-    motor_cntrol(left_motor_speed, right_motor_speed);
+    
     ext_tsk(); // タスクを終了
 }
 
