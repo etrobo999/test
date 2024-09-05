@@ -29,7 +29,7 @@ int rect_width = 400;
 int rect_height = 160;
 
 /*cameraの初期設定*/
-CameraSettings camera_settings = {1600, 1200, CV_8UC3, 30};
+CameraSettings camera_settings = {640, 480, CV_8UC3, 40};
 
 
 /*使用する変数の宣言*/
@@ -263,18 +263,17 @@ void* main_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
         case 1: //画面表示・ボタンでスタート
-            resize_on = true;  
             startTimer(1);
             ev3_gyro_sensor_reset(gyro_sensor);
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
-            cout <<touch_sensor_bool<<endl;
             if(touch_sensor_bool){
                 scene = 4;
             };
             cout <<getTime(1)<<endl;
+            std::cout << "Case 1" << std::endl;
             break;
         case 2:
         case 3:
@@ -285,6 +284,7 @@ void* main_thread_func(void* arg) {
         case 4:
             camera_settings = {1280, 960, CV_8UC3, 30};
             resetting = true;
+            resize_on = true;  
             cv::waitKey(200);
             scene++;
             break;
@@ -302,6 +302,7 @@ void* main_thread_func(void* arg) {
                 scene = 4;
             };
             cout <<getTime(1)<<endl;
+            std::cout << "Case 6" << std::endl;
             break;
         case 7:
         case 8:
@@ -625,6 +626,7 @@ void tracer_task(intptr_t unused) {
     //センサーの値を取得
     gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
     touch_sensor_bool = ev3_touch_sensor_is_pressed(touch_sensor);
+    cout <<touch_sensor_bool<<endl;
     left_motor_counts = ev3_motor_get_counts(left_motor);
     right_motor_counts = ev3_motor_get_counts(right_motor);
     
