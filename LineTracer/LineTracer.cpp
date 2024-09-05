@@ -113,7 +113,6 @@ void* opencv_thread_func(void* arg) {
         }
 
         while (true) {
-            startTimer(2);
             Camera.grab();
             Mat temp_frame;
             Camera.retrieve(temp_frame);
@@ -137,7 +136,6 @@ void* opencv_thread_func(void* arg) {
                 resetting = false;
                 break;  // 内側のループを抜けて再初期化へ
             }
-            cout << "camera "  << getTime(2) <<endl;
         }
     }
 
@@ -168,7 +166,7 @@ void* white_balance_thread_func(void* arg) {
             cv::resize(temp_frame1, temp_frame1, cv::Size(640, 480), 0, 0, cv::INTER_LINEAR);
         }
         
-        applyGrayWorldWhiteBalance(temp_frame1);
+        //applyGrayWorldWhiteBalance(temp_frame1);
 
         // 処理したフレームを戻す
         {
