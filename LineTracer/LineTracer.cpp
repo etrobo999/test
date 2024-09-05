@@ -229,6 +229,7 @@ void tracer_task(intptr_t unused) {
     while (ext){
         std::unique_lock<std::mutex> lock(mtx2);
         wb_var.wait(lock, [] { return wb_ready; });
+        wb_ready = false;
         switch (scene) {
 
 //////////////////////////////////////////////////////////////////////
@@ -249,11 +250,12 @@ void tracer_task(intptr_t unused) {
             break;
         case 2:
             camera_settings = {640, 480, CV_8UC3, 40};
+            resetting = true;
+            cv::waitKey(25);
             rect_x = 0;
             rect_y = 0;  
             rect_width = 640;
             rect_height = 480;
-            resetting = true;
             scene = 4;
             break;
         case 3:
@@ -563,7 +565,6 @@ void tracer_task(intptr_t unused) {
             std::cout << "Default case" << std::endl;
             break;
         }
-        wb_ready = false;
         display_ready = true;
         display_var.notify_one();
     }
