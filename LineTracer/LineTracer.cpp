@@ -269,6 +269,7 @@ void* main_thread_func(void* arg) {
             createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
+            cout <<touch_sensor_bool<<endl;
             if(touch_sensor_bool){
                 scene = 4;
             };
@@ -284,14 +285,14 @@ void* main_thread_func(void* arg) {
             camera_settings = {2560, 1920, CV_8UC3, 25};
             resetting = true;
             resize_on = true;
-            cv::waitKey(1000);
+            cv::waitKey(200);
             scene++;
             break;
         case 5:
             rect_x = 0;
             rect_y = 0;
             rect_width = 640;
-            rect_height = 4800;
+            rect_height = 480;
             scene++;
             break;
         case 6:
