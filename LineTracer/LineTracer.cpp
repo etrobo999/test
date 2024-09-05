@@ -23,13 +23,13 @@ PID Mcurvetpid = {0.10, 0.003, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.9, 0.004, 0, 0, 0}; //ゆっくりカーブPID
 
 /*rectの値初期化*/
-int rect_x = 0;
-int rect_y = 100;
+int rect_x = 140;
+int rect_y = 180;
 int rect_width = 400;
-int rect_height = 150;
+int rect_height = 160;
 
 /*cameraの初期設定*/
-CameraSettings camera_settings = {400, 250, CV_8UC3, 60};
+CameraSettings camera_settings = {640, 480, CV_8UC3, 40};
 
 
 /*使用する変数の宣言*/
@@ -51,7 +51,7 @@ Mat orizin_frame, frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, 
 
 /*使用する変数の初期化*/
 uint8_t scene = 1;
-int frame_center = 190;
+int frame_center = 200;
 int cX = 0;
 int cY = 0;
 double left_speed = 0.0;
@@ -168,7 +168,7 @@ void* white_balance_thread_func(void* arg) {
             cv::resize(temp_frame1, temp_frame1, cv::Size(640, 480), 0, 0, cv::INTER_LINEAR);
         }
         
-//        applyGrayWorldWhiteBalance(temp_frame1);
+        applyGrayWorldWhiteBalance(temp_frame1);
 
         // 処理したフレームを戻す
         {
