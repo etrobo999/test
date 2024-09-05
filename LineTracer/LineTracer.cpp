@@ -29,7 +29,7 @@ int rect_width = 400;
 int rect_height = 160;
 
 /*cameraの初期設定*/
-CameraSettings camera_settings = {400, 160, CV_8UC3, 60};
+CameraSettings camera_settings = {1600, 1200, CV_8UC3, 30};
 
 
 /*使用する変数の宣言*/
@@ -263,6 +263,7 @@ void* main_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
         case 1: //画面表示・ボタンでスタート
+            resize_on = true;  
             startTimer(1);
             ev3_gyro_sensor_reset(gyro_sensor);
             tie(rectframe, hsv) = RectFrame(frame);
@@ -282,17 +283,12 @@ void* main_thread_func(void* arg) {
             scene = 11;
             break;
         case 4:
-            camera_settings = {2560, 1920, CV_8UC3, 25};
+            camera_settings = {1280, 960, CV_8UC3, 30};
             resetting = true;
-            resize_on = true;
             cv::waitKey(200);
             scene++;
             break;
         case 5:
-            rect_x = 0;
-            rect_y = 0;
-            rect_width = 640;
-            rect_height = 480;
             scene++;
             break;
         case 6:
