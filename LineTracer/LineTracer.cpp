@@ -22,13 +22,13 @@ PID Mcurvetpid = {0.1, 0.004, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.09, 0.005, 0, 0, 0}; //ゆっくりカーブPID
 
 /*rectの値初期化*/
-int rect_x = 120;
-int rect_y = 180;
+int rect_x = 0;
+int rect_y = 0;
 int rect_width = 400;
 int rect_height = 160;
 
 /*cameraの初期設定*/
-CameraSettings camera_settings = {640, 480, CV_8UC3, 40};
+CameraSettings camera_settings = {400, 160, CV_8UC3, 60};
 
 
 /*使用する変数の宣言*/
@@ -248,12 +248,31 @@ void tracer_task(intptr_t unused) {
             cout <<getTime(1)<<endl;
             break;
         case 3:
+            camera_settings = {640, 480, CV_8UC3, 40};
+            rect_x = 0;
+            rect_y = 0;  
+            rect_width = 640;
+            rect_height = 480;
+            resetting = true;
+            scene = 4;
+            break;
         case 2:
             ev3_motor_reset_counts(left_motor);
             ev3_motor_reset_counts(right_motor);
             scene = 11;
             break;
         case 4:
+            startTimer(1);
+            tie(rectframe, hsv) = RectFrame(frame);
+            createMask(hsv, "black");
+            morphed = Morphology(mask);
+            tie(cX, cY) = ProcessContours(morphed);
+            cout << "Centroid: (" << cX << ", " << cY << ")" <<endl;
+            if(ev3_touch_sensor_is_pressed(touch_sensor)){
+                scene++;
+            };
+            cout <<getTime(1)<<endl;
+            break;
         case 5:
         case 6:
         case 7:
