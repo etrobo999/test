@@ -268,7 +268,7 @@ void* main_thread_func(void* arg) {
             startTimer(1);
             ev3_gyro_sensor_reset(gyro_sensor);
             tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "black");
+            createMask(hsv, "blue_black");
             morphed = Morphology(mask);
             tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
