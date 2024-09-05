@@ -10,7 +10,7 @@ extern "C" {
 #define TRACER_PRIORITY  (TMIN_APP_TPRI + 2) /* ライントレースタスク */
 
 /* タスク周期の定義 */
-#define LINE_TRACER_PERIOD  (10 * 1000) /* ライントレースタスク:100msec周期 */
+#define LINE_TRACER_PERIOD  (200 * 1000) /* ライントレースタスク:100msec周期 */
 
 /* センサーポートの定義 */
 static const sensor_port_t

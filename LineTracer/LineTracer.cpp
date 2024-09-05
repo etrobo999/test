@@ -53,14 +53,6 @@ int cX = 0;
 int cY = 0;
 double left_speed = 0.0;
 double right_speed = 0.0;
-double left_motor_speed = 0.0;
-double right_motor_speed = 0.0;
-
-//センサーの値を入れる変数
-bool touch_sensor_bool = false;
-int left_motor_counts = 0;
-int right_motor_counts = 0;
-int gyro_counts = 0;
 
 // 追従方向の変数[true = 右] [false = 左]
 bool follow = true;
@@ -71,12 +63,6 @@ bool resetting = false;
 bool frame_ready = false;
 bool wb_ready = false;
 bool display_ready = false;
-
-// タスクを操作するための変数
-bool create_main_thread = true;
-bool left_motor_reset = false;
-bool right_motor_reset = false;
-bool gyro_reset = false;
 
 // 連続して検知された回数をカウントする変数
 int detection_count = 0;
@@ -220,15 +206,16 @@ void* main_thread_func(void* arg) {
             createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
-            if(touch_sensor_bool){
+            cout << "Centroid: (" << cX << ", " << cY << ")" <<endl;
+            if(ev3_touch_sensor_is_pressed(touch_sensor)){
                 scene++;
             };
             cout <<getTime(1)<<endl;
             break;
         case 3:
         case 2:
-            left_motor_reset = true;
-            right_motor_reset = true;
+            ev3_motor_reset_counts(left_motor);
+            ev3_motor_reset_counts(right_motor);
             scene = 11;
             break;
         case 4:
@@ -257,9 +244,9 @@ void* main_thread_func(void* arg) {
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);
-            std::cout <<left_motor_counts<< std::endl;
-            std::cout <<right_motor_counts<< std::endl;
-            if(left_motor_counts + right_motor_counts >= 6300){
+            std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
+            std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 6300){
                 scene++;
             }
             std::cout << "Case 12" << std::endl;
@@ -275,10 +262,10 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
-            std::cout <<left_motor_counts<< std::endl;
-            std::cout <<right_motor_counts<< std::endl;
+            std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
+            std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             PIDMotor(Bcurvetpid);         
-            if(left_motor_counts + right_motor_counts >= 8000){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 8000){
                 scene++;
             }
             std::cout << "Case 14" << std::endl;
@@ -294,10 +281,10 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
-            std::cout <<left_motor_counts<< std::endl;
-            std::cout <<right_motor_counts<< std::endl;
+            std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
+            std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             PIDMotor(straightpid);
-            if(left_motor_counts + right_motor_counts >= 11300){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 11300){
                 scene++;
             }
             std::cout << "Case 16" << std::endl;
@@ -314,10 +301,10 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
-            std::cout <<left_motor_counts<< std::endl;
-            std::cout <<right_motor_counts<< std::endl;
+            std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
+            std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             PIDMotor(Bcurvetpid);
-            if(left_motor_counts + right_motor_counts >= 13000){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 13000){
                 scene++;
             }
             std::cout << "Case 18" << std::endl;
@@ -334,8 +321,8 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             tie(cX, cY) = ProcessContours(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
-            std::cout <<left_motor_counts<< std::endl;
-            std::cout <<right_motor_counts<< std::endl;
+            std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
+            std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             PIDMotor(straightpid);
             if(getTime(1) >=0.5){
                 scene = 21;
@@ -453,16 +440,16 @@ void* main_thread_func(void* arg) {
             rect_width = 640;
             rect_height = 480;
             resetting = true;
-            gyro_reset = true;
-            left_motor_reset = true;
-            right_motor_reset = true;
+            ev3_motor_reset_counts(left_motor);
+            ev3_motor_reset_counts(right_motor);
+            ev3_gyro_sensor_reset(gyro_sensor);
             scene++;
             std::cout << "Case 31" << std::endl;
             break;
         case 32:
-            std::cout <<gyro_counts<< std::endl;
-            std::cout <<left_motor_counts<< std::endl;
-            std::cout <<right_motor_counts<< std::endl;
+            std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
+            std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
+            std::cout <<ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
             Show(frame);
             std::cout << "Case 32" << std::endl;
             break;
@@ -531,35 +518,12 @@ void* main_thread_func(void* arg) {
 }
 
 void tracer_task(intptr_t unused) {
+    pthread_t main_thread;
     // メインスレッドを生成
-    if (create_main_thread) {
-        pthread_t main_thread;
-        if (pthread_create(&main_thread, NULL, main_thread_func, NULL) != 0) {
-            cerr << "Error: Failed to create Main thread" << endl;
-            pthread_exit(NULL);
-        }
-        create_main_thread = false;
+    if (pthread_create(&main_thread, NULL, main_thread_func, NULL) != 0) {
+        cerr << "Error: Failed to create Main thread" << endl;
+        pthread_exit(NULL);
     }
-    //モータの回転数reset
-    if (left_motor_reset) {
-        ev3_motor_reset_counts(left_motor);
-        left_motor_reset = false;
-    }
-    if (right_motor_reset) {
-        ev3_motor_reset_counts(right_motor);
-        right_motor_reset = false;
-    }
-    if (gyro_reset) {
-        ev3_gyro_sensor_reset(gyro_sensor);
-        gyro_reset = false;
-    }
-    //センサーの値を取得
-    gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-    touch_sensor_bool = ev3_touch_sensor_is_pressed(touch_sensor);
-    left_motor_counts = ev3_motor_get_counts(left_motor);
-    right_motor_counts = ev3_motor_get_counts(right_motor);
-    
-    motor_cntrol(left_motor_speed, right_motor_speed);
     ext_tsk(); // タスクを終了
 }
 
@@ -714,39 +678,39 @@ static void PIDMotor(PID &pid) {
     double control = pid_control(pid, error);
 
     // モータ速度の初期化
-    double _left_motor_speed = left_speed;
-    double _right_motor_speed = right_speed;
+    double left_motor_speed = left_speed;
+    double right_motor_speed = right_speed;
 
     // フィードバック制御のためのモータ制御
     if (control > 0) {
-        _left_motor_speed -= control * 2;
+        left_motor_speed -= control * 2;
     } else if (control < 0) {
-        _right_motor_speed += control * 2;
+        right_motor_speed += control * 2;
     } else {
-        _left_motor_speed -= control;
-        _right_motor_speed += control;
+        left_motor_speed -= control;
+        right_motor_speed += control;
 
     }
     if(stop_count >= 50){
-        _left_motor_speed = 0.0;
-        _right_motor_speed = 0.0;
+        left_motor_speed = 0.0;
+        right_motor_speed = 0.0;
     }
     // モータ速度を表示
     std::cout << "Left Motor: " << left_motor_speed << ", Right Motor: " << right_motor_speed << std::endl;
-    left_motor_speed = _left_motor_speed;
-    right_motor_speed = _right_motor_speed;
+    // 実際のモータ制御関数を呼び出す
+    motor_cntrol(left_motor_speed, right_motor_speed);
 }
 
 
 /* 走行モータ制御 */
-static void motor_cntrol(double _left_motor_speed , double _right_motor_speed){
+static void motor_cntrol(double left_motor_speed , double right_motor_speed){
     // モータ速度を0から100の範囲に制限
-    _left_motor_speed = std::max(std::min(_left_motor_speed, 100.0), -100.0);
-    _right_motor_speed = std::max(std::min(_right_motor_speed, 100.0), -100.0);
+    left_motor_speed = std::max(std::min(left_motor_speed, 100.0), -100.0);
+    right_motor_speed = std::max(std::min(right_motor_speed, 100.0), -100.0);
 
     // 実際のモータ制御関数をここで呼び出す
-    ev3_motor_set_power(left_motor, _left_motor_speed);
-    ev3_motor_set_power(right_motor, _right_motor_speed);
+    ev3_motor_set_power(left_motor, left_motor_speed);
+    ev3_motor_set_power(right_motor, right_motor_speed);
     return;
 }
 
@@ -796,6 +760,8 @@ static bool detectCheck(const Mat& morphed, int min_area) {
     return false;
 }
 
+
+
 /* 誤差計算 */
 static double pid_control(PID &pid, double error) {
     pid.integral += error;
@@ -804,7 +770,7 @@ static double pid_control(PID &pid, double error) {
     return pid.Kp * error + pid.Ki * pid.integral + pid.Kd * derivative;
 }
 
-/* 速度の設定 */
+/* 誤差計算 */
 static void set_speed(double BASE_SPEED){
     left_speed = BASE_SPEED;
     right_speed = BASE_SPEED;
