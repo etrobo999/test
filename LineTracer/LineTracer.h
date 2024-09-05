@@ -22,7 +22,7 @@ struct CameraSettings {
 
 void applyGrayWorldWhiteBalance(cv::Mat& src);                                    //ホワイトバランス補正関数
 static double pid_control(PID &pid, double error);                                //PIDの誤差計算関数
-static void motor_cntrol(double left_motor_speed , double right_motor_speed);     //モータの速度設定関数                                            //旧画像取得関数
+static void motor_cntrol(double _left_motor_speed , double _right_motor_speed);     //モータの速度設定関数                                            //旧画像取得関数                                           //旧画像取得関数
 //void Hsv(cv::Mat& hsv);                                                           //画像のトリミング
 //void RectFrame(cv::Mat& rectframe);                                               //HSV変換関数
 static std::tuple<cv::Mat, cv::Mat> RectFrame(const cv::Mat& frame);    
@@ -42,9 +42,11 @@ static float getTime(int timer_id);                                             
 
 extern std::map<std::string, std::pair<cv::Scalar, cv::Scalar>> color_bounds;
 extern bool follow, resetting, resize_on;
+extern bool resetting, frame_ready, wb_ready, display_ready;
+extern bool create_main_thread, left_motor_reset, right_motor_reset, gyro_reset;
 extern uint8_t scene;
 extern int cX, cY;
-extern double left_speed, right_speed;
+extern double left_speed, right_speed, left_motor_speed, right_motor_speed;
 
 extern int frame_center; 
 #ifdef __cplusplus
