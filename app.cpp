@@ -17,7 +17,7 @@ void main_task(intptr_t unused) {
     printf("Start Line Trace!!\n");
     
     /* ライントレースタスクの起動 */
-    act_tsk(LINE_TRACER_TASK);
+    sta_cyc(LINE_TRACER_TASK_CYC);
 
     /* タスク終了 */
     ext_tsk();
