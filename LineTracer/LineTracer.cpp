@@ -233,7 +233,7 @@ void* main_thread_func(void* arg) {
 
     pthread_t opencv_thread;
     pthread_t white_balance_thread;
-//    pthread_t display_thread;
+    pthread_t display_thread;
 
     // OpenCVスレッドを作成
     if (pthread_create(&opencv_thread, NULL, opencv_thread_func, NULL) != 0) {
@@ -248,10 +248,10 @@ void* main_thread_func(void* arg) {
     }
 
     // 画面表示スレッドを作成
-//    if (pthread_create(&display_thread, NULL, display_thread_func, NULL) != 0) {
-//        cerr << "Error: Failed to create Display thread" << endl;
-//        pthread_exit(NULL);
-//    }
+    if (pthread_create(&display_thread, NULL, display_thread_func, NULL) != 0) {
+        cerr << "Error: Failed to create Display thread" << endl;
+        pthread_exit(NULL);
+    }
 
     bool ext = true;
     
@@ -588,8 +588,8 @@ void* main_thread_func(void* arg) {
         }
         main_ready = true;
         main_var.notify_one();
-//        display_ready = true;
-//        display_var.notify_one();
+        display_ready = true;
+        display_var.notify_one();
     }
     pthread_exit(NULL);
 }
@@ -772,8 +772,6 @@ static std::tuple<int, int> Follow_1(const Mat& morphed) {
     }
     result_frame = morphed.clone(); // 描画用にフレームをコピー
     cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(255, 0, 0), -1);
-    cv::imshow("result_frame", result_frame);
-    cv::waitKey(1);
     // 結果をタプルで返す (重心のx座標, y座標, 描画済みフレーム)
     return std::make_tuple(cX, cY);
 }
