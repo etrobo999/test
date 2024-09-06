@@ -207,7 +207,7 @@ void* display_thread_func(void* arg) {
 //        }
         // 表示処理
         cv::imshow("temp_frame1", temp_frame1);
-        cv::imshow("frame", frame);
+        cv::imshow("orizin_frame", orizin_frame);
         cv::imshow("mask", mask);
         cv::waitKey(1);
 
