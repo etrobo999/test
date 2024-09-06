@@ -275,15 +275,14 @@ void* main_thread_func(void* arg) {
             break;
         case 2:
             startTimer(1);
-            ev3_gyro_sensor_reset(gyro_sensor);
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "blue_black");
             morphed = Morphology(mask);
             tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
-            //if(ev3_touch_sensor_is_pressed(touch_sensor)){
-            //    scene = 11;
-            //};
+            if(ev3_touch_sensor_is_pressed(touch_sensor)){
+                scene = 11;
+            };
             cout <<getTime(1)<<endl;
             std::cout << ev3_gyro_sensor_get_angle(gyro_sensor) << std::endl;
             std::cout << ev3_touch_sensor_is_pressed(touch_sensor) << std::endl;
