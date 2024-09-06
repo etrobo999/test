@@ -736,7 +736,7 @@ static std::tuple<int, int> Follow_1(const Mat& morphed) {
         stop_count++;
     }
     result_frame = morphed.clone(); // 描画用にフレームをコピー
-    cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(, 0, 255), -1);
+    cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(0, 0, 255), -1);
     // 結果をタプルで返す (重心のx座標, y座標, 描画済みフレーム)
     return std::make_tuple(cX, cY);
 }
@@ -783,8 +783,8 @@ static std::tuple<int, int> Follow_2(const Mat& morphed) {
         stop_count++;
     }
 
-    result_frame = rectframe.clone(); // 描画用にフレームをコピー
-    cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(255, 0, 0), -1);
+    result_frame = morphed.clone(); // 描画用にフレームをコピー
+    cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(0, 0, 255), -1);
     
     // 結果をタプルで返す (重心のx座標, y座標, 描画済みフレーム)
     return std::make_tuple(cX, cY);
