@@ -18,7 +18,7 @@ raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
 PID straightpid = {0.055, 0, 0.005, 0, 0}; //ストレートPID
-PID Bcurvetpid = {0.105, 0.006, 0, 0, 0}; //急カーブPID
+PID Bcurvetpid = {0.11, 0.006, 0, 0, 0}; //急カーブPID
 PID Mcurvetpid = {0.08, 0.003, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.07, 0.004, 0, 0, 0}; //ゆっくりカーブPID
 
@@ -315,14 +315,14 @@ void* main_thread_func(void* arg) {
             PIDMotor(straightpid);
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 6400){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 6350){
                 scene++;
             }
             std::cout << "Case 12" << std::endl;
             break;
         case 13: //設定の読み込み
             startTimer(1);
-            set_speed(50.0);
+            set_speed(55.0);
             scene++;
             break;
         case 14: //第一急カーブ
@@ -361,7 +361,7 @@ void* main_thread_func(void* arg) {
         case 17://設定の読み込み
             follow = false;
             startTimer(1);
-            set_speed(50.0);
+            set_speed(55.0);
             scene++;
             break;
         case 18: //第二急カーブ
