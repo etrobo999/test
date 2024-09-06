@@ -273,7 +273,7 @@ void* main_thread_func(void* arg) {
         case 2:
             startTimer(1);
             tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "blue");
+            createMask(hsv, "white");
             morphed = Morphology(mask);
             tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
