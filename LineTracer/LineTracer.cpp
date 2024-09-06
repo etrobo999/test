@@ -92,7 +92,7 @@ int stop_count = 0;
 //////////////////////////////////////////////////////////////////////
 
 void* opencv_thread_func(void* arg) {
-    set_cpu_affinity(0);
+    //set_cpu_affinity(0);
     // シグナルマスクの設定
     sigset_t set;
     sigemptyset(&set);
