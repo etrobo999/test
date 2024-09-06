@@ -25,11 +25,11 @@ PID Scurvetpid = {0.08, 0.004, 0, 0, 0}; //ゆっくりカーブPID
 /*rectの値初期化*/
 int rect_x = 0;
 int rect_y = 0;
-int rect_width = 400;
-int rect_height = 300;
+int rect_width = 640;
+int rect_height = 480;
 
 /*cameraの初期設定*/
-CameraSettings camera_settings = {1280, 960, CV_8UC3, 40};
+CameraSettings camera_settings = {1280, 960, CV_8UC3, 60};
 
 
 /*使用する変数の宣言*/
@@ -67,7 +67,7 @@ int gyro_counts = 0;
 
 // 追従方向の変数[true = 右] [false = 左]
 bool follow = true;
-bool resize_on = false;
+bool resize_on = true;
 
 // スレッドの操作のための変数
 bool resetting = false;
@@ -92,6 +92,7 @@ int stop_count = 0;
 //////////////////////////////////////////////////////////////////////
 
 void* opencv_thread_func(void* arg) {
+    set_cpu_affinity(0);
     // シグナルマスクの設定
     sigset_t set;
     sigemptyset(&set);
