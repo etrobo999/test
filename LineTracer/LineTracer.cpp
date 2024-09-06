@@ -256,6 +256,7 @@ void* main_thread_func(void* arg) {
             ev3_motor_reset_counts(right_motor);
             ev3_gyro_sensor_reset(gyro_sensor);
             std::cout << "Case 1" << std::endl;
+            scene++;
             break;
         case 2:
             startTimer(1);
@@ -266,7 +267,7 @@ void* main_thread_func(void* arg) {
             tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             //if(ev3_touch_sensor_is_pressed(touch_sensor)){
-            //    scene++;
+            //    scene = 11;
             //};
             cout <<getTime(1)<<endl;
             std::cout << ev3_gyro_sensor_get_angle(gyro_sensor) << std::endl;
@@ -274,10 +275,6 @@ void* main_thread_func(void* arg) {
             std::cout << ev3_motor_get_counts(left_motor) << std::endl;
             std::cout << ev3_motor_get_counts(right_motor) << std::endl;
         case 3:
-            left_motor_reset = true;
-            right_motor_reset = true;
-            scene = 21;
-            break;
         case 4:
         case 5:
         case 6:
@@ -304,9 +301,9 @@ void* main_thread_func(void* arg) {
             tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);
-            std::cout <<left_motor_counts<< std::endl;
-            std::cout <<right_motor_counts<< std::endl;
-            if(left_motor_counts + right_motor_counts >= 6300){
+            std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
+            std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 6300){
                 scene++;
             }
             std::cout << "Case 12" << std::endl;
@@ -322,10 +319,10 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
-            std::cout <<left_motor_counts<< std::endl;
-            std::cout <<right_motor_counts<< std::endl;
             PIDMotor(Bcurvetpid);         
-            if(left_motor_counts + right_motor_counts >= 7900){
+            std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
+            std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 7900){
                 scene++;
             }
             std::cout << "Case 14" << std::endl;
@@ -341,10 +338,10 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
-            std::cout <<left_motor_counts<< std::endl;
-            std::cout <<right_motor_counts<< std::endl;
             PIDMotor(straightpid);
-            if(left_motor_counts + right_motor_counts >= 11100){
+            std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
+            std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 11300){
                 scene++;
             }
             std::cout << "Case 16" << std::endl;
@@ -361,10 +358,10 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
-            std::cout <<left_motor_counts<< std::endl;
-            std::cout <<right_motor_counts<< std::endl;
             PIDMotor(Bcurvetpid);
-            if(left_motor_counts + right_motor_counts >= 13000){
+            std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
+            std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 13000){
                 scene++;
             }
             std::cout << "Case 18" << std::endl;
@@ -381,8 +378,8 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
-            std::cout <<left_motor_counts<< std::endl;
-            std::cout <<right_motor_counts<< std::endl;
+            std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
+            std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             PIDMotor(straightpid);
             if(getTime(1) >=0.5){
                 scene = 21;
