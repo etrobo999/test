@@ -369,7 +369,7 @@ void* main_thread_func(void* arg) {
             PIDMotor(Bcurvetpid);
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 13100){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 12900){
                 scene++;
             }
             std::cout << "Case 18" << std::endl;
