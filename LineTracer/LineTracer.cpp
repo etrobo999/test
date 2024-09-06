@@ -105,13 +105,15 @@ void* opencv_thread_func(void* arg) {
         Camera.set(cv::CAP_PROP_FRAME_WIDTH, camera_settings.frame_width);
         Camera.set(cv::CAP_PROP_FRAME_HEIGHT, camera_settings.frame_height);
         Camera.set(cv::CAP_PROP_FORMAT, camera_settings.format);
-        Camera.set(cv::CAP_PROP_FPS, camera_settings.fps);
+        //Camera.set(cv::CAP_PROP_FPS, camera_settings.fps);
+        Camera.set(cv::CAP_PROP_AUTO_WB, 1);
         if (!Camera.open()) {
             cerr << "Error: !Camera.open" << endl;
             pthread_exit(NULL);
         }
 
         while (true) {
+            startTimer(2);
             Camera.grab();
             Mat temp_frame;
             Camera.retrieve(temp_frame);
@@ -134,6 +136,7 @@ void* opencv_thread_func(void* arg) {
                 Camera.release();  // カメラをリリース
                 resetting = false;
                 break;  // 内側のループを抜けて再初期化へ
+            cout << "camera "  << getTime(2) <<endl;
             }
         }
     }
