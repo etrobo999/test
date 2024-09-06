@@ -258,7 +258,7 @@ void* main_thread_func(void* arg) {
             startTimer(1);
             ev3_gyro_sensor_reset(gyro_sensor);
             tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "blue_black");
+            createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
@@ -315,7 +315,7 @@ void* main_thread_func(void* arg) {
             PIDMotor(straightpid);
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 6300){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 6400){
                 scene++;
             }
             std::cout << "Case 12" << std::endl;
@@ -334,7 +334,7 @@ void* main_thread_func(void* arg) {
             PIDMotor(Bcurvetpid);         
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 7800){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 7700){
                 scene++;
             }
             std::cout << "Case 14" << std::endl;
