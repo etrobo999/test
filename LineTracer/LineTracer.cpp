@@ -82,7 +82,7 @@ int stop_count = 0;
 //////////////////////////////////////////////////////////////////////
 
 void* opencv_thread_func(void* arg) {
-    //set_cpu_affinity(0);
+    set_cpu_affinity(0);
     // シグナルマスクの設定
     sigset_t set;
     sigemptyset(&set);
@@ -210,6 +210,7 @@ void* display_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
 void* main_thread_func(void* arg) {
+    set_cpu_affinity(1);
     sigset_t set;
     sigemptyset(&set);
     sigaddset(&set, SIGUSR2);  // ASPカーネルが使用するシグナルをマスク
@@ -349,7 +350,7 @@ void* main_thread_func(void* arg) {
             PIDMotor(straightpid);
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 11700){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 11600){
                 scene++;
             }
             std::cout << "Case 16" << std::endl;
@@ -357,7 +358,7 @@ void* main_thread_func(void* arg) {
         case 17://設定の読み込み
             follow = false;
             startTimer(1);
-            set_speed(55.0);
+            set_speed(50.0);
             scene++;
             break;
         case 18: //第二急カーブ
