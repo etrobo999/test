@@ -78,9 +78,9 @@ bool main_ready = false;
 
 // タスクを操作するための変数
 bool create_main_thread = true;
-bool left_motor_reset = false;
-bool right_motor_reset = false;
-bool gyro_reset = false;
+bool left_motor_reset = true;
+bool right_motor_reset = true;
+bool gyro_reset = true;
 
 // 連続して検知された回数をカウントする変数
 int detection_count = 0;
@@ -136,8 +136,8 @@ void* opencv_thread_func(void* arg) {
                 Camera.release();  // カメラをリリース
                 resetting = false;
                 break;  // 内側のループを抜けて再初期化へ
-            cout << "camera "  << getTime(2) <<endl;
             }
+            cout << "camera "  << getTime(2) <<endl;
         }
     }
 
@@ -270,10 +270,14 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
-            if(ev3_touch_sensor_is_pressed(touch_sensor)){
-                scene++;
-            };
+            //if(ev3_touch_sensor_is_pressed(touch_sensor)){
+            //    scene++;
+            //};
             cout <<getTime(1)<<endl;
+            std::cout << gyro_counts << std::endl;
+            std::cout << touch_sensor_bool << std::endl;
+            std::cout << left_motor_counts << std::endl;
+            std::cout << right_motor_counts << std::endl;
             std::cout << "Case 1" << std::endl;
             break;
         case 2:
@@ -598,10 +602,10 @@ void tracer_task(intptr_t unused) {
         cerr << "Error: Failed to create Main thread" << endl;
         pthread_exit(NULL);
     }
-    while (true) {
-        std::unique_lock<std::mutex> lock(mtx3);
-        main_var.wait(lock, [] { return main_ready;});
-        main_ready = false;
+    //while (true) {
+        //std::unique_lock<std::mutex> lock(mtx3);
+        //main_var.wait(lock, [] { return main_ready;});
+        //main_ready = false;
         //モータの回転数reset
         if (left_motor_reset) {
             ev3_motor_reset_counts(left_motor);
@@ -617,12 +621,12 @@ void tracer_task(intptr_t unused) {
         }
         //センサーの値を取得
         gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-        cout <<touch_sensor_bool<<endl;
+        touch_sensor_bool = ev3_touch_sensor_is_pressed(touch_sensor);
         left_motor_counts = ev3_motor_get_counts(left_motor);
         right_motor_counts = ev3_motor_get_counts(right_motor);
 
         motor_cntrol(left_motor_speed, right_motor_speed);
-}
+    //}
     
     
     ext_tsk(); // タスクを終了
