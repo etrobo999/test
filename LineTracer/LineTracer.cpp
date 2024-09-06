@@ -23,13 +23,13 @@ PID Mcurvetpid = {0.08, 0.003, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.08, 0.004, 0, 0, 0}; //ゆっくりカーブPID
 
 /*rectの値初期化*/
-int rect_x = 0;
-int rect_y = 0;
-int rect_width = 640;
-int rect_height = 480;
+int rect_x = 140;
+int rect_y = 180;
+int rect_width = 400;
+int rect_height = 160;
 
 /*cameraの初期設定*/
-CameraSettings camera_settings = {1280, 960, CV_8UC3, 60};
+CameraSettings camera_settings = {640, 480, CV_8UC3, 40};
 
 
 /*使用する変数の宣言*/
@@ -51,7 +51,7 @@ Mat orizin_frame, frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, 
 
 /*使用する変数の初期化*/
 uint8_t scene = 1;
-int frame_center = 190;
+int frame_center = 200;
 int cX = 0;
 int cY = 0;
 double left_speed = 0.0;
@@ -67,7 +67,7 @@ int gyro_counts = 0;
 
 // 追従方向の変数[true = 右] [false = 左]
 bool follow = true;
-bool resize_on = true;
+bool resize_on = false;
 
 // スレッドの操作のための変数
 bool resetting = false;
@@ -106,7 +106,6 @@ void* opencv_thread_func(void* arg) {
         Camera.set(cv::CAP_PROP_FRAME_WIDTH, camera_settings.frame_width);
         Camera.set(cv::CAP_PROP_FRAME_HEIGHT, camera_settings.frame_height);
         Camera.set(cv::CAP_PROP_FORMAT, camera_settings.format);
-        Camera.set(cv::CAP_PROP_AUTO_WB, 1);
         Camera.set(cv::CAP_PROP_FPS, camera_settings.fps);
         if (!Camera.open()) {
             cerr << "Error: !Camera.open" << endl;
@@ -169,7 +168,7 @@ void* white_balance_thread_func(void* arg) {
             cv::resize(temp_frame1, temp_frame1, cv::Size(640, 480), 0, 0, cv::INTER_LINEAR);
         }
         
-        //applyGrayWorldWhiteBalance(temp_frame1);
+        applyGrayWorldWhiteBalance(temp_frame1);
 
         // 処理したフレームを戻す
         {
@@ -204,10 +203,6 @@ void* display_thread_func(void* arg) {
             temp_frame1 = result_frame.clone();
         }
 
-        //resize
-//        if(resize_on){
-//            cv::resize(temp_frame1, temp_frame1, cv::Size(320, 240), 0, 0, cv::INTER_LINEAR);
-//        }
         // 表示処理
         cv::imshow("temp_frame1", temp_frame1);
         cv::imshow("orizin_frame", orizin_frame);
@@ -635,24 +630,22 @@ void tracer_task(intptr_t unused) {
 
 /* ホワイトバランス補正 */
 void applyGrayWorldWhiteBalance(Mat& src) {
-    // 各チャンネルの平均値を計算
-    Scalar avg_rgb = mean(src);
-    double avg_r = avg_rgb[2];
-    double avg_g = avg_rgb[1];
-    double avg_b = avg_rgb[0];
-
-    // グレイワールド仮定に基づいてスケールを計算
-    double scale_r = avg_g / avg_r;
-    double scale_b = avg_g / avg_b;
-
-    // 各チャンネルにスケールを適用
     vector<Mat> channels(3);
     split(src, channels);
-    channels[2] *= scale_r;
-    channels[0] *= scale_b;
+
+    // 各チャンネルの最小値と最大値を取得
+    double min_r, max_r, min_g, max_g, min_b, max_b;
+    minMaxLoc(channels[2], &min_r, &max_r);
+    minMaxLoc(channels[1], &min_g, &max_g);
+    minMaxLoc(channels[0], &min_b, &max_b);
+
+    // 各チャンネルを正規化してスケーリング (範囲を0～255に再スケーリング)
+    channels[2] = (channels[2] - min_r) * (255.0 / (max_r - min_r));
+    channels[1] = (channels[1] - min_g) * (255.0 / (max_g - min_g));
+    channels[0] = (channels[0] - min_b) * (255.0 / (max_b - min_b));
 
     // チャンネルを再結合
-    merge(channels, src); // srcに結果を格納
+    merge(channels, src);
 }
 
 static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
