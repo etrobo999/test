@@ -196,7 +196,6 @@ void* display_thread_func(void* arg) {
         // 表示処理
         cv::imshow("temp_frame1", temp_frame1);
         cv::imshow("rectframe", rectframe);
-        cv::imshow("mask", mask);
         cv::waitKey(1);
 
         {
@@ -270,10 +269,10 @@ void* main_thread_func(void* arg) {
             //    scene++;
             //};
             cout <<getTime(1)<<endl;
-            std::cout << ev3_gyro_sensor_get_angle(gyro_sensor); << std::endl;
-            std::cout << ev3_touch_sensor_is_pressed(touch_sensor); << std::endl;
-            std::cout << ev3_motor_get_counts(left_motor); << std::endl;
-            std::cout << ev3_motor_get_counts(right_motor); << std::endl;
+            std::cout << ev3_gyro_sensor_get_angle(gyro_sensor) << std::endl;
+            std::cout << ev3_touch_sensor_is_pressed(touch_sensor) << std::endl;
+            std::cout << ev3_motor_get_counts(left_motor) << std::endl;
+            std::cout << ev3_motor_get_counts(right_motor) << std::endl;
         case 3:
             left_motor_reset = true;
             right_motor_reset = true;
@@ -737,7 +736,7 @@ static std::tuple<int, int> Follow_1(const Mat& morphed) {
         stop_count++;
     }
     result_frame = morphed.clone(); // 描画用にフレームをコピー
-    cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(255, 0, 0), -1);
+    cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(, 0, 255), -1);
     // 結果をタプルで返す (重心のx座標, y座標, 描画済みフレーム)
     return std::make_tuple(cX, cY);
 }
