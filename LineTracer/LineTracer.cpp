@@ -195,7 +195,6 @@ void* display_thread_func(void* arg) {
 
         // 表示処理
         cv::imshow("temp_frame1", temp_frame1);
-        cv::imshow("rectframe", rectframe);
         cv::waitKey(1);
 
         {
@@ -262,9 +261,6 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
-            //if(ev3_touch_sensor_is_pressed(touch_sensor)){
-            //    scene = 11;
-            //};
             cout <<getTime(1)<<endl;
             std::cout << ev3_gyro_sensor_get_angle(gyro_sensor) << std::endl;
             std::cout << ev3_touch_sensor_is_pressed(touch_sensor) << std::endl;
@@ -353,7 +349,7 @@ void* main_thread_func(void* arg) {
             PIDMotor(straightpid);
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 11600){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 11700){
                 scene++;
             }
             std::cout << "Case 16" << std::endl;
