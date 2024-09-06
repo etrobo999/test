@@ -92,7 +92,7 @@ int stop_count = 0;
 //////////////////////////////////////////////////////////////////////
 
 void* opencv_thread_func(void* arg) {
-    set_cpu_affinity(0);
+    //set_cpu_affinity(0);
     // シグナルマスクの設定
     sigset_t set;
     sigemptyset(&set);
@@ -598,20 +598,15 @@ void* main_thread_func(void* arg) {
 
 void tracer_task(intptr_t unused) {
     pthread_t main_thread;
-    if (create_main_thread) {
-        if (pthread_create(&main_thread, NULL, main_thread_func, NULL) != 0) {
+    if (pthread_create(&main_thread, NULL, main_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create Main thread" << endl;
         pthread_exit(NULL);
-        create_main_thread = false;
-        }
     }
-    
-
-    //while (true) {
-        //std::unique_lock<std::mutex> lock(mtx3);
-        //main_var.wait(lock, [] { return main_ready;});
-        //main_ready = false;
-        //モータの回転数reset
+    while (true) {
+        std::unique_lock<std::mutex> lock(mtx3);
+        main_var.wait(lock, [] { return main_ready;});
+        main_ready = false;
+        モータの回転数reset
         if (left_motor_reset) {
             ev3_motor_reset_counts(left_motor);
             left_motor_reset = false;
@@ -631,7 +626,7 @@ void tracer_task(intptr_t unused) {
         right_motor_counts = ev3_motor_get_counts(right_motor);
 
         motor_cntrol(left_motor_speed, right_motor_speed);
-    //}
+    }
     
     
     ext_tsk(); // タスクを終了
