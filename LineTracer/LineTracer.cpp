@@ -158,7 +158,7 @@ void* white_balance_thread_func(void* arg) {
             cv::resize(temp_frame1, temp_frame1, cv::Size(640, 480), 0, 0, cv::INTER_LINEAR);
         }
         
-        //applyGrayWorldWhiteBalance(temp_frame1);
+        applyGrayWorldWhiteBalance(temp_frame1);
 
         // 処理したフレームを戻す
         {
@@ -888,7 +888,7 @@ static void set_speed(double BASE_SPEED){
 /* マスク値 */
 std::map<std::string, std::pair<Scalar, Scalar>> color_bounds = {
     {"black", {Scalar(0, 0, 0), Scalar(180, 255, 50)}},  // 黒色
-    {"blue", {Scalar(90, 100, 0), Scalar(150, 255, 255)}},  // 青色
+    {"blue", {Scalar(100, 100, 0), Scalar(140, 255, 255)}},  // 青色
     {"red_low", {Scalar(0, 100, 100), Scalar(10, 255, 255)}},  // 赤色（低範囲）
     {"red_high", {Scalar(160, 100, 100), Scalar(180, 255, 255)}},  // 赤色（高範囲）
     {"yellow", {Scalar(20, 100, 100), Scalar(30, 255, 255)}},  // 黄色
