@@ -815,8 +815,8 @@ static void PIDMotor(PID &pid) {
         right_motor_speed += control;
     } else if (control < 0) {
         // 左に曲がる場合、右モータを減速し、左モータを加速
-        left_motor_speed += control;
-        right_motor_speed -= control;
+        left_motor_speed -= control;
+        right_motor_speed += control;
     }
 
     // 停止条件が満たされた場合、モータを停止
