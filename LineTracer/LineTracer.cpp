@@ -17,8 +17,8 @@ using namespace cv;
 raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
-PID straightpid = {0.055, 0, 0.005, 0, 0}; //ストレートPID
-PID Bcurvetpid = {0.12, 0.004, 0, 0, 0}; //急カーブPID
+PID straightpid = {0.06, 0, 0.006, 0, 0}; //ストレートPID
+PID Bcurvetpid = {0.12, 0.006, 0, 0, 0}; //急カーブPID
 PID Mcurvetpid = {0.10, 0.003, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.09, 0.004, 0, 0, 0}; //ゆっくりカーブPID
 
@@ -336,7 +336,7 @@ void* main_thread_func(void* arg) {
             PIDMotor(Bcurvetpid);         
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 7900){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 7800){
                 scene++;
             }
             std::cout << "Case 14" << std::endl;
@@ -355,7 +355,7 @@ void* main_thread_func(void* arg) {
             PIDMotor(straightpid);
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 11300){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 11200){
                 scene++;
             }
             std::cout << "Case 16" << std::endl;
@@ -375,7 +375,7 @@ void* main_thread_func(void* arg) {
             PIDMotor(Bcurvetpid);
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 13000){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 13600){
                 scene++;
             }
             std::cout << "Case 18" << std::endl;
