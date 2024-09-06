@@ -29,7 +29,7 @@ int rect_width = 400;
 int rect_height = 300;
 
 /*cameraの初期設定*/
-CameraSettings camera_settings = {400, 300, CV_8UC3, 40};
+CameraSettings camera_settings = {1280, 960, CV_8UC3, 40};
 
 
 /*使用する変数の宣言*/
@@ -105,8 +105,8 @@ void* opencv_thread_func(void* arg) {
         Camera.set(cv::CAP_PROP_FRAME_WIDTH, camera_settings.frame_width);
         Camera.set(cv::CAP_PROP_FRAME_HEIGHT, camera_settings.frame_height);
         Camera.set(cv::CAP_PROP_FORMAT, camera_settings.format);
-        //Camera.set(cv::CAP_PROP_FPS, camera_settings.fps);
         Camera.set(cv::CAP_PROP_AUTO_WB, 1);
+        Camera.set(cv::CAP_PROP_FPS, camera_settings.fps);
         if (!Camera.open()) {
             cerr << "Error: !Camera.open" << endl;
             pthread_exit(NULL);
