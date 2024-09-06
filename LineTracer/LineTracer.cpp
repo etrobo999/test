@@ -92,7 +92,7 @@ int stop_count = 0;
 //////////////////////////////////////////////////////////////////////
 
 void* opencv_thread_func(void* arg) {
-    //set_cpu_affinity(0);
+    set_cpu_affinity(0);
     // シグナルマスクの設定
     sigset_t set;
     sigemptyset(&set);
@@ -598,10 +598,15 @@ void* main_thread_func(void* arg) {
 
 void tracer_task(intptr_t unused) {
     pthread_t main_thread;
-    if (pthread_create(&main_thread, NULL, main_thread_func, NULL) != 0) {
+    if (create_main_thread) {
+        if (pthread_create(&main_thread, NULL, main_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create Main thread" << endl;
         pthread_exit(NULL);
+        create_main_thread = false;
     }
+    }
+    
+
     //while (true) {
         //std::unique_lock<std::mutex> lock(mtx3);
         //main_var.wait(lock, [] { return main_ready;});
