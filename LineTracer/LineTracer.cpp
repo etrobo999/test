@@ -606,7 +606,9 @@ void tracer_task(intptr_t unused) {
         std::unique_lock<std::mutex> lock(mtx3);
         main_var.wait(lock, [] { return main_ready;});
         main_ready = false;
-        モータの回転数reset
+        motor_cntrol(left_motor_speed, right_motor_speed);
+        
+        //モータの回転数reset
         if (left_motor_reset) {
             ev3_motor_reset_counts(left_motor);
             left_motor_reset = false;
@@ -625,7 +627,7 @@ void tracer_task(intptr_t unused) {
         left_motor_counts = ev3_motor_get_counts(left_motor);
         right_motor_counts = ev3_motor_get_counts(right_motor);
 
-        motor_cntrol(left_motor_speed, right_motor_speed);
+        
     }
     
     
