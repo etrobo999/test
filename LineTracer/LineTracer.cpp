@@ -44,7 +44,6 @@ std::mutex mtx4;
 std::condition_variable frame_ready_var;
 std::condition_variable wb_var;
 std::condition_variable display_var;
-std::condition_variable main_var;
 
 /*使用する（かもしれない）cv::MATの変数宣言*/
 Mat orizin_frame, frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, morphed2, result_frame;
@@ -56,8 +55,6 @@ int cX = 0;
 int cY = 0;
 double left_speed = 0.0;
 double right_speed = 0.0;
-double left_motor_speed = 0.0;
-double right_motor_speed = 0.0;
 
 //センサーの値を入れる変数
 bool touch_sensor_bool = false;
@@ -74,13 +71,6 @@ bool resetting = false;
 bool frame_ready = false;
 bool wb_ready = false;
 bool display_ready = false;
-bool main_ready = false;
-
-// タスクを操作するための変数
-bool create_main_thread = true;
-bool left_motor_reset = true;
-bool right_motor_reset = true;
-bool gyro_reset = true;
 
 // 連続して検知された回数をカウントする変数
 int detection_count = 0;
@@ -263,6 +253,12 @@ void* main_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
         case 1: //画面表示・ボタンでスタート
+            ev3_motor_reset_counts(left_motor);
+            ev3_motor_reset_counts(right_motor);
+            ev3_gyro_sensor_reset(gyro_sensor);
+            std::cout << "Case 1" << std::endl;
+            break;
+        case 2:
             startTimer(1);
             ev3_gyro_sensor_reset(gyro_sensor);
             tie(rectframe, hsv) = RectFrame(frame);
@@ -274,13 +270,10 @@ void* main_thread_func(void* arg) {
             //    scene++;
             //};
             cout <<getTime(1)<<endl;
-            std::cout << gyro_counts << std::endl;
-            std::cout << touch_sensor_bool << std::endl;
-            std::cout << left_motor_counts << std::endl;
-            std::cout << right_motor_counts << std::endl;
-            std::cout << "Case 1" << std::endl;
-            break;
-        case 2:
+            std::cout << ev3_gyro_sensor_get_angle(gyro_sensor); << std::endl;
+            std::cout << ev3_touch_sensor_is_pressed(touch_sensor); << std::endl;
+            std::cout << ev3_motor_get_counts(left_motor); << std::endl;
+            std::cout << ev3_motor_get_counts(right_motor); << std::endl;
         case 3:
             left_motor_reset = true;
             right_motor_reset = true;
@@ -588,13 +581,12 @@ void* main_thread_func(void* arg) {
             std::cout << "Default case" << std::endl;
             break;
         }
-        main_ready = true;
-        main_var.notify_one();
         display_ready = true;
         display_var.notify_one();
     }
     pthread_exit(NULL);
 }
+
 
 void tracer_task(intptr_t unused) {
     pthread_t main_thread;
@@ -602,37 +594,9 @@ void tracer_task(intptr_t unused) {
         cerr << "Error: Failed to create Main thread" << endl;
         pthread_exit(NULL);
     }
-    while (true) {
-        std::unique_lock<std::mutex> lock(mtx3);
-        main_var.wait(lock, [] { return main_ready;});
-        main_ready = false;
-        motor_cntrol(left_motor_speed, right_motor_speed);
-        
-        //モータの回転数reset
-        if (left_motor_reset) {
-            ev3_motor_reset_counts(left_motor);
-            left_motor_reset = false;
-        }
-        if (right_motor_reset) {
-            ev3_motor_reset_counts(right_motor);
-            right_motor_reset = false;
-        }
-        if (gyro_reset) {
-            ev3_gyro_sensor_reset(gyro_sensor);
-            gyro_reset = false;
-        }
-        //センサーの値を取得
-        gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-        touch_sensor_bool = ev3_touch_sensor_is_pressed(touch_sensor);
-        left_motor_counts = ev3_motor_get_counts(left_motor);
-        right_motor_counts = ev3_motor_get_counts(right_motor);
-
-        
-    }
-    
-    
     ext_tsk(); // タスクを終了
 }
+
 
 /* ホワイトバランス補正 */
 void applyGrayWorldWhiteBalance(Mat& src) {
@@ -836,49 +800,36 @@ static void PIDMotor(PID &pid) {
     double control = pid_control(pid, error);
 
     // モータ速度の初期化
-    double _left_motor_speed = left_speed;
-    double _right_motor_speed = right_speed;
+    double left_motor_speed = left_speed;
+    double right_motor_speed = right_speed;
 
-    // フィードバック制御のためのモータ制御
     if (control > 0) {
-        _left_motor_speed -= control * 2;
+        // 右に曲がる場合、左モータを減速し、右モータを加速
+        left_motor_speed -= control;
+        right_motor_speed += control;
     } else if (control < 0) {
-        _right_motor_speed += control * 2;
-    } else {
-        _left_motor_speed -= control;
-        _right_motor_speed += control;
+        // 左に曲がる場合、右モータを減速し、左モータを加速
+        left_motor_speed += control;
+        right_motor_speed -= control;
+    }
 
-    }
-    if(stop_count >= 50){
-        _left_motor_speed = 0.0;
-        _right_motor_speed = 0.0;
-    }
+    // 停止条件が満たされた場合、モータを停止
+    if (stop_count >= 30) {
+        left_motor_speed = 0.0;
+        right_motor_speed = 0.0;
+}
     // モータ速度を表示
     std::cout << "Left Motor: " << left_motor_speed << ", Right Motor: " << right_motor_speed << std::endl;
-    left_motor_speed = _left_motor_speed;
-    right_motor_speed = _right_motor_speed;
+    motor_cntrol(left_motor_speed, right_motor_speed);
+
 }
 
 
 /* 走行モータ制御 */
-static void motor_cntrol(double _left_motor_speed , double _right_motor_speed){
-    // モータ速度を0から100の範囲に制限
-    _left_motor_speed = std::max(std::min(_left_motor_speed, 100.0), -100.0);
-    _right_motor_speed = std::max(std::min(_right_motor_speed, 100.0), -100.0);
-
+static void motor_cntrol(double left_motor_speed , double right_motor_speed){
     // 実際のモータ制御関数をここで呼び出す
-    ev3_motor_set_power(left_motor, _left_motor_speed);
-    ev3_motor_set_power(right_motor, _right_motor_speed);
-    return;
-}
-
-
-/* 画像の表示 */
-static void Show(const Mat& freme){
-    //Mat showfreme;
-    //cv::resize(freme, showfreme, cv::Size(320, 240), 0, 0, cv::INTER_NEAREST);
-    cv::imshow("freme", freme);
-    cv::waitKey(1);
+    ev3_motor_set_power(left_motor, left_motor_speed);
+    ev3_motor_set_power(right_motor, right_motor_speed);
     return;
 }
 

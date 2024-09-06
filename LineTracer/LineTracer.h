@@ -29,7 +29,6 @@ static cv::Mat Morphology(const cv::Mat& mask);                                 
 static std::tuple<int, int> Follow_1(const cv::Mat& morphed);                     //追従座標計算関数
 static std::tuple<int, int> Follow_2(const cv::Mat& morphed);                     //追従座標計算関数
 static void PIDMotor(PID &pid);                                                   //PID走行関数
-static void Show(const cv::Mat& showfreme);                                       //画像表示関数
 static void set_speed(double BASE_SPEED);
 static bool detectCheck(const cv::Mat& morphed, int min_area);                    //輪郭検知関数
 void set_cpu_affinity(int core_id) ;
@@ -46,7 +45,7 @@ extern bool resetting, frame_ready, wb_ready, display_ready;
 extern bool create_main_thread, left_motor_reset, right_motor_reset, gyro_reset;
 extern uint8_t scene;
 extern int cX, cY;
-extern double left_speed, right_speed, left_motor_speed, right_motor_speed;
+extern double left_speed, right_speed;
 
 extern int frame_center; 
 #ifdef __cplusplus
