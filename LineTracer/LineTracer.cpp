@@ -491,13 +491,9 @@ void* main_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
         case 31://設定の読み込み
-            camera_settings = {640, 480, CV_8UC3, 40};
-            resetting = true;
-            cv::waitKey(200);
-            resetting = true;
-            gyro_reset = true;
-            left_motor_reset = true;
-            right_motor_reset = true;
+            ev3_motor_reset_counts(left_motor);
+            ev3_motor_reset_counts(right_motor);
+            ev3_gyro_sensor_reset(gyro_sensor);
             rect_x = 0;
             rect_y = 0;  
             rect_width = 640;
@@ -506,9 +502,9 @@ void* main_thread_func(void* arg) {
             std::cout << "Case 31" << std::endl;
             break;
         case 32:
-            std::cout <<gyro_counts<< std::endl;
-            std::cout <<left_motor_counts<< std::endl;
-            std::cout <<right_motor_counts<< std::endl;
+            std::cout <<ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
+            std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
+            std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             std::cout << "Case 32" << std::endl;
             break;
         case 33:
