@@ -205,7 +205,7 @@ void* display_thread_func(void* arg) {
 
         // 表示処理
         cv::imshow("temp_frame1", temp_frame1);
-        cv::imshow("orizin_frame", orizin_frame);
+        cv::imshow("rectframe", rectframe);
         cv::imshow("mask", mask);
         cv::waitKey(1);
 
@@ -697,7 +697,7 @@ static void createMask(const Mat& hsv, const std::string& color) {
 /* モルフォロジー変換 */
 static Mat Morphology(const Mat& mask) {
     Mat morphed;
-    Mat kernel = getStructuringElement(MORPH_RECT, Size(5, 5));
+    Mat kernel = getStructuringElement(MORPH_RECT, Size(4, 4));
     morphologyEx(mask, morphed, MORPH_OPEN, kernel);
     morphologyEx(morphed, morphed, MORPH_CLOSE, kernel);    
     return morphed;  // モルフォロジー変換後の画像を返す
