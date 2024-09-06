@@ -17,7 +17,7 @@ using namespace cv;
 raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
-PID straightpid = {0.055, 0, 0.008, 0, 0}; //ストレートPID
+PID straightpid = {0.055, 0, 0.006, 0, 0}; //ストレートPID
 PID Bcurvetpid = {0.11, 0.006, 0, 0, 0}; //急カーブPID
 PID Mcurvetpid = {0.08, 0.003, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.07, 0.004, 0, 0, 0}; //ゆっくりカーブPID
@@ -337,7 +337,7 @@ void* main_thread_func(void* arg) {
             break;
         case 15: //設定の読み込み
             startTimer(1);
-            set_speed(60.0);
+            set_speed(55.0);
             scene++;
             break;
         case 16: //第二ストレート
