@@ -887,13 +887,13 @@ static void set_speed(double BASE_SPEED){
 
 /* マスク値 */
 std::map<std::string, std::pair<Scalar, Scalar>> color_bounds = {
-    {"black", {Scalar(0, 0, 0), Scalar(180, 255, 50)}},  // 黒色
+    {"black", {Scalar(0, 0, 0), Scalar(180, 255, 30)}},  // 黒色
     {"blue", {Scalar(100, 100, 0), Scalar(140, 255, 255)}},  // 青色
     {"red_low", {Scalar(0, 100, 100), Scalar(10, 255, 255)}},  // 赤色（低範囲）
     {"red_high", {Scalar(160, 100, 100), Scalar(180, 255, 255)}},  // 赤色（高範囲）
     {"yellow", {Scalar(20, 100, 100), Scalar(30, 255, 255)}},  // 黄色
     {"green", {Scalar(40, 50, 50), Scalar(80, 255, 255)}},  // 緑色
-    {"white", {Scalar(0, 0, 200), Scalar(180, 50, 255)}}  // 白色
+    {"white", {Scalar(0, 0, 180), Scalar(180, 70, 255)}}  // 白色
 };
 
 /* スタートタイマー */
