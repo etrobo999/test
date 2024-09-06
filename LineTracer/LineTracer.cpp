@@ -893,7 +893,7 @@ std::map<std::string, std::pair<Scalar, Scalar>> color_bounds = {
     {"red_high", {Scalar(160, 100, 100), Scalar(180, 255, 255)}},  // 赤色（高範囲）
     {"yellow", {Scalar(20, 100, 100), Scalar(30, 255, 255)}},  // 黄色
     {"green", {Scalar(40, 50, 50), Scalar(80, 255, 255)}},  // 緑色
-    {"white", {Scalar(0, 0, 180), Scalar(180, 70, 255)}}  // 白色
+    {"white", {Scalar(0, 0, 180), Scalar(180, 90, 255)}}  // 白色
 };
 
 /* スタートタイマー */
