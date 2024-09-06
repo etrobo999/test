@@ -275,7 +275,7 @@ void* main_thread_func(void* arg) {
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "white");
             morphed = Morphology(mask);
-            tie(cX, cY) = Follow_1(morphed);
+            tie(cX, cY) = Follow_2(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             if(ev3_touch_sensor_is_pressed(touch_sensor)){
                 scene = 11;
@@ -893,7 +893,7 @@ std::map<std::string, std::pair<Scalar, Scalar>> color_bounds = {
     {"red_high", {Scalar(160, 100, 100), Scalar(180, 255, 255)}},  // 赤色（高範囲）
     {"yellow", {Scalar(20, 100, 100), Scalar(30, 255, 255)}},  // 黄色
     {"green", {Scalar(40, 50, 50), Scalar(80, 255, 255)}},  // 緑色
-    {"white", {Scalar(0, 0, 180), Scalar(180, 90, 255)}}  // 白色
+    {"white", {Scalar(0, 0, 180), Scalar(180, 130, 255)}}  // 白色
 };
 
 /* スタートタイマー */
