@@ -168,7 +168,7 @@ void* white_balance_thread_func(void* arg) {
             cv::resize(temp_frame1, temp_frame1, cv::Size(640, 480), 0, 0, cv::INTER_LINEAR);
         }
         
-        applyGrayWorldWhiteBalance(temp_frame1);
+        //applyGrayWorldWhiteBalance(temp_frame1);
 
         // 処理したフレームを戻す
         {
