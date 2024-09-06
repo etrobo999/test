@@ -17,10 +17,10 @@ using namespace cv;
 raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
-PID straightpid = {0.06, 0, 0.005, 0, 0}; //ストレートPID
+PID straightpid = {0.055, 0, 0.005, 0, 0}; //ストレートPID
 PID Bcurvetpid = {0.12, 0.004, 0, 0, 0}; //急カーブPID
-PID Mcurvetpid = {0.08, 0.003, 0, 0, 0}; //ちょうどいいカーブPID
-PID Scurvetpid = {0.08, 0.004, 0, 0, 0}; //ゆっくりカーブPID
+PID Mcurvetpid = {0.10, 0.003, 0, 0, 0}; //ちょうどいいカーブPID
+PID Scurvetpid = {0.09, 0.004, 0, 0, 0}; //ゆっくりカーブPID
 
 /*rectの値初期化*/
 int rect_x = 140;
@@ -507,7 +507,7 @@ void* main_thread_func(void* arg) {
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             std::cout << "Case 32" << std::endl;
             break;
-        case 33:
+        case 33:\
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "white"); //Mask,Mask1
             morphed = Morphology(mask1);//白色モル
