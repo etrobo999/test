@@ -17,10 +17,10 @@ using namespace cv;
 raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
-PID straightpid = {0.06, 0, 0.006, 0, 0}; //ストレートPID
-PID Bcurvetpid = {0.12, 0.006, 0, 0, 0}; //急カーブPID
-PID Mcurvetpid = {0.10, 0.003, 0, 0, 0}; //ちょうどいいカーブPID
-PID Scurvetpid = {0.09, 0.004, 0, 0, 0}; //ゆっくりカーブPID
+PID straightpid = {0.04, 0, 0.005, 0, 0}; //ストレートPID
+PID Bcurvetpid = {0.10, 0.006, 0, 0, 0}; //急カーブPID
+PID Mcurvetpid = {0.08, 0.003, 0, 0, 0}; //ちょうどいいカーブPID
+PID Scurvetpid = {0.07, 0.004, 0, 0, 0}; //ゆっくりカーブPID
 
 /*rectの値初期化*/
 int rect_x = 120;
@@ -284,8 +284,6 @@ void* main_thread_func(void* arg) {
                 scene = 11;
             };
             cout <<getTime(1)<<endl;
-            std::cout << ev3_gyro_sensor_get_angle(gyro_sensor) << std::endl;
-            std::cout << ev3_touch_sensor_is_pressed(touch_sensor) << std::endl;
             std::cout << ev3_motor_get_counts(left_motor) << std::endl;
             std::cout << ev3_motor_get_counts(right_motor) << std::endl;
         case 3:
@@ -355,7 +353,7 @@ void* main_thread_func(void* arg) {
             PIDMotor(straightpid);
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 11200){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 11500){
                 scene++;
             }
             std::cout << "Case 16" << std::endl;
