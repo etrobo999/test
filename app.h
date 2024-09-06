@@ -1,7 +1,8 @@
+#pragma once
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 #include "ev3api.h"
 
 /* タスク優先度 */
@@ -9,7 +10,7 @@ extern "C" {
 #define TRACER_PRIORITY  (TMIN_APP_TPRI + 2) /* ライントレースタスク */
 
 /* タスク周期の定義 */
-#define LINE_TRACER_PERIOD  (50 * 1000) /* ライントレースタスク:100msec周期 */
+#define LINE_TRACER_PERIOD  (200 * 1000) /* ライントレースタスク:100msec周期 */
 
 /* センサーポートの定義 */
 static const sensor_port_t
@@ -23,6 +24,7 @@ static const motor_port_t
     arm_motor       = EV3_PORT_A,
     left_motor      = EV3_PORT_C,
     right_motor     = EV3_PORT_B;
+
 
 #ifndef STACK_SIZE
 #define STACK_SIZE      (4096)
