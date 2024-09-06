@@ -23,7 +23,7 @@ PID Mcurvetpid = {0.10, 0.003, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.09, 0.004, 0, 0, 0}; //ゆっくりカーブPID
 
 /*rectの値初期化*/
-int rect_x = 140;
+int rect_x = 120;
 int rect_y = 180;
 int rect_width = 400;
 int rect_height = 160;
