@@ -603,7 +603,7 @@ void tracer_task(intptr_t unused) {
         cerr << "Error: Failed to create Main thread" << endl;
         pthread_exit(NULL);
         create_main_thread = false;
-    }
+        }
     }
     
 
