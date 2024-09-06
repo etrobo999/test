@@ -353,7 +353,7 @@ void* main_thread_func(void* arg) {
             PIDMotor(straightpid);
             std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
             std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 11500){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 11600){
                 scene++;
             }
             std::cout << "Case 16" << std::endl;
@@ -381,7 +381,7 @@ void* main_thread_func(void* arg) {
         case 19://設定の読み込み
             follow = true;
             startTimer(1);
-            set_speed(65.0);
+            set_speed(60.0);
             scene++;
             break;
         case 20: //第三ストレート
@@ -415,7 +415,7 @@ void* main_thread_func(void* arg) {
             tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);
-            if(detectCheck(morphed1,3000)){
+            if(detectCheck(morphed1,2000)){
                 scene++;
             }
             std::cout << "Case 22" << std::endl;
@@ -434,7 +434,7 @@ void* main_thread_func(void* arg) {
             tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Mcurvetpid);
-            if(detectCheck(morphed1,3000)){
+            if(detectCheck(morphed1,2000)){
                 scene++;
             }
             std::cout << "Case 24" << std::endl;
@@ -453,7 +453,7 @@ void* main_thread_func(void* arg) {
             tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Scurvetpid);
-            if(detectCheck(morphed1,3000)){
+            if(detectCheck(morphed1,2000)){
                 scene++;
             }
             std::cout << "Case 26" << std::endl;
@@ -472,7 +472,7 @@ void* main_thread_func(void* arg) {
             tie(cX, cY) = Follow_1(morphed);
             std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Mcurvetpid);
-            if(detectCheck(morphed1,3000)){
+            if(detectCheck(morphed1,2000)){
                 scene++;
             }
             std::cout << "Case 28" << std::endl;
