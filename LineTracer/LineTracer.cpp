@@ -17,10 +17,10 @@ using namespace cv;
 raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
-PID straightpid = {0.06, 0, 0.005, 0, 0}; //ストレートPID
+PID straightpid = {0.08, 0, 0.005, 0, 0}; //ストレートPID
 PID Bcurvetpid = {0.11, 0.006, 0, 0, 0}; //急カーブPID
 PID Mcurvetpid = {0.08, 0.003, 0, 0, 0}; //ちょうどいいカーブPID
-PID Scurvetpid = {0.06, 0.008, 0, 0, 0}; //ゆっくりカーブPID
+PID Scurvetpid = {0.08, 0.003, 0, 0, 0}; //ゆっくりカーブPID
 
 /*rectの値初期化*/
 int rect_x = 100;
@@ -317,7 +317,7 @@ void* main_thread_func(void* arg) {
             ev3_motor_reset_counts(left_motor);
             ev3_motor_reset_counts(right_motor);
             ev3_gyro_sensor_reset(gyro_sensor);
-            scene = 11;
+            scene = 21;
         case 3:
         case 4:
         case 5:
