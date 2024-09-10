@@ -28,6 +28,8 @@ static void createMask(const cv::Mat& hsv, const std::string& color);           
 static cv::Mat Morphology(const cv::Mat& mask);                                   //モルフォロジー変換関数
 static std::tuple<int, int> Follow_1(const cv::Mat& morphed);                     //追従座標計算関数
 static std::tuple<int, int> Follow_2(const cv::Mat& morphed);                     //追従座標計算関数
+std::tuple<bool, bool> detectRectangleAndPosition(const cv::Mat& morphed, int min_area);
+static std::tuple<int, int> Follow_3(const cv::Mat& morphed);
 static void PIDMotor(PID &pid);                                                   //PID走行関数
 static void set_speed(double BASE_SPEED);
 void console_PL();

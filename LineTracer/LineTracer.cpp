@@ -180,7 +180,7 @@ void* opencv_thread_func(void* arg) {
 */
 
 // scene を更新する関数
-/*void* contour_thread_func(void* arg) {
+void* contour_thread_func(void* arg) {
     igset_t set;
     sigemptyset(&set);
     sigaddset(&set, SIGUSR2);  // ASPカーネルが使用するシグナルをマスク
@@ -200,12 +200,12 @@ void* opencv_thread_func(void* arg) {
         std::tie(is_right_side, is_left_side) = detectRectangleAndPosition(morphed1, min_area);
 
         // 左右の検知結果によってシーンを更新
-        if (is_right_side && is_left_side) {
-            scene = 40;
-        } else if (is_right_side) {
-            scene = 39;
-        } else if (is_left_side) {
+        if (is_right_side) {
+            follow = true;
             scene = 38;
+        } else if (is_left_side) {
+            follow = false;
+            scene = 36;
         }
 
         // 処理が終わったら contour_ready をリセット
@@ -214,7 +214,7 @@ void* opencv_thread_func(void* arg) {
 
     pthread_exit(NULL);
 }
-*/
+
 void* display_thread_func(void* arg) {
     sigset_t set;
     sigemptyset(&set);
@@ -259,7 +259,7 @@ void* main_thread_func(void* arg) {
 
     pthread_t opencv_thread;
 //    pthread_t white_balance_thread;
-//    pthread_t contour_thread;
+    pthread_t contour_thread;
     pthread_t display_thread;
 
     // OpenCVスレッドを作成
@@ -274,12 +274,12 @@ void* main_thread_func(void* arg) {
         pthread_exit(NULL);
     }
 */
-/*    // 輪郭検知のマルチ処理
+    // 輪郭検知のマルチ処理
     if (pthread_create(&contour_thread, NULL, contour_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create contour thread" << endl;
         pthread_exit(NULL);
     }
-*/
+
 
     // 画面表示スレッドを作成
     if (pthread_create(&display_thread, NULL, display_thread_func, NULL) != 0) {
@@ -523,11 +523,12 @@ void* main_thread_func(void* arg) {
             rect_y = 0;  
             rect_width = 640;
             rect_height = 340;
+            frame_center = 320;
             scene++;
             std::cout << "Case 31" << std::endl;
             break;
         case 32:
-/*           while(true){
+           while(true){
                 if (ev3_gyro_sensor_get_angle(gyro_sensor) > 30) {
                     motor_cntrol(25,-25);
                 } else if (ev3_gyro_sensor_get_angle(gyro_sensor) < 30) {
@@ -548,35 +549,52 @@ void* main_thread_func(void* arg) {
                     break;
                 }
             }
-*/            break;
+            break;
         case 33:
-/*            tie(rectframe, hsv) = RectFrame(frame);
+            tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "blue_black"); //Mask,Mask1
             {
                 contour_ready = true;
                 contour_var.notify_one();
             }
+            bitwise_not(mask2, mask2);
             morphed = Morphology(mask2);//黒色モル
             tie(cX, cY) = Follow_2(morphed);
-            PIDMotor(Mcurvetpid);
             console_PL();
             while (contour_ready) {
                 cv::waitKey(10);
             }
-*/            break;
+            break;
         case 34:
             break;
         case 35:
             std::cout << "Case 35" << std::endl;
             break;
         case 36:
-            std::cout << "Case 36" << std::endl;
+            tie(rectframe, hsv) = RectFrame(frame);
+            createMask(hsv, "blue"); //Mask,Mask1
+            morphed = Morphology(mask);j
+            tie(cX, cY) = Follow_3(morphed);
+            console_PL();
+            if(cx <= frame_center - 10){
+                motor_cntrol(-25,25);
+            } else if (cx >= frame_center + 10){
+                motor_cntrol(25,-25);
+            }else
+                scene++;
+                motor_cntrol(0,0);
+            }
             break;
         case 37:
-            std::cout << "Case 37" << std::endl;
+            tie(rectframe, hsv) = RectFrame(frame);
+            createMask(hsv, "blue"); //Mask,Mask1
+            morphed = Morphology(mask);
+            tie(cX, cY) = Follow_3(morphed);
+            PIDMotor(straightpid);
+            console_PL();
             break;
-        //////特殊ケース/////
         case 38:
+
             std::cout << "Case 38" << std::endl;
             break;
         case 39:
@@ -828,7 +846,128 @@ static std::tuple<int, int> Follow_2(const Mat& morphed) {
     return std::make_tuple(cX, cY);
 }
 
+/*青ペットボトル検知*/
+std::tuple<bool, bool> detectRectangleAndPosition(const Mat& morphed, int min_area) {
+    // 輪郭を格納するためのベクタ
+    std::vector<std::vector<cv::Point>> contours;
 
+    // 画像から輪郭を抽出する
+    findContours(morphed, contours, RETR_TREE, CHAIN_APPROX_SIMPLE);
+
+    bool large_rectangle_detected = false;
+    bool is_right_side = false;
+    bool is_left_side = false;
+
+    for (const auto& contour : contours) {
+        // 輪郭の面積を計算
+        double area = contourArea(contour);
+
+        // 面積が閾値以上の輪郭のみを対象にする
+        if (area >= min_area) {
+            // 輪郭をポリゴン近似し、頂点数を確認する
+            std::vector<cv::Point> approx;
+            approxPolyDP(contour, approx, 0.02 * arcLength(contour, true), true);
+
+            // 頂点の数が4つであれば四角形とみなす
+            if (approx.size() == 4) {
+                // 重心を計算して、右側か左側かを判定する
+                cv::Moments M = moments(contour);
+                int cX = static_cast<int>(M.m10 / M.m00);  // 重心のX座標を計算
+
+                // 画面の中心を基準に左右どちらかを判定
+                if (cX > morphed.cols / 2) {
+                    is_right_side = true;
+                } else {
+                    is_left_side = true;
+                }
+
+                // 四角形が見つかったら、続行せずにループを抜ける
+                break;
+            }
+        }
+    }
+
+    // 四角形が検出され、右側・左側のどちらかを返す
+    return std::make_tuple(is_right_side, is_left_side);
+}
+
+/* 四角形の輪郭を追従し、最大の輪郭を二つまで保持 */
+static std::tuple<int, int> Follow_3(const Mat& morphed) {
+    // 輪郭を抽出
+    std::vector<std::vector<cv::Point>> contours;
+    findContours(morphed, contours, RETR_TREE, CHAIN_APPROX_SIMPLE);
+
+    std::cout << "Number of contours found: " << contours.size() << std::endl;
+
+    const double min_contour_area = 2000.0; // ピクセル数
+
+    // 最大の輪郭と2番目に大きい輪郭を見つける
+    std::vector<cv::Point>* largest_contour = nullptr;
+    std::vector<cv::Point>* second_largest_contour = nullptr;
+    double largest_area = min_contour_area;
+    double second_largest_area = min_contour_area;
+
+    // 輪郭を走査し、四角形のみを対象にする
+    for (auto& contour : contours) {
+        double area = contourArea(contour);
+        std::vector<cv::Point> approx;
+
+        // ポリゴン近似で輪郭を四角形として認識できるか確認
+        approxPolyDP(contour, approx, 0.02 * arcLength(contour, true), true);
+
+        // 四角形（頂点が4つ）のみを対象とする
+        if (approx.size() == 4 && area >= min_contour_area) {
+            if (area >= largest_area) {
+                second_largest_area = largest_area;
+                second_largest_contour = largest_contour;
+
+                largest_area = area;
+                largest_contour = &contour;
+            } else if (area >= second_largest_area) {
+                second_largest_area = area;
+                second_largest_contour = &contour;
+            }
+        }
+    }
+
+    int cX = 0, cY = 0;
+    // 有効な輪郭が少なくとも1つある場合に処理を行う
+    if (largest_contour) {
+        stop_count = 0;
+        std::vector<cv::Point>* target_contour;
+
+        // 2つの輪郭が存在し、followがtrueならxが小さい方、falseならxが大きい方を選ぶ
+        if (second_largest_contour) {
+            cv::Moments M1 = cv::moments(*largest_contour);
+            cv::Moments M2 = cv::moments(*second_largest_contour);
+            int cX1 = static_cast<int>(M1.m10 / M1.m00);
+            int cX2 = static_cast<int>(M2.m10 / M2.m00);
+
+            if (follow) {
+                target_contour = (cX1 < cX2) ? largest_contour : second_largest_contour;
+            } else {
+                target_contour = (cX1 > cX2) ? largest_contour : second_largest_contour;
+            }
+        } else {
+            // 輪郭が1つしかない場合、それを使用
+            target_contour = largest_contour;
+        }
+
+        // 選択された輪郭の重心を計算
+        cv::Moments M = cv::moments(*target_contour);
+        cX = static_cast<int>(M.m10 / M.m00);
+        cY = static_cast<int>(M.m01 / M.m00);
+    } else {
+        stop_count++;
+    }
+
+    // 結果フレームに重心を描画
+    result_frame = morphed.clone();  // 描画用にフレームをコピー
+    cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(0, 0, 255), -1);
+
+    // 結果をタプルで返す (重心のx座標, y座標, 描画済みフレーム)
+    return std::make_tuple(cX, cY);
+}
 
 /*PID制御関数*/
 static void PIDMotor(PID &pid) {
