@@ -658,7 +658,7 @@ void applyGrayWorldWhiteBalance(Mat& src) {
 }
 
 static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
-    Mat , rectframe, hsv;
+    Mat rectframe, hsv;
     rectframe = frame.clone();    
     rectframe = rectframe(Rect(rect_x, rect_y, rect_width, rect_height));
     medianBlur(rectframe, hsv, 5);
