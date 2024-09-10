@@ -19,7 +19,7 @@ raspicam::RaspiCam_Cv Camera;
 /*PIDインスタンス生成*/
 PID straightpid = {0.08, 0, 0.005, 0, 0}; //ストレートPID
 PID Bcurvetpid = {0.11, 0.006, 0, 0, 0}; //急カーブPID
-PID Mcurvetpid = {0.08, 0.005, 0, 0, 0}; //ちょうどいいカーブPID
+PID Mcurvetpid = {0.09, 0.004, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.08, 0.003, 0, 0, 0}; //ゆっくりカーブPID
 
 /*rectの値初期化*/
@@ -530,16 +530,17 @@ void* main_thread_func(void* arg) {
         case 32:
            while(true){
                 if (ev3_gyro_sensor_get_angle(gyro_sensor) > 30) {
-                    motor_cntrol(25,-25);
+                    motor_cntrol(50,-50);
                 } else if (ev3_gyro_sensor_get_angle(gyro_sensor) < 30) {
-                    motor_cntrol(-25,25);
+                    motor_cntrol(-50,50);
                 } else {
                     ev3_motor_reset_counts(left_motor);
                     ev3_motor_reset_counts(right_motor);
-                    ev3_motor_rotate(left_motor,820,30,false);	
-                    ev3_motor_rotate(right_motor,820,30,false);
+                    ev3_motor_rotate(left_motor,820,50,false);	
+                    ev3_motor_rotate(right_motor,820,50,false);
                     break;
                 }
+            console_PL();
             }
 
             while(true){
@@ -548,6 +549,7 @@ void* main_thread_func(void* arg) {
                     set_speed(30);
                     break;
                 }
+            console_PL();
             }
             break;
         case 33:
