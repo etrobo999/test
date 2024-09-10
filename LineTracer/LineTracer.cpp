@@ -484,7 +484,7 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             morphed1 = Morphology(mask1); //青色モル
             tie(cX, cY) = Follow_1(morphed);
-            PIDMotor(Bcurvetpid);
+            PIDMotor(Scurvetpid);
             if(detectCheck(morphed1,2000)){
                 scene++;
             }
