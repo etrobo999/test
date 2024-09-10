@@ -473,8 +473,7 @@ void* main_thread_func(void* arg) {
             console_PL();
             break;
         case 27://設定の読み込み
-            left_speed = 60;
-            right_speed = 50;
+            set_speed(50.0);
             follow = !follow;
             scene++;
             std::cout << follow << std::endl;
@@ -485,7 +484,7 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             morphed1 = Morphology(mask1); //青色モル
             tie(cX, cY) = Follow_1(morphed);
-            PIDMotor(Mcurvetpid);
+            PIDMotor(Bcurvetpid);
             if(detectCheck(morphed1,2000)){
                 scene++;
             }
