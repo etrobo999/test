@@ -181,7 +181,7 @@ void* opencv_thread_func(void* arg) {
 
 // scene を更新する関数
 void* contour_thread_func(void* arg) {
-    igset_t set;
+    sigset_t set;
     sigemptyset(&set);
     sigaddset(&set, SIGUSR2);  // ASPカーネルが使用するシグナルをマスク
     sigaddset(&set, SIGPOLL);  // その他のカーネルシグナルをマスク
@@ -544,7 +544,7 @@ void* main_thread_func(void* arg) {
 
             while(true){
                 if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1600) {
-                    scene++
+                    scene++;
                     set_speed(30);
                     break;
                 }
@@ -573,14 +573,14 @@ void* main_thread_func(void* arg) {
         case 36:
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "blue"); //Mask,Mask1
-            morphed = Morphology(mask);j
+            morphed = Morphology(mask);
             tie(cX, cY) = Follow_3(morphed);
             console_PL();
-            if(cx <= frame_center - 10){
+            if(cX <= frame_center - 10){
                 motor_cntrol(-25,25);
-            } else if (cx >= frame_center + 10){
+            } else if (cX >= frame_center + 10){
                 motor_cntrol(25,-25);
-            }else
+            } else {
                 scene++;
                 motor_cntrol(0,0);
             }
@@ -594,7 +594,6 @@ void* main_thread_func(void* arg) {
             console_PL();
             break;
         case 38:
-
             std::cout << "Case 38" << std::endl;
             break;
         case 39:
