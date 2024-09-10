@@ -30,6 +30,7 @@ static std::tuple<int, int> Follow_1(const cv::Mat& morphed);                   
 static std::tuple<int, int> Follow_2(const cv::Mat& morphed);                     //追従座標計算関数
 static void PIDMotor(PID &pid);                                                   //PID走行関数
 static void set_speed(double BASE_SPEED);
+void console_PL();
 static bool detectCheck(const cv::Mat& morphed, int min_area);                    //輪郭検知関数
 void set_cpu_affinity(int core_id) ;
 

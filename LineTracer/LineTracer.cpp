@@ -23,10 +23,10 @@ PID Mcurvetpid = {0.08, 0.003, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.07, 0.004, 0, 0, 0}; //ゆっくりカーブPID
 
 /*rectの値初期化*/
-int rect_x = 0;
-int rect_y = 0;
-int rect_width = 640;
-int rect_height = 340;
+int rect_x = 100;
+int rect_y = 200;
+int rect_width = 440;
+int rect_height = 140;
 
 /*cameraの初期設定*/
 CameraSettings camera_settings = {640, 480, CV_8UC3, 40};
@@ -44,6 +44,7 @@ std::mutex mtx4;
 std::condition_variable frame_ready_var;
 std::condition_variable wb_var;
 std::condition_variable display_var;
+std::condition_variable contour_var;
 
 /*使用する（かもしれない）cv::MATの変数宣言*/
 Mat orizin_frame, frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, morphed2, result_frame;
@@ -71,6 +72,7 @@ bool resetting = false;
 bool frame_ready = false;
 bool wb_ready = false;
 bool display_ready = false;
+bool contour_ready = false;
 
 // 連続して検知された回数をカウントする変数
 int detection_count = 0;
@@ -115,7 +117,7 @@ void* opencv_thread_func(void* arg) {
             // 取得したフレームを共有変数にコピー
             {
                 std::lock_guard<std::mutex> lock(mtx);
-                temp_frame.copyTo(orizin_frame);
+                temp_frame.copyTo(frame);
                 frame_ready = true;
             }
             // メインタスクにフレームが準備できたことを通知
@@ -134,7 +136,7 @@ void* opencv_thread_func(void* arg) {
     pthread_exit(NULL);
 }
 
-void* white_balance_thread_func(void* arg) {
+/*void* white_balance_thread_func(void* arg) {
     // シグナルマスクの設定
     sigset_t set;
     sigemptyset(&set);
@@ -175,7 +177,44 @@ void* white_balance_thread_func(void* arg) {
 
     pthread_exit(NULL);
 }
+*/
 
+// scene を更新する関数
+/*void* contour_thread_func(void* arg) {
+    igset_t set;
+    sigemptyset(&set);
+    sigaddset(&set, SIGUSR2);  // ASPカーネルが使用するシグナルをマスク
+    sigaddset(&set, SIGPOLL);  // その他のカーネルシグナルをマスク
+    sigaddset(&set, SIGALRM);  // タイマーシグナルをマスク
+    pthread_sigmask(SIG_BLOCK, &set, NULL);
+    int min_area = 2000;
+
+    while (true) {
+        // contour_var が通知されるまで待機
+        std::unique_lock<std::mutex> lock(mtx3);
+        contour_var.wait(lock, [] { return contour_ready; });  // notify_oneで再開される
+
+        morphed1 = Morphology(mask1);//青色モル
+        // 輪郭検知処理
+        bool is_right_side, is_left_side;
+        std::tie(is_right_side, is_left_side) = detectRectangleAndPosition(morphed1, min_area);
+
+        // 左右の検知結果によってシーンを更新
+        if (is_right_side && is_left_side) {
+            scene = 40;
+        } else if (is_right_side) {
+            scene = 39;
+        } else if (is_left_side) {
+            scene = 38;
+        }
+
+        // 処理が終わったら contour_ready をリセット
+        contour_ready = false;
+    }
+
+    pthread_exit(NULL);
+}
+*/
 void* display_thread_func(void* arg) {
     sigset_t set;
     sigemptyset(&set);
@@ -219,7 +258,8 @@ void* main_thread_func(void* arg) {
     pthread_sigmask(SIG_BLOCK, &set, NULL);
 
     pthread_t opencv_thread;
-    pthread_t white_balance_thread;
+//    pthread_t white_balance_thread;
+//    pthread_t contour_thread;
     pthread_t display_thread;
 
     // OpenCVスレッドを作成
@@ -228,11 +268,18 @@ void* main_thread_func(void* arg) {
         pthread_exit(NULL);
     }
     
-    // ホワイトバランス処理スレッドを作成
+/*    // ホワイトバランス処理スレッドを作成
     if (pthread_create(&white_balance_thread, NULL, white_balance_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create White Balance thread" << endl;
         pthread_exit(NULL);
     }
+*/
+/*    // 輪郭検知のマルチ処理
+    if (pthread_create(&contour_thread, NULL, contour_thread_func, NULL) != 0) {
+        cerr << "Error: Failed to create contour thread" << endl;
+        pthread_exit(NULL);
+    }
+*/
 
     // 画面表示スレッドを作成
     if (pthread_create(&display_thread, NULL, display_thread_func, NULL) != 0) {
@@ -241,48 +288,36 @@ void* main_thread_func(void* arg) {
     }
 
     bool ext = true;
+
+    ev3_motor_reset_counts(left_motor);
+    ev3_motor_reset_counts(right_motor);
+    ev3_gyro_sensor_reset(gyro_sensor);
     
     while (ext) {
         std::unique_lock<std::mutex> lock(mtx3);
-        wb_var.wait(lock, [] { return wb_ready; });
-        wb_ready = false;
+        frame_ready_var.wait(lock, [] { return frame_ready; });
+        //wb_ready = false;
         switch (scene) {
 //////////////////////////////////////////////////////////////////////
 ////////　　　　　　スタート処理　　　　　　　　　　/////////////////////
 //////////////////////////////////////////////////////////////////////
 
         case 1: //画面表示・ボタンでスタート
-            ev3_motor_reset_counts(left_motor);
-            ev3_motor_reset_counts(right_motor);
-            ev3_gyro_sensor_reset(gyro_sensor);
-            startTimer(1);
-            ev3_gyro_sensor_reset(gyro_sensor);
-            tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "black");
-            morphed = Morphology(mask);
-            tie(cX, cY) = Follow_1(morphed);
-            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
-            cout <<getTime(1)<<endl;
-            std::cout << ev3_gyro_sensor_get_angle(gyro_sensor) << std::endl;
-            std::cout << ev3_touch_sensor_is_pressed(touch_sensor) << std::endl;
-            std::cout << ev3_motor_get_counts(left_motor) << std::endl;
-            std::cout << ev3_motor_get_counts(right_motor) << std::endl;
-            std::cout << "Case 1" << std::endl;
-            scene++;
-            break;
-        case 2:
             startTimer(1);
             tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "white");
-            morphed = Morphology(mask);
+            createMask(hsv, "blue_black");
+            bitwise_not(mask2, mask2);
+            morphed = Morphology(mask2);
             tie(cX, cY) = Follow_2(morphed);
-            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
+            console_PL();
+            cout << getTime(1) << endl;
             if(ev3_touch_sensor_is_pressed(touch_sensor)){
                 scene = 11;
             };
-            cout <<getTime(1)<<endl;
-            std::cout << ev3_motor_get_counts(left_motor) << std::endl;
-            std::cout << ev3_motor_get_counts(right_motor) << std::endl;
+            //std::cout << ev3_gyro_sensor_get_angle(gyro_sensor) << std::endl;
+            //std::cout << ev3_touch_sensor_is_pressed(touch_sensor) << std::endl;
+            break;
+        case 2:
         case 3:
         case 4:
         case 5:
@@ -308,14 +343,11 @@ void* main_thread_func(void* arg) {
             createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = Follow_1(morphed);
-            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);
-            std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
-            std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 6350){
                 scene++;
             }
-            std::cout << "Case 12" << std::endl;
+            console_PL();
             break;
         case 13: //設定の読み込み
             startTimer(1);
@@ -327,14 +359,11 @@ void* main_thread_func(void* arg) {
             createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = Follow_1(morphed);
-            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Bcurvetpid);         
-            std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
-            std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 7500){
                 scene++;
             }
-            std::cout << "Case 14" << std::endl;
+            console_PL();
             break;
         case 15: //設定の読み込み
             startTimer(1);
@@ -346,14 +375,11 @@ void* main_thread_func(void* arg) {
             createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = Follow_1(morphed);
-            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);
-            std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
-            std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 11600){
                 scene++;
             }
-            std::cout << "Case 16" << std::endl;
+            console_PL();
             break;
         case 17://設定の読み込み
             follow = false;
@@ -366,14 +392,11 @@ void* main_thread_func(void* arg) {
             createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = Follow_1(morphed);
-            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Bcurvetpid);
-            std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
-            std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 12700){
                 scene++;
             }
-            std::cout << "Case 18" << std::endl;
+            console_PL();
             break;
         case 19://設定の読み込み
             follow = true;
@@ -386,14 +409,11 @@ void* main_thread_func(void* arg) {
             createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = Follow_1(morphed);
-            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
-            std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
-            std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
             PIDMotor(straightpid);
             if(getTime(1) >=0.5){
                 scene = 21;
             }
-            std::cout << "Case 20" << std::endl;
+            console_PL();
             break;
 
 //////////////////////////////////////////////////////////////////////
@@ -410,12 +430,11 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             morphed1 = Morphology(mask1); //青色モル
             tie(cX, cY) = Follow_1(morphed);
-            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(straightpid);
             if(detectCheck(morphed1,2000)){
                 scene++;
             }
-            std::cout << "Case 22" << std::endl;
+            console_PL();
             break;
         case 23://設定の読み込み
             set_speed(50.0);
@@ -429,12 +448,11 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             morphed1 = Morphology(mask1); //青色モル
             tie(cX, cY) = Follow_1(morphed);
-            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Mcurvetpid);
             if(detectCheck(morphed1,2000)){
                 scene++;
             }
-            std::cout << "Case 24" << std::endl;
+            console_PL();
             break;
         case 25://設定の読み込み
             set_speed(50.0);
@@ -448,12 +466,11 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             morphed1 = Morphology(mask1); //青色モル
             tie(cX, cY) = Follow_1(morphed);
-            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Scurvetpid);
             if(detectCheck(morphed1,2000)){
                 scene++;
             }
-            std::cout << "Case 26" << std::endl;
+            console_PL();
             break;
         case 27://設定の読み込み
             set_speed(50.0);
@@ -467,12 +484,11 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             morphed1 = Morphology(mask1); //青色モル
             tie(cX, cY) = Follow_1(morphed);
-            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Mcurvetpid);
             if(detectCheck(morphed1,2000)){
                 scene++;
             }
-            std::cout << "Case 28" << std::endl;
+            console_PL();
             break;
         case 29://設定の読み込み
             set_speed(50.0);
@@ -485,14 +501,14 @@ void* main_thread_func(void* arg) {
             createMask(hsv, "black");
             morphed = Morphology(mask);
             tie(cX, cY) = Follow_1(morphed);
-            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
-            PIDMotor(straightpid);         
+            PIDMotor(straightpid);
+            console_PL();
             if(getTime(1) >=2){
                 scene++;
                 ev3_motor_set_power(left_motor, 0);
                 ev3_motor_set_power(right_motor, 0);
             }
-            std::cout << "Case 30" << std::endl;
+            
             break;
 
 //////////////////////////////////////////////////////////////////////
@@ -506,28 +522,49 @@ void* main_thread_func(void* arg) {
             rect_x = 0;
             rect_y = 0;  
             rect_width = 640;
-            rect_height = 480;
+            rect_height = 340;
             scene++;
             std::cout << "Case 31" << std::endl;
             break;
         case 32:
-            std::cout <<ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
-            std::cout <<ev3_motor_get_counts(left_motor)<< std::endl;
-            std::cout <<ev3_motor_get_counts(right_motor)<< std::endl;
-            std::cout << "Case 32" << std::endl;
-            break;
-        case 33:\
-            tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "white"); //Mask,Mask1
-            morphed = Morphology(mask1);//白色モル
-            morphed1 = Morphology(mask2); //青色モル
+/*           while(true){
+                if (ev3_gyro_sensor_get_angle(gyro_sensor) > 30) {
+                    motor_cntrol(25,-25);
+                } else if (ev3_gyro_sensor_get_angle(gyro_sensor) < 30) {
+                    motor_cntrol(-25,25);
+                } else {
+                    ev3_motor_reset_counts(left_motor);
+                    ev3_motor_reset_counts(right_motor);
+                    ev3_motor_rotate(left_motor,820,30,false);	
+                    ev3_motor_rotate(right_motor,820,30,false);
+                    break;
+                }
+            }
+
+            while(true){
+                if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1600) {
+                    scene++
+                    set_speed(30);
+                    break;
+                }
+            }
+*/            break;
+        case 33:
+/*            tie(rectframe, hsv) = RectFrame(frame);
+            createMask(hsv, "blue_black"); //Mask,Mask1
+            {
+                contour_ready = true;
+                contour_var.notify_one();
+            }
+            morphed = Morphology(mask2);//黒色モル
             tie(cX, cY) = Follow_2(morphed);
-            std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
             PIDMotor(Mcurvetpid);
-            std::cout << "Case 33" << std::endl;
-            break;
+            console_PL();
+            while (contour_ready) {
+                cv::waitKey(10);
+            }
+*/            break;
         case 34:
-            std::cout << "Case 34" << std::endl;
             break;
         case 35:
             std::cout << "Case 35" << std::endl;
@@ -538,6 +575,7 @@ void* main_thread_func(void* arg) {
         case 37:
             std::cout << "Case 37" << std::endl;
             break;
+        //////特殊ケース/////
         case 38:
             std::cout << "Case 38" << std::endl;
             break;
@@ -620,13 +658,11 @@ void applyGrayWorldWhiteBalance(Mat& src) {
 }
 
 static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
-    Mat resizeframe, rectframe, hsv;
-    resizeframe = frame.clone();
-
-    
-    rectframe = resizeframe(Rect(rect_x, rect_y, rect_width, rect_height));
-    //rectframe = resizeframe(Rect(80, 200, 480, 140));
-    cvtColor(rectframe, hsv, COLOR_BGR2HSV);
+    Mat , rectframe, hsv;
+    rectframe = frame.clone();    
+    rectframe = rectframe(Rect(rect_x, rect_y, rect_width, rect_height));
+    medianBlur(rectframe, hsv, 5);
+    cvtColor(hsv, hsv, COLOR_BGR2HSV);
     return make_tuple(rectframe, hsv);
 }
 
@@ -664,7 +700,7 @@ static void createMask(const Mat& hsv, const std::string& color) {
 /* モルフォロジー変換 */
 static Mat Morphology(const Mat& mask) {
     Mat morphed;
-    Mat kernel = getStructuringElement(MORPH_RECT, Size(5, 5));
+    Mat kernel = getStructuringElement(MORPH_RECT, Size(4, 4));
     morphologyEx(mask, morphed, MORPH_OPEN, kernel);
     morphologyEx(morphed, morphed, MORPH_CLOSE, kernel);    
     return morphed;  // モルフォロジー変換後の画像を返す
@@ -884,6 +920,13 @@ static void set_speed(double BASE_SPEED){
     right_speed = BASE_SPEED;
 }
 
+/* コンソール出力 */
+void console_PL(){
+    std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
+    std::cout << "left " << ev3_motor_get_counts(left_motor) << " right " << ev3_motor_get_counts(right_motor) << std::endl;
+    std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
+    std::cout << "Case " << scene << std::endl;
+}
 
 /* マスク値 */
 std::map<std::string, std::pair<Scalar, Scalar>> color_bounds = {
