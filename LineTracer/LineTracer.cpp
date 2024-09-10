@@ -492,7 +492,7 @@ void* main_thread_func(void* arg) {
             console_PL();
             break;
         case 29://設定の読み込み
-            left_speed(50.0);
+            set_speed(50.0);
             follow = !follow;
             scene++;
             std::cout << follow << std::endl;
