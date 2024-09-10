@@ -661,7 +661,7 @@ static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
     Mat rectframe, hsv;
     rectframe = frame.clone();    
     rectframe = rectframe(Rect(rect_x, rect_y, rect_width, rect_height));
-    medianBlur(rectframe, hsv, 5);
+    medianBlur(rectframe, hsv, 3);
     cvtColor(hsv, hsv, COLOR_BGR2HSV);
     return make_tuple(rectframe, hsv);
 }
@@ -925,12 +925,12 @@ void console_PL(){
     std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
     std::cout << "left " << ev3_motor_get_counts(left_motor) << " right " << ev3_motor_get_counts(right_motor) << std::endl;
     std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
-    std::cout << "Case " << scene << std::endl;
+    std::cout << "Case " << static_cast<int>(scene) << std::endl;
 }
 
 /* マスク値 */
 std::map<std::string, std::pair<Scalar, Scalar>> color_bounds = {
-    {"black", {Scalar(0, 0, 0), Scalar(180, 255, 30)}},  // 黒色
+    {"black", {Scalar(0, 0, 0), Scalar(180, 255, 40)}},  // 黒色
     {"blue", {Scalar(100, 100, 0), Scalar(140, 255, 255)}},  // 青色
     {"red_low", {Scalar(0, 100, 100), Scalar(10, 255, 255)}},  // 赤色（低範囲）
     {"red_high", {Scalar(160, 100, 100), Scalar(180, 255, 255)}},  // 赤色（高範囲）
