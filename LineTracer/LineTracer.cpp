@@ -430,7 +430,7 @@ void* main_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
         case 21://設定の読み込み
-            set_speed(55.0);
+            set_speed(45.0);
             scene++;
             break;
         case 22://シーン1
@@ -446,7 +446,7 @@ void* main_thread_func(void* arg) {
             console_PL();
             break;
         case 23://設定の読み込み
-            set_speed(55.0);
+            set_speed(45.0);
             follow = !follow;
             scene++;
             std::cout << follow << std::endl;
@@ -464,7 +464,7 @@ void* main_thread_func(void* arg) {
             console_PL();
             break;
         case 25://設定の読み込み
-            set_speed(55.0);
+            set_speed(45.0);
             follow = !follow;
             scene++;
             std::cout << follow << std::endl;
@@ -500,7 +500,7 @@ void* main_thread_func(void* arg) {
             console_PL();
             break;
         case 29://設定の読み込み
-            set_speed(55.0);
+            set_speed(45.0);
             follow = !follow;
             scene++;
             std::cout << follow << std::endl;
