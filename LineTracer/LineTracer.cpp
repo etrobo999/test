@@ -847,7 +847,7 @@ static std::tuple<int, int> Follow_1() {
         drawContours(morphed, fillContours, -1, Scalar(255), FILLED);  // 最大輪郭のみ白で描画
 
         // 垂直な線を描画（疑似的に2つの輪郭があるようにする）
-        cv::line(morphed, cv::Point(cX, 0), cv::Point(cX, morphed.rows), cv::Scalar(255), 2);
+        cv::line(morphed, cv::Point(cX, 0), cv::Point(cX, morphed.rows), cv::Scalar(0), 1);
 
         // 再度輪郭を抽出
         contours.clear();
