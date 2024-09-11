@@ -51,11 +51,13 @@ Mat orizin_frame, frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, 
 
 /*使用する変数の初期化*/
 uint8_t scene = 1;
+uint8_t _scene = 0;
 int frame_center = 220;
 int cX = 0;
 int cY = 0;
 double left_speed = 0.0;
 double right_speed = 0.0;
+bool display_show = true;
 
 //センサーの値を入れる変数
 bool touch_sensor_bool = false;
@@ -63,7 +65,7 @@ int left_motor_counts = 0;
 int right_motor_counts = 0;
 int gyro_counts = 0;
 
-// 追従方向の変数[true = 右] [false = 左]
+// 追従方向の変数[true = 左] [false = 右]
 bool follow = true;
 bool resize_on = false;
 
@@ -84,7 +86,6 @@ int stop_count = 0;
 //////////////////////////////////////////////////////////////////////
 
 void* opencv_thread_func(void* arg) {
-    set_cpu_affinity(0);
     // シグナルマスクの設定
     sigset_t set;
     sigemptyset(&set);
@@ -201,11 +202,19 @@ void* contour_thread_func(void* arg) {
 
         // 左右の検知結果によってシーンを更新
         if (is_right_side) {
-            follow = true;
+            follow = false;
+            left_motor_counts = ev3_motor_get_counts(left_motor);
+            right_motor_counts = ev3_motor_get_counts(right_motor);
+            ev3_gyro_sensor_reset(gyro_sensor);
+            _scene = scene; 
             scene = 38;
         } else if (is_left_side) {
-            follow = false;
-            scene = 36;
+            follow = true;
+            left_motor_counts = ev3_motor_get_counts(left_motor);
+            right_motor_counts = ev3_motor_get_counts(right_motor);
+            ev3_gyro_sensor_reset(gyro_sensor);
+            _scene = scene; 
+            scene = 51;
         }
 
         // 処理が終わったら contour_ready をリセット
@@ -229,10 +238,10 @@ void* display_thread_func(void* arg) {
         {
             std::unique_lock<std::mutex> lock(mtx4);
             display_var.wait(lock, [] { return display_ready; });
-            temp_frame1 = result_frame.clone();
+            result_frame.copyTo(temp_frame1);
         }
 
-        // 表示処理
+        //temp_frame1 = result_frame.clone();
         cv::imshow("temp_frame1", temp_frame1);
         cv::waitKey(1);
 
@@ -249,7 +258,7 @@ void* display_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
 void* main_thread_func(void* arg) {
-    set_cpu_affinity(1);
+    set_cpu_affinity(0);
     sigset_t set;
     sigemptyset(&set);
     sigaddset(&set, SIGUSR2);  // ASPカーネルが使用するシグナルをマスク
@@ -304,7 +313,7 @@ void* main_thread_func(void* arg) {
             createMask(hsv, "blue_black");
             //bitwise_not(mask2, mask2);
             morphed = Morphology(mask2);
-            tie(cX, cY) = Follow_2(morphed);
+            tie(cX, cY) = Follow_1(morphed);
             console_PL();
             cout << getTime(1) << endl;
             if(ev3_touch_sensor_is_pressed(touch_sensor)){
@@ -317,7 +326,7 @@ void* main_thread_func(void* arg) {
             ev3_motor_reset_counts(left_motor);
             ev3_motor_reset_counts(right_motor);
             ev3_gyro_sensor_reset(gyro_sensor);
-            scene = 21;
+            scene = 31;
         case 3:
         case 4:
         case 5:
@@ -335,7 +344,7 @@ void* main_thread_func(void* arg) {
         case 11: //設定の読み込み
             startTimer(2);
             startTimer(1);
-            set_speed(70.0);
+            set_speed(60.0);
             scene++;
             break;
         case 12: //第一ストレート
@@ -382,7 +391,7 @@ void* main_thread_func(void* arg) {
             console_PL();
             break;
         case 17://設定の読み込み
-            follow = false;
+            follow = !follow;
             startTimer(1);
             set_speed(50.0);
             scene++;
@@ -399,7 +408,7 @@ void* main_thread_func(void* arg) {
             console_PL();
             break;
         case 19://設定の読み込み
-            follow = true;
+            follow = !follow;
             startTimer(1);
             set_speed(60.0);
             scene++;
@@ -530,14 +539,14 @@ void* main_thread_func(void* arg) {
         case 32:
            while(true){
                 if (ev3_gyro_sensor_get_angle(gyro_sensor) > 30) {
-                    motor_cntrol(50,-50);
+                    //motor_cntrol(50,-50);
                 } else if (ev3_gyro_sensor_get_angle(gyro_sensor) < 30) {
-                    motor_cntrol(-50,50);
+                    //motor_cntrol(-50,50);
                 } else {
                     ev3_motor_reset_counts(left_motor);
                     ev3_motor_reset_counts(right_motor);
-                    ev3_motor_rotate(left_motor,820,50,false);	
-                    ev3_motor_rotate(right_motor,820,50,false);
+                    //ev3_motor_rotate(left_motor,820,50,false);	
+                    //ev3_motor_rotate(right_motor,820,50,false);
                     break;
                 }
             console_PL();
@@ -559,8 +568,8 @@ void* main_thread_func(void* arg) {
                 contour_ready = true;
                 contour_var.notify_one();
             }
-            bitwise_not(mask2, mask2);
-            morphed = Morphology(mask2);//黒色モル
+            bitwise_not(mask2, mask2);//白黒反転
+            morphed = Morphology(mask2);//白色モル
             tie(cX, cY) = Follow_2(morphed);
             console_PL();
             while (contour_ready) {
@@ -573,27 +582,8 @@ void* main_thread_func(void* arg) {
             std::cout << "Case 35" << std::endl;
             break;
         case 36:
-            tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "blue"); //Mask,Mask1
-            morphed = Morphology(mask);
-            tie(cX, cY) = Follow_3(morphed);
-            console_PL();
-            if(cX <= frame_center - 10){
-                motor_cntrol(-25,25);
-            } else if (cX >= frame_center + 10){
-                motor_cntrol(25,-25);
-            } else {
-                scene++;
-                motor_cntrol(0,0);
-            }
             break;
         case 37:
-            tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "blue"); //Mask,Mask1
-            morphed = Morphology(mask);
-            tie(cX, cY) = Follow_3(morphed);
-            PIDMotor(straightpid);
-            console_PL();
             break;
         case 38:
             std::cout << "Case 38" << std::endl;
@@ -634,6 +624,85 @@ void* main_thread_func(void* arg) {
         case 50:
             std::cout << "Case 50" << std::endl;
             ext = false;
+            break;
+
+//////////////////////////////////////////////////////////////////////
+////////　　　　　　　　例外特殊ケース　　　　　　　/////////////////////
+//////////////////////////////////////////////////////////////////////
+
+        case 51:
+            tie(rectframe, hsv) = RectFrame(frame);
+            createMask(hsv, "blue"); //Mask,Mask1
+            morphed = Morphology(mask);
+            tie(cX, cY) = Follow_3(morphed);
+            console_PL();
+            if(cX <= frame_center - 10){
+                motor_cntrol(-25,25);
+            } else if (cX >= frame_center + 10){
+                motor_cntrol(25,-25);
+            } else {
+                ev3_motor_reset_counts(left_motor);
+                ev3_motor_reset_counts(right_motor);
+                scene++;
+                motor_cntrol(0,0);
+                set_speed(50.0);
+            }
+            break;
+        case 52:
+            tie(rectframe, hsv) = RectFrame(frame);
+            createMask(hsv, "blue"); //Mask,Mask1
+            morphed = Morphology(mask);
+            tie(cX, cY) = Follow_3(morphed);
+            PIDMotor(straightpid);
+            console_PL();
+            if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 2000){
+                scene++;
+            }
+            break;
+        case 53:
+            while (true) {
+                motor_cntrol(-30,-30);
+                if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) <= 0){
+                    motor_cntrol(0,0);
+                    break;
+                }
+            }
+            while (true) {
+                if (ev3_gyro_sensor_get_angle(gyro_sensor) > 0) {
+                    //motor_cntrol(50,-50);
+                } else if (ev3_gyro_sensor_get_angle(gyro_sensor) < 0) {
+                    //motor_cntrol(-50,50);
+                } else {
+                    ev3_motor_reset_counts(left_motor);
+                    ev3_motor_reset_counts(right_motor);
+                    //ev3_motor_rotate(left_motor,820,50,false);	
+                    //ev3_motor_rotate(right_motor,820,50,false);
+                    break;
+                }
+            }
+
+            
+            break;
+        case 54:
+            std::cout << "Case 54" << std::endl;
+            break;
+        case 55:
+            std::cout << "Case 55" << std::endl;
+            break;
+        case 56:
+            std::cout << "Case 56" << std::endl;
+            break;
+        case 57:
+            std::cout << "Case 57" << std::endl;
+            break;
+        case 58:
+            std::cout << "Case 58" << std::endl;
+            break;
+        case 59:
+            std::cout << "Case 59" << std::endl;
+            break;
+        case 60:
+            std::cout << "Case 60" << std::endl;
             break;
         default:
             std::cout << "Default case" << std::endl;
@@ -727,17 +796,12 @@ static Mat Morphology(const Mat& mask) {
 
 
 /*ライン切り替え追従関数*/
-static std::tuple<int, int> Follow_1(const Mat& morphed) {
+static std::tuple<int, int> Follow_1() {
     // 輪郭を抽出
     std::vector<std::vector<cv::Point>> contours;
     findContours(morphed, contours, RETR_TREE, CHAIN_APPROX_SIMPLE);
 
     std::cout << "Number of contours found: " << contours.size() << std::endl;
-
-    for (size_t i = 0; i < contours.size(); i++) {
-    double area = contourArea(contours[i]);
-    std::cout << "Contour " << i << " area: " << area << std::endl;
-    }
 
     const double min_contour_area = 3000.0; // ピクセル数
 
@@ -762,38 +826,78 @@ static std::tuple<int, int> Follow_1(const Mat& morphed) {
     }
 
     int cX = 0, cY = 0;
-    // 有効な輪郭が少なくとも1つある場合に処理を行う
-    if (largest_contour) {
-        stop_count = 0;
-        std::vector<cv::Point>* target_contour;
+    std::vector<cv::Point>* target_contour = nullptr;
 
-        // 2つの輪郭が存在し、followがtrueならxが小さい方、falseならxが大きい方を選ぶ
-        if (second_largest_contour) {
-            cv::Moments M1 = cv::moments(*largest_contour);
-            cv::Moments M2 = cv::moments(*second_largest_contour);
-            int cX1 = static_cast<int>(M1.m10 / M1.m00);
-            int cX2 = static_cast<int>(M2.m10 / M2.m00);
+    // 輪郭が1つしかない場合、その輪郭を重心で分割し、2つの輪郭として扱う
+    if (largest_contour && second_largest_contour == nullptr) {
+        // 重心を計算
+        cv::Moments M = cv::moments(*largest_contour);
+        cX = static_cast<int>(M.m10 / M.m00);
+        cY = static_cast<int>(M.m01 / M.m00);
 
-            if (follow) {
-                target_contour = (cX1 < cX2) ? largest_contour : second_largest_contour;
-            } else {
-                target_contour = (cX1 > cX2) ? largest_contour : second_largest_contour;
+        // 最大の輪郭以外を黒く塗りつぶす
+        Mat mask = Mat::zeros(morphed.size(), CV_8UC1);  // 真っ黒なマスクを作成
+        std::vector<std::vector<cv::Point>> fillContours = {*largest_contour};
+        
+        // 最大の輪郭を白で塗りつぶす
+        drawContours(mask, fillContours, -1, Scalar(255), FILLED);
+
+        // morphedにmaskを適用し、最大の輪郭だけを残す
+        morphed.setTo(Scalar(0));  // morphed全体を黒くする
+        drawContours(morphed, fillContours, -1, Scalar(255), FILLED);  // 最大輪郭のみ白で描画
+
+        // 垂直な線を描画（疑似的に2つの輪郭があるようにする）
+        cv::line(morphed, cv::Point(cX, 0), cv::Point(cX, morphed.rows), cv::Scalar(255), 2);
+
+        // 再度輪郭を抽出
+        contours.clear();
+        findContours(morphed, contours, RETR_TREE, CHAIN_APPROX_SIMPLE);
+
+        largest_contour = nullptr;
+        second_largest_contour = nullptr;
+
+        for (auto& contour : contours) {
+            double area = contourArea(contour);
+            if (area >= largest_area) {
+                second_largest_area = largest_area;
+                second_largest_contour = largest_contour;
+
+                largest_area = area;
+                largest_contour = &contour;
+            } else if (area >= second_largest_area) {
+                second_largest_area = area;
+                second_largest_contour = &contour;
             }
+        }
+    }
+
+    // 2つの輪郭が存在する場合の通常処理
+    if (largest_contour && second_largest_contour) {
+        cv::Moments M1 = cv::moments(*largest_contour);
+        cv::Moments M2 = cv::moments(*second_largest_contour);
+        int cX1 = static_cast<int>(M1.m10 / M1.m00);
+        int cX2 = static_cast<int>(M2.m10 / M2.m00);
+
+        if (follow) {
+            target_contour = (cX1 < cX2) ? largest_contour : second_largest_contour;
         } else {
-            // 輪郭が1つしかない場合、それを使用
-            target_contour = largest_contour;
+            target_contour = (cX1 > cX2) ? largest_contour : second_largest_contour;
         }
 
         // 選択された輪郭の重心を計算
         cv::Moments M = cv::moments(*target_contour);
         cX = static_cast<int>(M.m10 / M.m00);
         cY = static_cast<int>(M.m01 / M.m00);
-        // 重心を描画
-    }else{
+    }
+
+    // 重心を描画
+    if (target_contour) {
+        result_frame = morphed.clone(); // 描画用にフレームをコピー
+        cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(0, 0, 255), -1);
+    } else {
         stop_count++;
     }
-    result_frame = morphed.clone(); // 描画用にフレームをコピー
-    cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(0, 0, 255), -1);
+
     // 結果をタプルで返す (重心のx座標, y座標, 描画済みフレーム)
     return std::make_tuple(cX, cY);
 }

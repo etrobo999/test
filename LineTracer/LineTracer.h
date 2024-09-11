@@ -26,7 +26,7 @@ static void motor_cntrol(double _left_motor_speed , double _right_motor_speed); 
 static std::tuple<cv::Mat, cv::Mat> RectFrame(const cv::Mat& frame);    
 static void createMask(const cv::Mat& hsv, const std::string& color);             //マスク変換関数
 static cv::Mat Morphology(const cv::Mat& mask);                                   //モルフォロジー変換関数
-static std::tuple<int, int> Follow_1(const cv::Mat& morphed);                     //追従座標計算関数
+static std::tuple<int, int> Follow_1();                     //追従座標計算関数
 static std::tuple<int, int> Follow_2(const cv::Mat& morphed);                     //追従座標計算関数
 std::tuple<bool, bool> detectRectangleAndPosition(const cv::Mat& morphed, int min_area);
 static std::tuple<int, int> Follow_3(const cv::Mat& morphed);
@@ -45,7 +45,7 @@ static float getTime(int timer_id);                                             
 extern std::map<std::string, std::pair<cv::Scalar, cv::Scalar>> color_bounds;
 extern bool follow, resetting, resize_on;
 extern bool resetting, frame_ready, wb_ready, display_ready;
-extern uint8_t scene;
+extern uint8_t scene, _scene;
 extern int cX, cY;
 extern double left_speed, right_speed;
 
