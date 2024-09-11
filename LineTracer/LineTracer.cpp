@@ -19,7 +19,7 @@ raspicam::RaspiCam_Cv Camera;
 /*PIDインスタンス生成*/
 PID straightpid = {0.08, 0, 0.005, 0, 0}; //ストレートPID
 PID Bcurvetpid = {0.11, 0.006, 0, 0, 0}; //急カーブPID
-PID Mcurvetpid = {0.11, 0.002, 0, 0, 0}; //ちょうどいいカーブPID
+PID Mcurvetpid = {0.11, 0.003, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.10, 0.001, 0, 0, 0}; //ゆっくりカーブPID
 
 /*rectの値初期化*/
@@ -344,7 +344,7 @@ void* main_thread_func(void* arg) {
         case 11: //設定の読み込み
             startTimer(2);
             startTimer(1);
-            set_speed(60.0);
+            set_speed(70.0);
             scene++;
             break;
         case 12: //第一ストレート
@@ -376,7 +376,7 @@ void* main_thread_func(void* arg) {
             break;
         case 15: //設定の読み込み
             startTimer(1);
-            set_speed(55.0);
+            set_speed(60.0);
             scene++;
             break;
         case 16: //第二ストレート
@@ -430,7 +430,7 @@ void* main_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
         case 21://設定の読み込み
-            set_speed(50.0);
+            set_speed(55.0);
             scene++;
             break;
         case 22://シーン1
@@ -446,7 +446,7 @@ void* main_thread_func(void* arg) {
             console_PL();
             break;
         case 23://設定の読み込み
-            set_speed(50.0);
+            set_speed(55.0);
             follow = !follow;
             scene++;
             std::cout << follow << std::endl;
@@ -464,7 +464,7 @@ void* main_thread_func(void* arg) {
             console_PL();
             break;
         case 25://設定の読み込み
-            set_speed(50.0);
+            set_speed(55.0);
             follow = !follow;
             scene++;
             std::cout << follow << std::endl;
@@ -475,14 +475,14 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             morphed1 = Morphology(mask1); //青色モル
             tie(cX, cY) = Follow_1();
-            PIDMotor(Scurvetpid);
+            PIDMotor(Mcurvetpid);
             if(detectCheck(morphed1,2000)){
                 scene++;
             }
             console_PL();
             break;
         case 27://設定の読み込み
-            set_speed(50.0);
+            set_speed(45.0);
             follow = !follow;
             scene++;
             std::cout << follow << std::endl;
@@ -500,7 +500,7 @@ void* main_thread_func(void* arg) {
             console_PL();
             break;
         case 29://設定の読み込み
-            set_speed(50.0);
+            set_speed(55.0);
             follow = !follow;
             scene++;
             std::cout << follow << std::endl;
