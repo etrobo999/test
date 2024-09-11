@@ -539,14 +539,14 @@ void* main_thread_func(void* arg) {
         case 32:
            while(true){
                 if (ev3_gyro_sensor_get_angle(gyro_sensor) > 30) {
-                    motor_cntrol(40,-40);
+                    motor_cntrol(45,-45);
                 } else if (ev3_gyro_sensor_get_angle(gyro_sensor) < 30) {
-                    motor_cntrol(-40,40);
+                    motor_cntrol(-45,45);
                 } else {
                     ev3_motor_reset_counts(left_motor);
                     ev3_motor_reset_counts(right_motor);
-                    ev3_motor_rotate(left_motor,820,40,false);	
-                    ev3_motor_rotate(right_motor,820,40,false);
+                    ev3_motor_rotate(left_motor,820,45,false);	
+                    ev3_motor_rotate(right_motor,820,45,false);
                     break;
                 }
                 cv::waitKey(20);
