@@ -326,7 +326,7 @@ void* main_thread_func(void* arg) {
             ev3_motor_reset_counts(left_motor);
             ev3_motor_reset_counts(right_motor);
             ev3_gyro_sensor_reset(gyro_sensor);
-            scene = 11;
+            scene = 31;
         case 3:
         case 4:
         case 5:
@@ -539,14 +539,14 @@ void* main_thread_func(void* arg) {
         case 32:
            while(true){
                 if (ev3_gyro_sensor_get_angle(gyro_sensor) > 30) {
-                    //motor_cntrol(50,-50);
+                    motor_cntrol(40,-40);
                 } else if (ev3_gyro_sensor_get_angle(gyro_sensor) < 30) {
-                    //motor_cntrol(-50,50);
+                    motor_cntrol(-40,40);
                 } else {
                     ev3_motor_reset_counts(left_motor);
                     ev3_motor_reset_counts(right_motor);
-                    //ev3_motor_rotate(left_motor,820,50,false);	
-                    //ev3_motor_rotate(right_motor,820,50,false);
+                    ev3_motor_rotate(left_motor,820,40,false);	
+                    ev3_motor_rotate(right_motor,820,40,false);
                     break;
                 }
             console_PL();
