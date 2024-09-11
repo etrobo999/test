@@ -45,7 +45,7 @@ static float getTime(int timer_id);                                             
 extern std::map<std::string, std::pair<cv::Scalar, cv::Scalar>> color_bounds;
 extern bool follow, resetting, resize_on;
 extern bool resetting, frame_ready, wb_ready, display_ready;
-extern uint8_t scene;
+extern uint8_t scene, _scene;
 extern int cX, cY;
 extern double left_speed, right_speed;
 
