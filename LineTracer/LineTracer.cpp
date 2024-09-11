@@ -801,8 +801,6 @@ static std::tuple<int, int> Follow_1() {
     std::vector<std::vector<cv::Point>> contours;
     findContours(morphed, contours, RETR_TREE, CHAIN_APPROX_SIMPLE);
 
-    std::cout << "Number of contours found: " << contours.size() << std::endl;
-
     const double min_contour_area = 3000.0; // ピクセル数
 
     // 最大の輪郭と2番目に大きい輪郭を見つける
@@ -852,6 +850,7 @@ static std::tuple<int, int> Follow_1() {
         // 再度輪郭を抽出
         contours.clear();
         findContours(morphed, contours, RETR_TREE, CHAIN_APPROX_SIMPLE);
+        std::cout << "Number of contours found: " << contours.size() << std::endl;
 
         largest_contour = nullptr;
         second_largest_contour = nullptr;
