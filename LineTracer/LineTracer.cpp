@@ -313,7 +313,7 @@ void* main_thread_func(void* arg) {
             createMask(hsv, "blue_black");
             //bitwise_not(mask2, mask2);
             morphed = Morphology(mask2);
-            tie(cX, cY) = Follow_1(morphed);
+            tie(cX, cY) = Follow_1();
             console_PL();
             cout << getTime(1) << endl;
             if(ev3_touch_sensor_is_pressed(touch_sensor)){
@@ -351,7 +351,7 @@ void* main_thread_func(void* arg) {
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
             morphed = Morphology(mask);
-            tie(cX, cY) = Follow_1(morphed);
+            tie(cX, cY) = Follow_1();
             PIDMotor(straightpid);
             if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 6350){
                 scene++;
@@ -367,7 +367,7 @@ void* main_thread_func(void* arg) {
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
             morphed = Morphology(mask);
-            tie(cX, cY) = Follow_1(morphed);
+            tie(cX, cY) = Follow_1();
             PIDMotor(Bcurvetpid);         
             if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 7500){
                 scene++;
@@ -383,7 +383,7 @@ void* main_thread_func(void* arg) {
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
             morphed = Morphology(mask);
-            tie(cX, cY) = Follow_1(morphed);
+            tie(cX, cY) = Follow_1();
             PIDMotor(straightpid);
             if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 11600){
                 scene++;
@@ -400,7 +400,7 @@ void* main_thread_func(void* arg) {
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
             morphed = Morphology(mask);
-            tie(cX, cY) = Follow_1(morphed);
+            tie(cX, cY) = Follow_1();
             PIDMotor(Bcurvetpid);
             if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 12700){
                 scene++;
@@ -417,7 +417,7 @@ void* main_thread_func(void* arg) {
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
             morphed = Morphology(mask);
-            tie(cX, cY) = Follow_1(morphed);
+            tie(cX, cY) = Follow_1();
             PIDMotor(straightpid);
             if(getTime(1) >=0.5){
                 scene = 21;
@@ -438,7 +438,7 @@ void* main_thread_func(void* arg) {
             createMask(hsv, "blue_black"); //Mask,Mask1
             morphed = Morphology(mask);
             morphed1 = Morphology(mask1); //青色モル
-            tie(cX, cY) = Follow_1(morphed);
+            tie(cX, cY) = Follow_1();
             PIDMotor(straightpid);
             if(detectCheck(morphed1,2000)){
                 scene++;
@@ -456,7 +456,7 @@ void* main_thread_func(void* arg) {
             createMask(hsv, "blue_black"); //Mask,Mask1
             morphed = Morphology(mask);
             morphed1 = Morphology(mask1); //青色モル
-            tie(cX, cY) = Follow_1(morphed);
+            tie(cX, cY) = Follow_1();
             PIDMotor(Mcurvetpid);
             if(detectCheck(morphed1,2000)){
                 scene++;
@@ -474,7 +474,7 @@ void* main_thread_func(void* arg) {
             createMask(hsv, "blue_black"); //Mask,Mask1
             morphed = Morphology(mask);
             morphed1 = Morphology(mask1); //青色モル
-            tie(cX, cY) = Follow_1(morphed);
+            tie(cX, cY) = Follow_1();
             PIDMotor(Scurvetpid);
             if(detectCheck(morphed1,2000)){
                 scene++;
@@ -492,7 +492,7 @@ void* main_thread_func(void* arg) {
             createMask(hsv, "blue_black"); //Mask,Mask1
             morphed = Morphology(mask);
             morphed1 = Morphology(mask1); //青色モル
-            tie(cX, cY) = Follow_1(morphed);
+            tie(cX, cY) = Follow_1();
             PIDMotor(Scurvetpid);
             if(detectCheck(morphed1,2000)){
                 scene++;
@@ -509,7 +509,7 @@ void* main_thread_func(void* arg) {
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "black");
             morphed = Morphology(mask);
-            tie(cX, cY) = Follow_1(morphed);
+            tie(cX, cY) = Follow_1();
             PIDMotor(straightpid);
             console_PL();
             if(getTime(1) >=2){
