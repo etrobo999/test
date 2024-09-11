@@ -238,10 +238,10 @@ void* display_thread_func(void* arg) {
         {
             std::unique_lock<std::mutex> lock(mtx3);
             display_var.wait(lock, [] { return display_ready; });
-            temp_frame1 = result_frame.clone();
         }
         
         if (display_show){
+            temp_frame1 = result_frame.clone();
             cv::imshow("temp_frame1", temp_frame1);
             cv::waitKey(1);
         }
@@ -710,8 +710,8 @@ void* main_thread_func(void* arg) {
             std::cout << "Default case" << std::endl;
             break;
         }
-        //display_ready = true;
-        //display_var.notify_one();
+        display_ready = true;
+        display_var.notify_one();
     }
     pthread_exit(NULL);
 }
