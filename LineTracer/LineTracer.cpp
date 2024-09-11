@@ -326,7 +326,7 @@ void* main_thread_func(void* arg) {
             ev3_motor_reset_counts(left_motor);
             ev3_motor_reset_counts(right_motor);
             ev3_gyro_sensor_reset(gyro_sensor);
-            scene = 31;
+            scene = 11;
         case 3:
         case 4:
         case 5:
