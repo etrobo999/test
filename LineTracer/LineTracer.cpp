@@ -85,7 +85,6 @@ int stop_count = 0;
 //////////////////////////////////////////////////////////////////////
 
 void* opencv_thread_func(void* arg) {
-    set_cpu_affinity(0);
     // シグナルマスクの設定
     sigset_t set;
     sigemptyset(&set);
@@ -258,7 +257,7 @@ void* display_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
 void* main_thread_func(void* arg) {
-    set_cpu_affinity(1);
+    set_cpu_affinity(0);
     sigset_t set;
     sigemptyset(&set);
     sigaddset(&set, SIGUSR2);  // ASPカーネルが使用するシグナルをマスク
@@ -708,8 +707,8 @@ void* main_thread_func(void* arg) {
             std::cout << "Default case" << std::endl;
             break;
         }
-        display_ready = true;
-        display_var.notify_one();
+        //display_ready = true;
+        //display_var.notify_one();
     }
     pthread_exit(NULL);
 }
