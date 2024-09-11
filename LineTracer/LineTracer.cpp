@@ -855,18 +855,12 @@ static std::tuple<int, int> Follow_1() {
         largest_contour = nullptr;
         second_largest_contour = nullptr;
 
-        for (auto& contour : contours) {
-            double area = contourArea(contour);
-            if (area >= largest_area) {
-                second_largest_area = largest_area;
-                second_largest_contour = largest_contour;
-
-                largest_area = area;
-                largest_contour = &contour;
-            } else if (area >= second_largest_area) {
-                second_largest_area = area;
-                second_largest_contour = &contour;
-            }
+        if (contours.size() >= 2) {
+            largest_contour = &contours[0];
+            second_largest_contour = &contours[1];
+        } else if (contours.size() == 1) {
+            largest_contour = &contours[0];
+            second_largest_contour = nullptr;  // 2つ目の輪郭がない場合はnull
         }
     }
 
