@@ -57,6 +57,7 @@ int cX = 0;
 int cY = 0;
 double left_speed = 0.0;
 double right_speed = 0.0;
+bool display_show = true;
 
 //センサーの値を入れる変数
 bool touch_sensor_bool = false;
@@ -235,14 +236,16 @@ void* display_thread_func(void* arg) {
         // フレームが表示できるまで待機
         Mat temp_frame1;
         {
-            std::unique_lock<std::mutex> lock(mtx4);
+            std::unique_lock<std::mutex> lock(mtx3);
             display_var.wait(lock, [] { return display_ready; });
             temp_frame1 = result_frame.clone();
         }
-
-        // 表示処理
-        cv::imshow("temp_frame1", temp_frame1);
-        cv::waitKey(1);
+        
+        if (display_show){
+            cv::imshow("temp_frame1", temp_frame1);
+            cv::waitKey(1);
+        }
+        display_show = !display_show;
 
         {
             display_ready = false;
