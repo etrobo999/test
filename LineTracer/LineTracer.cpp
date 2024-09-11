@@ -236,7 +236,7 @@ void* display_thread_func(void* arg) {
         // フレームが表示できるまで待機
         Mat temp_frame1;
         {
-            std::unique_lock<std::mutex> lock(mtx3);
+            std::unique_lock<std::mutex> lock(mtx4);
             display_var.wait(lock, [] { return display_ready; });
             if (display_show){
                 temp_frame1 = result_frame.clone();
