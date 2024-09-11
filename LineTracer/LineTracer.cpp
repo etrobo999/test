@@ -888,15 +888,14 @@ static std::tuple<int, int> Follow_1() {
         cv::Moments M = cv::moments(*target_contour);
         cX = static_cast<int>(M.m10 / M.m00);
         cY = static_cast<int>(M.m01 / M.m00);
-    }
-
-    // 重心を描画
-    if (target_contour) {
-        result_frame = morphed.clone(); // 描画用にフレームをコピー
-        cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(0, 0, 255), -1);
     } else {
         stop_count++;
     }
+
+    // 重心を描画
+    result_frame = morphed.clone(); // 描画用にフレームをコピー
+    cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(0, 0, 255), -1);
+
 
     // 結果をタプルで返す (重心のx座標, y座標, 描画済みフレーム)
     return std::make_tuple(cX, cY);
