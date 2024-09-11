@@ -830,8 +830,8 @@ static std::tuple<int, int> Follow_1() {
     if (largest_contour && second_largest_contour == nullptr) {
         // 重心を計算
         cv::Moments M = cv::moments(*largest_contour);
-        cX = static_cast<int>(M.m10 / M.m00);
-        cY = static_cast<int>(M.m01 / M.m00);
+        int cx = static_cast<int>(M.m10 / M.m00);
+        int cy = static_cast<int>(M.m01 / M.m00);
 
         // 最大の輪郭以外を黒く塗りつぶす
         Mat mask = Mat::zeros(morphed.size(), CV_8UC1);  // 真っ黒なマスクを作成
@@ -845,7 +845,7 @@ static std::tuple<int, int> Follow_1() {
         drawContours(morphed, fillContours, -1, Scalar(255), FILLED);  // 最大輪郭のみ白で描画
 
         // 垂直な線を描画（疑似的に2つの輪郭があるようにする）
-        cv::line(morphed, cv::Point(cX, 0), cv::Point(cX, morphed.rows), cv::Scalar(0), 2);
+        cv::line(morphed, cv::Point(cx, 0), cv::Point(cx, morphed.rows), cv::Scalar(0), 2);
 
         // 再度輪郭を抽出
         contours.clear();
