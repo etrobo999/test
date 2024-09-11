@@ -238,11 +238,12 @@ void* display_thread_func(void* arg) {
         {
             std::unique_lock<std::mutex> lock(mtx4);
             display_var.wait(lock, [] { return display_ready; });
-            if (display_show){
-                temp_frame1 = result_frame.clone();
-                cv::imshow("temp_frame1", temp_frame1);
-                cv::waitKey(1);
-            }
+        }
+
+        if (display_show){
+            temp_frame1 = result_frame.clone();
+            cv::imshow("temp_frame1", temp_frame1);
+            cv::waitKey(1);
         }
         display_show = !display_show;
 
