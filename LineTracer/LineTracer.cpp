@@ -326,7 +326,7 @@ void* main_thread_func(void* arg) {
             ev3_motor_reset_counts(left_motor);
             ev3_motor_reset_counts(right_motor);
             ev3_gyro_sensor_reset(gyro_sensor);
-            scene = 11;
+            scene = 31;
         case 3:
         case 4:
         case 5:
@@ -549,7 +549,8 @@ void* main_thread_func(void* arg) {
                     ev3_motor_rotate(right_motor,820,40,false);
                     break;
                 }
-            console_PL();
+                cv::waitKey(20);
+                console_PL();
             }
 
             while(true){
@@ -558,7 +559,8 @@ void* main_thread_func(void* arg) {
                     set_speed(30);
                     break;
                 }
-            console_PL();
+                cv::waitKey(20);
+                console_PL();
             }
             break;
         case 33:
