@@ -849,9 +849,9 @@ static std::tuple<int, int> Follow_1(const Mat& morphed) {
             }
         }
 
-        // 左右の輪郭を擬似的にそのまま代入する
-        static std::vector<cv::Point> left_contour = left_half;  // 静的に代入
-        static std::vector<cv::Point> right_contour = right_half;
+        // 左右の輪郭をローカル変数として保持
+        std::vector<cv::Point> left_contour = left_half;
+        std::vector<cv::Point> right_contour = right_half;
         largest_contour = &left_contour;
         second_largest_contour = &right_contour;
     }
