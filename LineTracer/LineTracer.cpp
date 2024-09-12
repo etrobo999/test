@@ -314,8 +314,8 @@ void* main_thread_func(void* arg) {
             startTimer(1);
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "blue_black");
-            bitwise_not(mask2, mask2);
-            //morphed = Morphology(mask2);
+            //bitwise_not(mask2, mask2);
+            morphed = Morphology(mask2);
             tie(cX, cY) = Follow_1(morphed);
             console_PL();
             cout << getTime(1) << endl;
