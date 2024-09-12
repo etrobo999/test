@@ -344,7 +344,7 @@ void* main_thread_func(void* arg) {
             console_PL();
             cout << getTime(1) << endl;
             if(ev3_touch_sensor_is_pressed(touch_sensor)){
-                scene++;
+                scene = 5;
             };
             std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
             //std::cout << ev3_gyro_sensor_get_angle(gyro_sensor) << std::endl;
@@ -765,7 +765,7 @@ void* main_thread_func(void* arg) {
 
 
 void tracer_task(intptr_t unused) {
-    cv::waitKey(1000);
+    cv::waitKey(2000);
     pthread_t main_thread;
     if (pthread_create(&main_thread, NULL, main_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create Main thread" << endl;
