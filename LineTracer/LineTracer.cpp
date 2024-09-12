@@ -1049,7 +1049,7 @@ std::tuple<bool, bool> detectRectangleAndPosition(const Mat& morphed, int min_ar
         if (area >= min_area) {
             // 輪郭をポリゴン近似し、頂点数を確認する
             std::vector<cv::Point> approx;
-            approxPolyDP(contour, approx, 0.015 * arcLength(contour, true), true);
+            approxPolyDP(contour, approx, 0.018 * arcLength(contour, true), true);
 
             // 頂点の数が4つであれば四角形とみなす
             if (approx.size() == 4) {
@@ -1096,7 +1096,7 @@ static std::tuple<int, int> Follow_3(const Mat& morphed) {
         std::vector<cv::Point> approx;
 
         // ポリゴン近似で輪郭を四角形として認識できるか確認
-        approxPolyDP(contour, approx, 0.015 * arcLength(contour, true), true);
+        approxPolyDP(contour, approx, 0.018 * arcLength(contour, true), true);
 
         // 四角形（頂点が4つ）のみを対象とする
         if (approx.size() == 4 && area >= min_contour_area) {
