@@ -315,8 +315,8 @@ void* main_thread_func(void* arg) {
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "blue_black");
             bitwise_not(mask2, mask2);
-            morphed = Morphology(mask2);
-            tie(cX, cY) = Follow_2(morphed);
+            //morphed = Morphology(mask2);
+            tie(cX, cY) = Follow_1(morphed);
             console_PL();
             cout << getTime(1) << endl;
             if(ev3_touch_sensor_is_pressed(touch_sensor)){
@@ -332,7 +332,7 @@ void* main_thread_func(void* arg) {
             ev3_gyro_sensor_reset(gyro_sensor);
             console_PL();
             std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
-            scene = 33;
+            scene = 11;
         case 3:
         case 4:
         case 5:
