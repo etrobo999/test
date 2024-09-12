@@ -23,10 +23,16 @@ PID Mcurvetpid = {0.11, 0.004, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.10, 0.002, 0, 0, 0}; //ゆっくりカーブPID
 
 /*rectの値初期化*/
-int rect_x = 100;
-int rect_y = 180;
-int rect_width = 440;
-int rect_height = 160;
+//int rect_x = 100;
+//int rect_y = 180;
+//int rect_width = 440;
+//int rect_height = 160;
+
+int rect_x = 0;
+int rect_y = 0;
+int rect_width = 640;
+int rect_height = 320;
+
 
 /*cameraの初期設定*/
 CameraSettings camera_settings = {640, 480, CV_8UC3, 40};
@@ -810,7 +816,7 @@ static tuple<Mat, Mat>  RectFrame(const Mat& frame) {
     Mat rectframe, hsv;
     rectframe = frame.clone();    
     rectframe = rectframe(Rect(rect_x, rect_y, rect_width, rect_height));
-    medianBlur(rectframe, hsv, 3);
+    medianBlur(rectframe, hsv, 5);
     cvtColor(hsv, hsv, COLOR_BGR2HSV);
     return make_tuple(rectframe, hsv);
 }
