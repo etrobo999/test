@@ -629,13 +629,13 @@ void* main_thread_func(void* arg) {
             break;
         case 33:
             while (true) {
-                if (ev3_motor_reset_counts(right_motor); <= 10) {
+                if (ev3_motor_reset_counts(right_motor) <= 10) {
                     break;
                 }
                 cv::waitKey(30);
                 }
             while (true) {
-                if (ev3_motor_reset_counts(left_motor); <= 10) {
+                if (ev3_motor_reset_counts(left_motor) <= 10) {
                     break;
                 }
                 cv::waitKey(30);
