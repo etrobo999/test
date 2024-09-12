@@ -64,6 +64,7 @@ bool touch_sensor_bool = false;
 int left_motor_counts = 0;
 int right_motor_counts = 0;
 int gyro_counts = 0;
+int gyro_counts2 = 0;
 
 // 追従方向の変数[true = 左] [false = 右]
 bool follow = true;
@@ -311,9 +312,9 @@ void* main_thread_func(void* arg) {
             startTimer(1);
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "blue_black");
-            //bitwise_not(mask2, mask2);
+            bitwise_not(mask2, mask2);
             morphed = Morphology(mask2);
-            tie(cX, cY) = Follow_1();
+            tie(cX, cY) = Follow_2();
             console_PL();
             cout << getTime(1) << endl;
             if(ev3_touch_sensor_is_pressed(touch_sensor)){
@@ -326,7 +327,9 @@ void* main_thread_func(void* arg) {
             ev3_motor_reset_counts(left_motor);
             ev3_motor_reset_counts(right_motor);
             ev3_gyro_sensor_reset(gyro_sensor);
-            scene = 11;
+            console_PL();
+            std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
+            scene = 31;
         case 3:
         case 4:
         case 5:
@@ -537,33 +540,55 @@ void* main_thread_func(void* arg) {
             std::cout << "Case 31" << std::endl;
             break;
         case 32:
-           while(true){
-                if (ev3_gyro_sensor_get_angle(gyro_sensor) > 30) {
-                    motor_cntrol(-55,55);
-                } else if (ev3_gyro_sensor_get_angle(gyro_sensor) < 30) {
-                    motor_cntrol(55,-55);
-                } else {
-                    ev3_motor_reset_counts(left_motor);
-                    ev3_motor_reset_counts(right_motor);
-                    ev3_motor_rotate(left_motor,820,55,false);	
-                    ev3_motor_rotate(right_motor,820,55,false);
-                    break;
+            gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
+            if (gyro_counts < 30) {
+                    motor_cntrol(50,-50);
+                while(true){
+                    
+                    if (gyro_counts > 30) {
+                        break;
+                    }else if (gyro_counts == 30){
+                        scene++;
+                        break;
+                    }
+                    cv::waitKey(30);
+                    console_PL();
+                    gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
                 }
-                cv::waitKey(20);
-                console_PL();
+            } else if (gyro_counts > 30) {
+                    motor_cntrol(50,-50);
+                while(true){
+                    if (gyro_counts > 30) {
+                        break;
+                    }else if (gyro_counts == 30){
+                        scene =++;
+                        break;
+                    }
+                    cv::waitKey(30);
+                    console_PL();
+                    gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
+                }
+            } else {
+                scene++;
             }
-
+            cv::waitKey(30);
+            break;
+        case 33:
+            ev3_motor_reset_counts(left_motor);
+            ev3_motor_reset_counts(right_motor);
+            ev3_motor_rotate(left_motor,820,55,false);	
+            ev3_motor_rotate(right_motor,820,55,false);
             while(true){
-                if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1600) {
+                if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1620) {
                     scene++;
-                    set_speed(30);
+                    set_speed(50);
                     break;
                 }
-                cv::waitKey(20);
+                cv::waitKey(30);
                 console_PL();
             }
             break;
-        case 33:
+        case 34:
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "blue_black"); //Mask,Mask1
             {
@@ -578,10 +603,7 @@ void* main_thread_func(void* arg) {
                 cv::waitKey(10);
             }
             break;
-        case 34:
-            break;
         case 35:
-            std::cout << "Case 35" << std::endl;
             break;
         case 36:
             break;
@@ -639,9 +661,9 @@ void* main_thread_func(void* arg) {
             tie(cX, cY) = Follow_3(morphed);
             console_PL();
             if(cX <= frame_center - 10){
-                motor_cntrol(-25,25);
+                motor_cntrol(-40,40);
             } else if (cX >= frame_center + 10){
-                motor_cntrol(25,-25);
+                motor_cntrol(40,-40);
             } else {
                 ev3_motor_reset_counts(left_motor);
                 ev3_motor_reset_counts(right_motor);
@@ -662,31 +684,32 @@ void* main_thread_func(void* arg) {
             }
             break;
         case 53:
-            while (true) {
-                motor_cntrol(-30,-30);
-                if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) <= 0){
-                    motor_cntrol(0,0);
-                    break;
+            if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) > 0){
+                motor_cntrol(-50,-50);
+                while (true) {
+                    if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) <= 0){
+                        scene++;
+                        break;
+                    }
+                    cv::waitKey(30);
+                    console_PL();
                 }
             }
-            while (true) {
-                if (ev3_gyro_sensor_get_angle(gyro_sensor) > 0) {
-                    //motor_cntrol(50,-50);
-                } else if (ev3_gyro_sensor_get_angle(gyro_sensor) < 0) {
-                    //motor_cntrol(-50,50);
-                } else {
-                    ev3_motor_reset_counts(left_motor);
-                    ev3_motor_reset_counts(right_motor);
-                    //ev3_motor_rotate(left_motor,820,50,false);	
-                    //ev3_motor_rotate(right_motor,820,50,false);
-                    break;
-                }
-            }
-
-            
             break;
         case 54:
-            std::cout << "Case 54" << std::endl;
+            gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
+            if (gyro_counts < 0){
+                motor_cntrol(50,-50);
+                while (true) {
+                    if (gyro_counts >= 0){
+                        scene = _scene;
+                        break;
+                    }
+                    cv::waitKey(30);
+                    gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
+                    console_PL();
+                }
+            }
             break;
         case 55:
             std::cout << "Case 55" << std::endl;
@@ -1103,8 +1126,8 @@ static void PIDMotor(PID &pid) {
 /* 走行モータ制御 */
 static void motor_cntrol(double left_motor_speed , double right_motor_speed){
     // 実際のモータ制御関数をここで呼び出す
-    ev3_motor_set_power(left_motor, left_motor_speed);
-    ev3_motor_set_power(right_motor, right_motor_speed);
+    //ev3_motor_set_power(left_motor, left_motor_speed);
+    //ev3_motor_set_power(right_motor, right_motor_speed);
     return;
 }
 
@@ -1162,7 +1185,6 @@ static void set_speed(double BASE_SPEED){
 void console_PL(){
     std::cout << "Centroid: (" << cX << ", " << cY << ")" << std::endl;
     std::cout << "left " << ev3_motor_get_counts(left_motor) << " right " << ev3_motor_get_counts(right_motor) << std::endl;
-    std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
     std::cout << "Case " << static_cast<int>(scene) << std::endl;
 }
 
