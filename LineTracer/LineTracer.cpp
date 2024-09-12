@@ -55,6 +55,8 @@ uint8_t _scene = 0;
 int frame_center = 220;
 int cX = 0;
 int cY = 0;
+double left_motor_factor = 1.0;
+double right_motor_factor = 1.0;
 double left_speed = 0.0;
 double right_speed = 0.0;
 bool display_show = true;
@@ -274,30 +276,7 @@ void* main_thread_func(void* arg) {
     pthread_t contour_thread;
     pthread_t display_thread;
 
-    // OpenCVスレッドを作成
-    if (pthread_create(&opencv_thread, NULL, opencv_thread_func, NULL) != 0) {
-        cerr << "Error: Failed to create OpenCV thread" << endl;
-        pthread_exit(NULL);
-    }
-    
-/*    // ホワイトバランス処理スレッドを作成
-    if (pthread_create(&white_balance_thread, NULL, white_balance_thread_func, NULL) != 0) {
-        cerr << "Error: Failed to create White Balance thread" << endl;
-        pthread_exit(NULL);
-    }
-*/
-    // 輪郭検知のマルチ処理
-    if (pthread_create(&contour_thread, NULL, contour_thread_func, NULL) != 0) {
-        cerr << "Error: Failed to create contour thread" << endl;
-        pthread_exit(NULL);
-    }
 
-
-    // 画面表示スレッドを作成
-    if (pthread_create(&display_thread, NULL, display_thread_func, NULL) != 0) {
-        cerr << "Error: Failed to create Display thread" << endl;
-        pthread_exit(NULL);
-    }
 
     bool ext = true;
 
@@ -311,6 +290,52 @@ void* main_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
         case 1: //画面表示・ボタンでスタート
+            ev3_motor_reset_counts(left_motor);
+            ev3_motor_reset_counts(right_motor);
+            motor_cntrol(100, 100);  // 両方のモータを同じ速度で動かす
+            cv::waitKey(3000);
+            motor_cntrol(0, 0);
+            left_motor_counts = ev3_motor_get_counts(left_motor);
+            right_motor_counts = ev3_motor_get_counts(right_motor);
+            if (left_motor_counts > right_motor_counts) {
+                // 左モータの回転数が多い場合、右モータの出力を上げる
+                right_motor_factor = (double)left_motor_counts / right_motor_counts;
+            } else if (right_motor_counts > left_motor_counts) {
+                // 右モータの回転数が多い場合、左モータの出力を上げる
+                left_motor_factor = (double)right_motor_counts / left_motor_counts;
+            }
+            std::cout << "Calibration complete. Left factor: " << left_motor_factor << ", Right factor: " << right_motor_factor << std::endl;
+            scene++;
+            break;
+        case 2:
+        case 3:
+            // OpenCVスレッドを作成
+            if (pthread_create(&opencv_thread, NULL, opencv_thread_func, NULL) != 0) {
+                cerr << "Error: Failed to create OpenCV thread" << endl;
+                pthread_exit(NULL);
+            }
+            
+/*          // ホワイトバランス処理スレッドを作成
+            if (pthread_create(&white_balance_thread, NULL, white_balance_thread_func, NULL) != 0) {
+                cerr << "Error: Failed to create White Balance thread" << endl;
+                pthread_exit(NULL);
+            }
+*/
+            // 輪郭検知のマルチ処理
+            if (pthread_create(&contour_thread, NULL, contour_thread_func, NULL) != 0) {
+                cerr << "Error: Failed to create contour thread" << endl;
+                pthread_exit(NULL);
+            }
+
+
+            // 画面表示スレッドを作成
+            if (pthread_create(&display_thread, NULL, display_thread_func, NULL) != 0) {
+                cerr << "Error: Failed to create Display thread" << endl;
+                pthread_exit(NULL);
+            }
+            scene++;
+            break;
+        case 4:
             startTimer(1);
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "blue_black");
@@ -326,16 +351,13 @@ void* main_thread_func(void* arg) {
             //std::cout << ev3_gyro_sensor_get_angle(gyro_sensor) << std::endl;
             //std::cout << ev3_touch_sensor_is_pressed(touch_sensor) << std::endl;
             break;
-        case 2:
+        case 5:
             ev3_motor_reset_counts(left_motor);
             ev3_motor_reset_counts(right_motor);
             ev3_gyro_sensor_reset(gyro_sensor);
             console_PL();
             std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
             scene = 11;
-        case 3:
-        case 4:
-        case 5:
         case 6:
         case 7:
         case 8:
@@ -1129,6 +1151,9 @@ static void PIDMotor(PID &pid) {
 /* 走行モータ制御 */
 static void motor_cntrol(double left_motor_speed , double right_motor_speed){
     // 実際のモータ制御関数をここで呼び出す
+        // 補正ファクターを適用してモータ速度を調整
+    left_motor_speed = left_motor_speed * left_motor_factor;
+    right_motor_speed = right_motor_speed * right_motor_factor;
     ev3_motor_set_power(left_motor, left_motor_speed);
     ev3_motor_set_power(right_motor, right_motor_speed);
     return;
