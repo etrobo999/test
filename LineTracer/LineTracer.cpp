@@ -208,7 +208,7 @@ void* contour_thread_func(void* arg) {
             right_motor_counts = ev3_motor_get_counts(right_motor);
             ev3_gyro_sensor_reset(gyro_sensor);
             _scene = scene; 
-            scene = 38;
+            //scene = 38;
         } else if (is_left_side) {
             follow = true;
             left_motor_counts = ev3_motor_get_counts(left_motor);
@@ -576,12 +576,11 @@ void* main_thread_func(void* arg) {
         case 33:
             ev3_motor_reset_counts(left_motor);
             ev3_motor_reset_counts(right_motor);
-            ev3_motor_rotate(left_motor,820,55,false);	
-            ev3_motor_rotate(right_motor,820,55,false);
+            motor_cntrol(50,50);
             while(true){
                 if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1620) {
+                    set_speed(50.0)
                     scene++;
-                    set_speed(50);
                     break;
                 }
                 cv::waitKey(30);
@@ -591,10 +590,8 @@ void* main_thread_func(void* arg) {
         case 34:
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "blue_black"); //Mask,Mask1
-            {
-                contour_ready = true;
-                contour_var.notify_one();
-            }
+            contour_ready = true;
+            contour_var.notify_one();
             bitwise_not(mask2, mask2);//白黒反転
             morphed = Morphology(mask2);//白色モル
             tie(cX, cY) = Follow_2(morphed);
