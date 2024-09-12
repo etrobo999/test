@@ -1149,7 +1149,6 @@ static void PIDMotor(PID &pid) {
 /* 走行モータ制御 */
 static void motor_cntrol(double left_motor_speed , double right_motor_speed){
     // 実際のモータ制御関数をここで呼び出す
-        // 補正ファクターを適用してモータ速度を調整
     left_motor_speed = left_motor_speed * left_motor_factor;
     right_motor_speed = right_motor_speed * right_motor_factor;
     ev3_motor_set_power(left_motor, left_motor_speed);
