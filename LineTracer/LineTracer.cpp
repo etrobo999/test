@@ -642,7 +642,7 @@ void* main_thread_func(void* arg) {
                 }
             motor_cntrol(50,50);
             while(true){
-                if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1220) {
+                if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1800) {
                     set_speed(50.0);
                     scene++;
                     break;
