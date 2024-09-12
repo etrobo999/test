@@ -369,8 +369,8 @@ void* main_thread_func(void* arg) {
         case 3:
             startTimer(1);
             tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "black");
-            bitwise_not(mask, mask);
+            createMask(hsv, "white");
+            //bitwise_not(mask, mask);
             morphed = Morphology(mask);
             tie(cX, cY) = Follow_2(morphed);
             console_PL();
@@ -1241,8 +1241,7 @@ std::map<std::string, std::pair<Scalar, Scalar>> color_bounds = {
     {"red_high", {Scalar(160, 100, 100), Scalar(180, 255, 255)}},  // 赤色（高範囲）
     {"yellow", {Scalar(20, 100, 100), Scalar(30, 255, 255)}},  // 黄色
     {"green", {Scalar(40, 50, 50), Scalar(80, 255, 255)}},  // 緑色
-    {"white", {Scalar(0, 0, 140), Scalar(180, 100, 255)}}  // 白色
-};
+    {"white", {Scalar(0, 0, 100), Scalar(180, 150, 255)}}
 
 /* スタートタイマー */
 static void startTimer(int timer_id) {
