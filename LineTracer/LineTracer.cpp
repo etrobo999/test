@@ -197,7 +197,7 @@ void* contour_thread_func(void* arg) {
     sigaddset(&set, SIGPOLL);  // その他のカーネルシグナルをマスク
     sigaddset(&set, SIGALRM);  // タイマーシグナルをマスク
     pthread_sigmask(SIG_BLOCK, &set, NULL);
-    int min_area = 2000;
+    int min_area = 3000;
 
     while (true) {
         // contour_var が通知されるまで待機
@@ -612,10 +612,10 @@ void* main_thread_func(void* arg) {
             break;
         case 32:
             gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-            if (gyro_counts < 25) {
+            if (gyro_counts < 27) {
                 while(true){
                     motor_cntrol(50,-50);
-                    if (gyro_counts >= 25) {
+                    if (gyro_counts >= 27) {
                         motor_cntrol(0,0);
                         break;
                     }
@@ -1045,7 +1045,7 @@ std::tuple<bool, bool> detectRectangleAndPosition(const Mat& morphed, int min_ar
         if (area >= min_area) {
             // 輪郭をポリゴン近似し、頂点数を確認する
             std::vector<cv::Point> approx;
-            approxPolyDP(contour, approx, 0.02 * arcLength(contour, true), true);
+            approxPolyDP(contour, approx, 0.01 * arcLength(contour, true), true);
 
             // 頂点の数が4つであれば四角形とみなす
             if (approx.size() == 4) {
@@ -1078,7 +1078,7 @@ static std::tuple<int, int> Follow_3(const Mat& morphed) {
 
     std::cout << "Number of contours found: " << contours.size() << std::endl;
 
-    const double min_contour_area = 2000.0; // ピクセル数
+    const double min_contour_area = 3000.0; // ピクセル数
 
     // 最大の輪郭と2番目に大きい輪郭を見つける
     std::vector<cv::Point>* largest_contour = nullptr;
@@ -1092,7 +1092,7 @@ static std::tuple<int, int> Follow_3(const Mat& morphed) {
         std::vector<cv::Point> approx;
 
         // ポリゴン近似で輪郭を四角形として認識できるか確認
-        approxPolyDP(contour, approx, 0.02 * arcLength(contour, true), true);
+        approxPolyDP(contour, approx, 0.01 * arcLength(contour, true), true);
 
         // 四角形（頂点が4つ）のみを対象とする
         if (approx.size() == 4 && area >= min_contour_area) {
