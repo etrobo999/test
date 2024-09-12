@@ -566,7 +566,7 @@ void* main_thread_func(void* arg) {
         case 32:
             gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
             if (gyro_counts < 30) {
-                    motor_cntrol(40,-40);
+                    motor_cntrol(50,-50);
                 while(true){
                     
                     if (gyro_counts > 30) {
@@ -581,7 +581,7 @@ void* main_thread_func(void* arg) {
                     std::cout << "gyro " << gyro_counts << std::endl;
                 }
             } else if (gyro_counts > 30) {
-                    motor_cntrol(-40,40);
+                    motor_cntrol(-50,50);
                 while(true){
                     if (gyro_counts < 30) {
                         break;
@@ -684,9 +684,9 @@ void* main_thread_func(void* arg) {
             tie(cX, cY) = Follow_3(morphed);
             console_PL();
             if(cX <= frame_center - 10){
-                motor_cntrol(-40,40);
+                motor_cntrol(-50,50);
             } else if (cX >= frame_center + 10){
-                motor_cntrol(40,-40);
+                motor_cntrol(50,-50);
             } else {
                 ev3_motor_reset_counts(left_motor);
                 ev3_motor_reset_counts(right_motor);
@@ -702,7 +702,7 @@ void* main_thread_func(void* arg) {
             tie(cX, cY) = Follow_3(morphed);
             PIDMotor(straightpid);
             console_PL();
-            if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 2000){
+            if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1200){
                 scene++;
             }
             break;
