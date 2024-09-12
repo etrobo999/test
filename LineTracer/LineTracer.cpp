@@ -1242,7 +1242,7 @@ std::map<std::string, std::pair<Scalar, Scalar>> color_bounds = {
     {"yellow", {Scalar(20, 100, 100), Scalar(30, 255, 255)}},  // 黄色
     {"green", {Scalar(40, 50, 50), Scalar(80, 255, 255)}},  // 緑色
     {"white", {Scalar(0, 0, 100), Scalar(180, 150, 255)}}
-
+}
 /* スタートタイマー */
 static void startTimer(int timer_id) {
     if (timer_id == 1) {
