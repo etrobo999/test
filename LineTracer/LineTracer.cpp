@@ -543,6 +543,7 @@ void* main_thread_func(void* arg) {
                 scene++;
                 ev3_motor_set_power(left_motor, 0);
                 ev3_motor_set_power(right_motor, 0);
+                ev3_gyro_sensor_reset(gyro_sensor);
             }
             
             break;
@@ -568,11 +569,8 @@ void* main_thread_func(void* arg) {
             if (gyro_counts < 30) {
                     motor_cntrol(50,-50);
                 while(true){
-                    
-                    if (gyro_counts > 30) {
-                        break;
-                    }else if (gyro_counts == 30){
-                        scene++;
+                    if (gyro_counts >= 30) {
+                        motor_cntrol(0,0);
                         break;
                     }
                     cv::waitKey(30);
@@ -580,15 +578,7 @@ void* main_thread_func(void* arg) {
                     gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
                     std::cout << "gyro " << gyro_counts << std::endl;
                 }
-            } else if (gyro_counts > 30) {
-                    motor_cntrol(-50,50);
-                while(true){
-                    if (gyro_counts < 30) {
-                        break;
-                    }else if (gyro_counts == 30){
-                        scene++;
-                        break;
-                    }
+            }
                     cv::waitKey(30);
                     console_PL();
                     gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
