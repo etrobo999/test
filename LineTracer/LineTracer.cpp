@@ -306,7 +306,7 @@ void* main_thread_func(void* arg) {
         ev3_motor_reset_counts(left_motor);
         ev3_motor_reset_counts(right_motor);
         motor_cntrol(50, 50);  // 両方のモータを同じ速度で動かす
-        cv::waitKey(3000);
+        cv::waitKey(6000);
         motor_cntrol(0, 0);
         left_motor_counts = ev3_motor_get_counts(left_motor);
         right_motor_counts = ev3_motor_get_counts(right_motor);
