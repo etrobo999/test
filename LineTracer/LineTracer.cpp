@@ -197,7 +197,7 @@ void* contour_thread_func(void* arg) {
     sigaddset(&set, SIGPOLL);  // その他のカーネルシグナルをマスク
     sigaddset(&set, SIGALRM);  // タイマーシグナルをマスク
     pthread_sigmask(SIG_BLOCK, &set, NULL);
-    int min_area = 3000;
+    int min_area = 2000;
 
     while (true) {
         // contour_var が通知されるまで待機
@@ -1078,7 +1078,7 @@ static std::tuple<int, int> Follow_3(const Mat& morphed) {
 
     std::cout << "Number of contours found: " << contours.size() << std::endl;
 
-    const double min_contour_area = 3000.0; // ピクセル数
+    const double min_contour_area = 2000.0; // ピクセル数
 
     // 最大の輪郭と2番目に大きい輪郭を見つける
     std::vector<cv::Point>* largest_contour = nullptr;
