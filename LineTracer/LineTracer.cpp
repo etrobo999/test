@@ -314,7 +314,7 @@ void* main_thread_func(void* arg) {
             createMask(hsv, "blue_black");
             bitwise_not(mask2, mask2);
             morphed = Morphology(mask2);
-            tie(cX, cY) = Follow_2();
+            tie(cX, cY) = Follow_2(morphed);
             console_PL();
             cout << getTime(1) << endl;
             if(ev3_touch_sensor_is_pressed(touch_sensor)){
@@ -561,7 +561,7 @@ void* main_thread_func(void* arg) {
                     if (gyro_counts > 30) {
                         break;
                     }else if (gyro_counts == 30){
-                        scene =++;
+                        scene++;
                         break;
                     }
                     cv::waitKey(30);
@@ -821,7 +821,7 @@ static Mat Morphology(const Mat& mask) {
 
 
 /*ライン切り替え追従関数*/
-static std::tuple<int, int> Follow_1() {
+static std::tuple<int, int> Follow_1(cv::Mat& morphed) {
     // 輪郭を抽出
     std::vector<std::vector<cv::Point>> contours;
     findContours(morphed, contours, RETR_TREE, CHAIN_APPROX_SIMPLE);
@@ -856,7 +856,6 @@ static std::tuple<int, int> Follow_1() {
         // 重心を計算
         cv::Moments M = cv::moments(*largest_contour);
         int cx = static_cast<int>(M.m10 / M.m00);
-        int cy = static_cast<int>(M.m01 / M.m00);
 
         // 最大の輪郭以外を黒く塗りつぶす
         Mat mask = Mat::zeros(morphed.size(), CV_8UC1);  // 真っ黒なマスクを作成
