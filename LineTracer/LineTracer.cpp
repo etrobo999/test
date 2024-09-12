@@ -877,6 +877,7 @@ static std::tuple<int, int> Follow_1(cv::Mat& morphed) {
 
     // 輪郭が1つしかない場合、その輪郭を重心で分割し、2つの輪郭として扱う
     if (largest_contour && second_largest_contour == nullptr) {
+        stop_count = 0;
         // 重心を計算
         cv::Moments M = cv::moments(*largest_contour);
         int cx = static_cast<int>(M.m10 / M.m00);
@@ -914,6 +915,7 @@ static std::tuple<int, int> Follow_1(cv::Mat& morphed) {
 
     // 2つの輪郭が存在する場合の通常処理
     if (largest_contour && second_largest_contour) {
+        stop_count = 0;
         cv::Moments M1 = cv::moments(*largest_contour);
         cv::Moments M2 = cv::moments(*second_largest_contour);
         int cX1 = static_cast<int>(M1.m10 / M1.m00);
