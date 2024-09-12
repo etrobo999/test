@@ -409,7 +409,7 @@ void* main_thread_func(void* arg) {
             break;
         case 15: //設定の読み込み
             startTimer(1);
-            set_speed(60.0);
+            set_speed(55.0);
             follow = !follow;
             scene++;
             break;
@@ -576,10 +576,10 @@ void* main_thread_func(void* arg) {
             break;
         case 32:
             gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-            if (gyro_counts < 30) {
+            if (gyro_counts < 25) {
                     motor_cntrol(50,-50);
                 while(true){
-                    if (gyro_counts >= 30) {
+                    if (gyro_counts >= 25) {
                         motor_cntrol(0,0);
                         break;
                     }
