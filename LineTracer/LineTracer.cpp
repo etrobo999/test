@@ -383,6 +383,20 @@ void* main_thread_func(void* arg) {
             //std::cout << ev3_touch_sensor_is_pressed(touch_sensor) << std::endl;
             break;
         case 4:
+            rect_x = 100;
+            rect_y = 180;
+            rect_width = 440;
+            rect_height = 160;
+            ev3_motor_reset_counts(left_motor);
+            cv::waitKey(30);
+            ev3_motor_reset_counts(right_motor);
+            cv::waitKey(30);
+            ev3_gyro_sensor_reset(gyro_sensor);
+            cv::waitKey(30);
+            console_PL();
+            std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
+            scene = 21;
+            break;
         case 5:
         case 6:
         case 7:
@@ -631,10 +645,10 @@ void* main_thread_func(void* arg) {
             break;
         case 34:
             tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "blue_black"); //Mask,Mask1
+            createMask(hsv, "blue_white"); //Mask,Mask1
             contour_ready = true;
             contour_var.notify_one();
-            bitwise_not(mask2, mask2);//白黒反転
+            //bitwise_not(mask2, mask2);//白黒反転
             morphed = Morphology(mask2);//白色モル
             tie(cX, cY) = Follow_2(morphed);
             console_PL();
@@ -842,8 +856,8 @@ static void createMask(const Mat& hsv, const std::string& color) {
         inRange(hsv, color_bounds["black"].first, color_bounds["black"].second, mask2);
         mask = mask1 | mask2;  // 両方のマスクを統合
     } else if (color == "blue_white") {
-        inRange(hsv, color_bounds["white"].first, color_bounds["white"].second, mask1);
-        inRange(hsv, color_bounds["blue"].first, color_bounds["blue"].second, mask2);
+        inRange(hsv, color_bounds["blue"].first, color_bounds["blue"].second, mask1);
+        inRange(hsv, color_bounds["white"].first, color_bounds["white"].second, mask2);
         mask = mask1 | mask2;  // 両方のマスクを統合
     // 青と黒のマスクを統合
     } else {
@@ -1241,7 +1255,7 @@ std::map<std::string, std::pair<Scalar, Scalar>> color_bounds = {
     {"red_high", {Scalar(160, 100, 100), Scalar(180, 255, 255)}},  // 赤色（高範囲）
     {"yellow", {Scalar(20, 100, 100), Scalar(30, 255, 255)}},  // 黄色
     {"green", {Scalar(40, 50, 50), Scalar(80, 255, 255)}},  // 緑色
-    {"white", {Scalar(0, 0, 100), Scalar(180, 150, 255)}}
+    {"white", {Scalar(0, 0, 110), Scalar(180, 150, 255)}}
 };
 /* スタートタイマー */
 static void startTimer(int timer_id) {
