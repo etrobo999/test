@@ -195,7 +195,7 @@ void* contour_thread_func(void* arg) {
         // contour_var が通知されるまで待機
         std::unique_lock<std::mutex> lock(mtx3);
         contour_var.wait(lock, [] { return contour_ready; });  // notify_oneで再開される
-
+        cerr << "contour_var" << endl;
         morphed1 = Morphology(mask1);//青色モル
         // 輪郭検知処理
         bool is_right_side, is_left_side;
