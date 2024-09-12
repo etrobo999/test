@@ -276,7 +276,49 @@ void* main_thread_func(void* arg) {
     pthread_t contour_thread;
     pthread_t display_thread;
 
+    // OpenCVスレッドを作成
+    if (pthread_create(&opencv_thread, NULL, opencv_thread_func, NULL) != 0) {
+        cerr << "Error: Failed to create OpenCV thread" << endl;
+        pthread_exit(NULL);
+    }
+    
+/*          // ホワイトバランス処理スレッドを作成
+    if (pthread_create(&white_balance_thread, NULL, white_balance_thread_func, NULL) != 0) {
+        cerr << "Error: Failed to create White Balance thread" << endl;
+        pthread_exit(NULL);
+    }
+*/
+    // 輪郭検知のマルチ処理
+    if (pthread_create(&contour_thread, NULL, contour_thread_func, NULL) != 0) {
+        cerr << "Error: Failed to create contour thread" << endl;
+        pthread_exit(NULL);
+    }
 
+
+    // 画面表示スレッドを作成
+    if (pthread_create(&display_thread, NULL, display_thread_func, NULL) != 0) {
+        cerr << "Error: Failed to create Display thread" << endl;
+        pthread_exit(NULL);
+    }
+
+    // モータのキャリブレーション
+    {
+        ev3_motor_reset_counts(left_motor);
+        ev3_motor_reset_counts(right_motor);
+        motor_cntrol(100, 100);  // 両方のモータを同じ速度で動かす
+        cv::waitKey(3000);
+        motor_cntrol(0, 0);
+        left_motor_counts = ev3_motor_get_counts(left_motor);
+        right_motor_counts = ev3_motor_get_counts(right_motor);
+        if (left_motor_counts > right_motor_counts) {
+            // 左モータの回転数が多い場合、右モータの出力を上げる
+            right_motor_factor = (double)left_motor_counts / right_motor_counts;
+        } else if (right_motor_counts > left_motor_counts) {
+            // 右モータの回転数が多い場合、左モータの出力を上げる
+            left_motor_factor = (double)right_motor_counts / left_motor_counts;
+        }
+        std::cout << "Calibration complete. Left factor: " << left_motor_factor << ", Right factor: " << right_motor_factor << std::endl;
+    }
 
     bool ext = true;
 
@@ -290,51 +332,8 @@ void* main_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
         case 1: //画面表示・ボタンでスタート
-            ev3_motor_reset_counts(left_motor);
-            ev3_motor_reset_counts(right_motor);
-            motor_cntrol(100, 100);  // 両方のモータを同じ速度で動かす
-            cv::waitKey(3000);
-            motor_cntrol(0, 0);
-            left_motor_counts = ev3_motor_get_counts(left_motor);
-            right_motor_counts = ev3_motor_get_counts(right_motor);
-            if (left_motor_counts > right_motor_counts) {
-                // 左モータの回転数が多い場合、右モータの出力を上げる
-                right_motor_factor = (double)left_motor_counts / right_motor_counts;
-            } else if (right_motor_counts > left_motor_counts) {
-                // 右モータの回転数が多い場合、左モータの出力を上げる
-                left_motor_factor = (double)right_motor_counts / left_motor_counts;
-            }
-            std::cout << "Calibration complete. Left factor: " << left_motor_factor << ", Right factor: " << right_motor_factor << std::endl;
-            scene++;
-            break;
         case 2:
         case 3:
-            // OpenCVスレッドを作成
-            if (pthread_create(&opencv_thread, NULL, opencv_thread_func, NULL) != 0) {
-                cerr << "Error: Failed to create OpenCV thread" << endl;
-                pthread_exit(NULL);
-            }
-            
-/*          // ホワイトバランス処理スレッドを作成
-            if (pthread_create(&white_balance_thread, NULL, white_balance_thread_func, NULL) != 0) {
-                cerr << "Error: Failed to create White Balance thread" << endl;
-                pthread_exit(NULL);
-            }
-*/
-            // 輪郭検知のマルチ処理
-            if (pthread_create(&contour_thread, NULL, contour_thread_func, NULL) != 0) {
-                cerr << "Error: Failed to create contour thread" << endl;
-                pthread_exit(NULL);
-            }
-
-
-            // 画面表示スレッドを作成
-            if (pthread_create(&display_thread, NULL, display_thread_func, NULL) != 0) {
-                cerr << "Error: Failed to create Display thread" << endl;
-                pthread_exit(NULL);
-            }
-            scene++;
-            break;
         case 4:
             startTimer(1);
             tie(rectframe, hsv) = RectFrame(frame);
