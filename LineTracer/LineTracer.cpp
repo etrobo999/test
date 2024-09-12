@@ -50,7 +50,7 @@ std::condition_variable contour_var;
 Mat orizin_frame, frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, morphed2, result_frame;
 
 /*使用する変数の初期化*/
-uint8_t scene = 1;
+uint8_t scene = 3;
 uint8_t _scene = 0;
 int frame_center = 220;
 int cX = 0;
@@ -343,16 +343,13 @@ void* main_thread_func(void* arg) {
             console_PL();
             cout << getTime(1) << endl;
             if(ev3_touch_sensor_is_pressed(touch_sensor)){
-                scene = 5;
+                scene++;
             };
             std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
             //std::cout << ev3_gyro_sensor_get_angle(gyro_sensor) << std::endl;
             //std::cout << ev3_touch_sensor_is_pressed(touch_sensor) << std::endl;
             break;
         case 2:
-        case 3:
-        case 4:
-        case 5:
             ev3_motor_reset_counts(left_motor);
             cv::waitKey(30);
             ev3_motor_reset_counts(right_motor);
@@ -362,6 +359,25 @@ void* main_thread_func(void* arg) {
             console_PL();
             std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
             scene = 11;
+            break;
+        case 3:
+            startTimer(1);
+            tie(rectframe, hsv) = RectFrame(frame);
+            createMask(hsv, "white");
+            //bitwise_not(mask2, mask2);
+            morphed = Morphology(mask);
+            tie(cX, cY) = Follow_3(morphed);
+            console_PL();
+            cout << getTime(1) << endl;
+            if(ev3_touch_sensor_is_pressed(touch_sensor)){
+                scene++;
+            };
+            std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
+            //std::cout << ev3_gyro_sensor_get_angle(gyro_sensor) << std::endl;
+            //std::cout << ev3_touch_sensor_is_pressed(touch_sensor) << std::endl;
+            break;
+        case 4:
+        case 5:
         case 6:
         case 7:
         case 8:
