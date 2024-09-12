@@ -210,6 +210,7 @@ void* contour_thread_func(void* arg) {
             left_motor_counts = ev3_motor_get_counts(left_motor);
             right_motor_counts = ev3_motor_get_counts(right_motor);
             ev3_gyro_sensor_reset(gyro_sensor);
+            cv::waitKey(30);
             _scene = scene; 
             //scene = 38;
         } else if (is_left_side) {
@@ -217,6 +218,7 @@ void* contour_thread_func(void* arg) {
             left_motor_counts = ev3_motor_get_counts(left_motor);
             right_motor_counts = ev3_motor_get_counts(right_motor);
             ev3_gyro_sensor_reset(gyro_sensor);
+            cv::waitKey(30);
             _scene = scene; 
             scene = 51;
         }
@@ -352,8 +354,11 @@ void* main_thread_func(void* arg) {
         case 4:
         case 5:
             ev3_motor_reset_counts(left_motor);
+            cv::waitKey(30);
             ev3_motor_reset_counts(right_motor);
+            cv::waitKey(30);
             ev3_gyro_sensor_reset(gyro_sensor);
+            cv::waitKey(30);
             console_PL();
             std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
             scene = 11;
@@ -412,7 +417,7 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             tie(cX, cY) = Follow_1(morphed);
             PIDMotor(straightpid);
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 11600){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 11700){
                 scene++;
             }
             console_PL();
@@ -429,7 +434,7 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             tie(cX, cY) = Follow_1(morphed);
             PIDMotor(Bcurvetpid);
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 12700){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 12500){
                 scene++;
             }
             console_PL();
@@ -446,7 +451,7 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             tie(cX, cY) = Follow_1(morphed);
             PIDMotor(straightpid);
-            if(getTime(1) >=0.5){
+            if(getTime(1) >=1){
                 scene = 21;
             }
             console_PL();
@@ -554,8 +559,11 @@ void* main_thread_func(void* arg) {
 
         case 31://設定の読み込み
             ev3_motor_reset_counts(left_motor);
+            cv::waitKey(30);
             ev3_motor_reset_counts(right_motor);
+            cv::waitKey(30);
             ev3_gyro_sensor_reset(gyro_sensor);
+            cv::waitKey(30);
             rect_x = 0;
             rect_y = 0;  
             rect_width = 640;
@@ -583,7 +591,9 @@ void* main_thread_func(void* arg) {
             break;
         case 33:
             ev3_motor_reset_counts(left_motor);
+            cv::waitKey(30);
             ev3_motor_reset_counts(right_motor);
+            cv::waitKey(30);
             motor_cntrol(50,50);
             while(true){
                 if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1220) {
@@ -671,7 +681,9 @@ void* main_thread_func(void* arg) {
                 motor_cntrol(50,-50);
             } else {
                 ev3_motor_reset_counts(left_motor);
+                cv::waitKey(30);
                 ev3_motor_reset_counts(right_motor);
+                cv::waitKey(30);
                 scene++;
                 motor_cntrol(0,0);
                 set_speed(50.0);
