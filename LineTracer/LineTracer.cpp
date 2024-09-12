@@ -18,7 +18,7 @@ raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
 PID straightpid = {0.08, 0, 0.005, 0, 0}; //ストレートPID
-PID Bcurvetpid = {0.11, 0.006, 0, 0, 0}; //急カーブPID
+PID Bcurvetpid = {0.13, 0, 0, 0, 0}; //急カーブPID
 PID Mcurvetpid = {0.11, 0.004, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.10, 0.002, 0, 0, 0}; //ゆっくりカーブPID
 
@@ -55,7 +55,7 @@ uint8_t _scene = 0;
 int frame_center = 220;
 int cX = 0;
 int cY = 0;
-double left_motor_factor = 1.04463;
+double left_motor_factor = 1.05463;
 double right_motor_factor = 1.0;
 double left_speed = 0.0;
 double right_speed = 0.0;
@@ -402,7 +402,7 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             tie(cX, cY) = Follow_1(morphed);
             PIDMotor(Bcurvetpid);         
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 7500){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 7600){
                 scene++;
             }
             console_PL();
@@ -577,8 +577,8 @@ void* main_thread_func(void* arg) {
         case 32:
             gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
             if (gyro_counts < 25) {
-                    motor_cntrol(50,-50);
                 while(true){
+                    motor_cntrol(50,-50);
                     if (gyro_counts >= 25) {
                         motor_cntrol(0,0);
                         break;
