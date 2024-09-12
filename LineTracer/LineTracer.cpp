@@ -305,7 +305,7 @@ void* main_thread_func(void* arg) {
     {
         ev3_motor_reset_counts(left_motor);
         ev3_motor_reset_counts(right_motor);
-        motor_cntrol(100, 100);  // 両方のモータを同じ速度で動かす
+        motor_cntrol(50, 50);  // 両方のモータを同じ速度で動かす
         cv::waitKey(3000);
         motor_cntrol(0, 0);
         left_motor_counts = ev3_motor_get_counts(left_motor);
@@ -604,7 +604,7 @@ void* main_thread_func(void* arg) {
             ev3_motor_reset_counts(right_motor);
             motor_cntrol(50,50);
             while(true){
-                if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1620) {
+                if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1220) {
                     set_speed(50.0);
                     scene++;
                     break;
