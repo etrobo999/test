@@ -193,14 +193,15 @@ void* contour_thread_func(void* arg) {
 
     while (true) {
         // contour_var が通知されるまで待機
-        std::unique_lock<std::mutex> lock(mtx2);
-        contour_var.wait(lock, [] { return contour_ready; });  // notify_oneで再開される
-        cerr << "contour_varj" << endl;
-        morphed1 = Morphology(mask1);//青色モル
+        {
+            std::unique_lock<std::mutex> lock(mtx2);
+            contour_var.wait(lock, [] { return contour_ready; });  // notify_oneで再開される
+            morphed1 = Morphology(mask1);//青色モル
+        }
+
         // 輪郭検知処理
         bool is_right_side, is_left_side;
         std::tie(is_right_side, is_left_side) = detectRectangleAndPosition(morphed1, min_area);
-        cerr << "detectRectangleAndPosition" << endl;
         // 左右の検知結果によってシーンを更新
         if (is_right_side) {
             follow = false;
@@ -217,11 +218,10 @@ void* contour_thread_func(void* arg) {
             _scene = scene; 
             scene = 51;
         }
-        cerr << "if" << endl;
 
         // 処理が終わったら contour_ready をリセット
         contour_ready = false;
-        cerr << "contour_ready" << endl;
+        cerr << "contour_ready" << contour_ready << endl;
     }
 
     pthread_exit(NULL);
