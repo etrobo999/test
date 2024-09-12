@@ -63,8 +63,8 @@ bool display_show = true;
 bool touch_sensor_bool = false;
 int left_motor_counts = 0;
 int right_motor_counts = 0;
-int gyro_counts = 0;
-int gyro_counts2 = 0;
+int16_t gyro_counts = 0;
+int16_t gyro_counts2 = 0;
 
 // 追従方向の変数[true = 左] [false = 右]
 bool follow = true;
@@ -554,7 +554,7 @@ void* main_thread_func(void* arg) {
                     cv::waitKey(30);
                     console_PL();
                     gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-                    std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
+                    std::cout << "gyro " << gyro_counts << std::endl;
                 }
             } else if (gyro_counts > 30) {
                     motor_cntrol(50,-50);
@@ -568,7 +568,7 @@ void* main_thread_func(void* arg) {
                     cv::waitKey(30);
                     console_PL();
                     gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-                    std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
+                    std::cout << "gyro " << gyro_counts << std::endl;
                 }
             } else {
                 scene++;
@@ -707,7 +707,7 @@ void* main_thread_func(void* arg) {
                     cv::waitKey(30);
                     gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
                     console_PL();
-                    std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
+                    std::cout << "gyro " << gyro_counts<< std::endl;
                 }
             }
             break;
