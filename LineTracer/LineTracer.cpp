@@ -369,10 +369,10 @@ void* main_thread_func(void* arg) {
         case 3:
             startTimer(1);
             tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "white");
-            //bitwise_not(mask2, mask2);
+            createMask(hsv, "black");
+            bitwise_not(mask, mask);
             morphed = Morphology(mask);
-            tie(cX, cY) = Follow_3(morphed);
+            tie(cX, cY) = Follow_2(morphed);
             console_PL();
             cout << getTime(1) << endl;
             if(ev3_touch_sensor_is_pressed(touch_sensor)){
