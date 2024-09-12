@@ -377,6 +377,7 @@ void* main_thread_func(void* arg) {
             startTimer(2);
             startTimer(1);
             set_speed(70.0);
+            follow = !follow;
             scene++;
             break;
         case 12: //第一ストレート
@@ -409,6 +410,7 @@ void* main_thread_func(void* arg) {
         case 15: //設定の読み込み
             startTimer(1);
             set_speed(60.0);
+            follow = !follow;
             scene++;
             break;
         case 16: //第二ストレート
