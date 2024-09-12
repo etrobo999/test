@@ -332,9 +332,6 @@ void* main_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
         case 1: //画面表示・ボタンでスタート
-        case 2:
-        case 3:
-        case 4:
             startTimer(1);
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "blue_black");
@@ -350,6 +347,9 @@ void* main_thread_func(void* arg) {
             //std::cout << ev3_gyro_sensor_get_angle(gyro_sensor) << std::endl;
             //std::cout << ev3_touch_sensor_is_pressed(touch_sensor) << std::endl;
             break;
+        case 2:
+        case 3:
+        case 4:
         case 5:
             ev3_motor_reset_counts(left_motor);
             ev3_motor_reset_counts(right_motor);
@@ -765,10 +765,6 @@ void* main_thread_func(void* arg) {
 
 
 void tracer_task(intptr_t unused) {
-    ev3_motor_reset_counts(left_motor);
-    ev3_motor_reset_counts(right_motor);
-    ev3_gyro_sensor_reset(gyro_sensor);
-
     pthread_t main_thread;
     if (pthread_create(&main_thread, NULL, main_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create Main thread" << endl;
