@@ -744,6 +744,7 @@ void* main_thread_func(void* arg) {
 
 
 void tracer_task(intptr_t unused) {
+    cv::waitKey(1000);
     pthread_t main_thread;
     if (pthread_create(&main_thread, NULL, main_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create Main thread" << endl;
@@ -1128,8 +1129,8 @@ static void PIDMotor(PID &pid) {
 /* 走行モータ制御 */
 static void motor_cntrol(double left_motor_speed , double right_motor_speed){
     // 実際のモータ制御関数をここで呼び出す
-    //ev3_motor_set_power(left_motor, left_motor_speed);
-    //ev3_motor_set_power(right_motor, right_motor_speed);
+    ev3_motor_set_power(left_motor, left_motor_speed);
+    ev3_motor_set_power(right_motor, right_motor_speed);
     return;
 }
 
