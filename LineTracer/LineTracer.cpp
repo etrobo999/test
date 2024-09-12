@@ -322,6 +322,7 @@ void* main_thread_func(void* arg) {
             if(ev3_touch_sensor_is_pressed(touch_sensor)){
                 scene++;
             };
+            std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
             //std::cout << ev3_gyro_sensor_get_angle(gyro_sensor) << std::endl;
             //std::cout << ev3_touch_sensor_is_pressed(touch_sensor) << std::endl;
             break;
