@@ -579,15 +579,7 @@ void* main_thread_func(void* arg) {
                     std::cout << "gyro " << gyro_counts << std::endl;
                 }
             }
-                    cv::waitKey(30);
-                    console_PL();
-                    gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-                    std::cout << "gyro " << gyro_counts << std::endl;
-                }
-            } else {
-                scene++;
-            }
-            cv::waitKey(30);
+            scene++;
             break;
         case 33:
             ev3_motor_reset_counts(left_motor);
