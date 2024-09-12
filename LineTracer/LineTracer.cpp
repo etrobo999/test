@@ -334,6 +334,9 @@ void* main_thread_func(void* arg) {
         case 1: //画面表示・ボタンでスタート
         case 2:
         case 3:
+            ev3_gyro_sensor_reset(gyro_sensor);
+            scene++;
+            break;
         case 4:
             startTimer(1);
             tie(rectframe, hsv) = RectFrame(frame);
@@ -765,7 +768,6 @@ void* main_thread_func(void* arg) {
 
 
 void tracer_task(intptr_t unused) {
-    cv::waitKey(2000);
     pthread_t main_thread;
     if (pthread_create(&main_thread, NULL, main_thread_func, NULL) != 0) {
         cerr << "Error: Failed to create Main thread" << endl;
