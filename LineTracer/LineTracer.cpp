@@ -819,7 +819,7 @@ static void createMask(const Mat& hsv, const std::string& color) {
 /* モルフォロジー変換 */
 static Mat Morphology(const Mat& mask) {
     Mat morphed;
-    Mat kernel = getStructuringElement(MORPH_RECT, Size(4, 4));
+    Mat kernel = getStructuringElement(MORPH_RECT, Size(5, 5));
     morphologyEx(mask, morphed, MORPH_OPEN, kernel);
     morphologyEx(morphed, morphed, MORPH_CLOSE, kernel);    
     return morphed;  // モルフォロジー変換後の画像を返す
@@ -1199,7 +1199,7 @@ void console_PL(){
 
 /* マスク値 */
 std::map<std::string, std::pair<Scalar, Scalar>> color_bounds = {
-    {"black", {Scalar(0, 0, 0), Scalar(180, 255, 40)}},  // 黒色
+    {"black", {Scalar(0, 0, 0), Scalar(180, 255, 50)}},  // 黒色
     {"blue", {Scalar(100, 100, 0), Scalar(140, 255, 255)}},  // 青色
     {"red_low", {Scalar(0, 100, 100), Scalar(10, 255, 255)}},  // 赤色（低範囲）
     {"red_high", {Scalar(160, 100, 100), Scalar(180, 255, 255)}},  // 赤色（高範囲）
