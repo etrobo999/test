@@ -193,9 +193,9 @@ void* contour_thread_func(void* arg) {
 
     while (true) {
         // contour_var が通知されるまで待機
-        std::unique_lock<std::mutex> lock(mtx3);
+        std::unique_lock<std::mutex> lock(mtx2);
         contour_var.wait(lock, [] { return contour_ready; });  // notify_oneで再開される
-        cerr << "contour_var" << endl;
+        cerr << "contour_varj" << endl;
         morphed1 = Morphology(mask1);//青色モル
         // 輪郭検知処理
         bool is_right_side, is_left_side;
@@ -332,7 +332,7 @@ void* main_thread_func(void* arg) {
             ev3_gyro_sensor_reset(gyro_sensor);
             console_PL();
             std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
-            scene = 31;
+            scene = 33;
         case 3:
         case 4:
         case 5:
