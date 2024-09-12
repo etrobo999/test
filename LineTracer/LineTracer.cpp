@@ -628,14 +628,18 @@ void* main_thread_func(void* arg) {
             scene++;
             break;
         case 33:
-            ev3_motor_reset_counts(left_motor);
-            cv::waitKey(30);
-            ev3_motor_reset_counts(right_motor);
-            cv::waitKey(30);
-            ev3_motor_reset_counts(left_motor);
-            cv::waitKey(30);
-            ev3_motor_reset_counts(right_motor);
-            cv::waitKey(30);
+            while (true) {
+                if (ev3_motor_reset_counts(right_motor); <= 10) {
+                    break;
+                }
+                cv::waitKey(30);
+                }
+            while (true) {
+                if (ev3_motor_reset_counts(left_motor); <= 10) {
+                    break;
+                }
+                cv::waitKey(30);
+                }
             motor_cntrol(50,50);
             while(true){
                 if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1220) {
