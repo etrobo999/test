@@ -231,7 +231,6 @@ void* contour_thread_func(void* arg) {
 
         // 処理が終わったら contour_ready をリセット
         contour_ready = false;
-        cerr << "contour_ready" << contour_ready << endl;
     }
 
     pthread_exit(NULL);
