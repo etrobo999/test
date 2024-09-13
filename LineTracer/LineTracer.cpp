@@ -606,10 +606,10 @@ void* main_thread_func(void* arg) {
         case 31://設定の読み込み
             reset_gyro_sensor();
             rect_x = 0;
-            rect_y = 0;  
+            rect_y = 20;  
             rect_width = 640;
             rect_height = 340;
-            frame_center = 320;
+            frame_center = 280;
             scene++;
             std::cout << "Case 31" << std::endl;
             break;
@@ -630,9 +630,9 @@ void* main_thread_func(void* arg) {
             break;
         case 33:
             motor_cntrol(50,50);
-            if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1300) {
+            if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1200) {
                 {
-                    set_speed(50.0);
+                    set_speed(45.0);
                     scene++;
                 }
             }
@@ -654,7 +654,7 @@ void* main_thread_func(void* arg) {
             if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts >= 4200){
                 {
                     motor_cntrol(0,0);
-                    set_speed(-50.0);
+                    set_speed(-45.0);
                     scene++;
                 }
             }
@@ -667,10 +667,10 @@ void* main_thread_func(void* arg) {
             tie(cX, cY) = Follow_2(morphed);
             PIDMotor(Bcurvetpid);
             console_PL();
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts <= 1500){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts <= 1200){
                 {
                     motor_cntrol(0,0);
-                    set_speed(50.0);
+                    set_speed(45.0);
                     reset_gyro_sensor();
                     scene++;
                 }
