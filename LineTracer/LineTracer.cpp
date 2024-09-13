@@ -804,8 +804,8 @@ void* main_thread_func(void* arg) {
             std::cout << "Default case" << std::endl;
             break;
         }
-        display_ready = true;
-        display_var.notify_one();
+        //display_ready = true;
+        //display_var.notify_one();
     }
     pthread_exit(NULL);
 }
