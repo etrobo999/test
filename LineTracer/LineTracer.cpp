@@ -366,7 +366,7 @@ void* main_thread_func(void* arg) {
             reset_gyro_sensor();
             console_PL();
             std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
-            scene = 21;
+            scene = 31;
             break;
         case 3:
             startTimer(1);
