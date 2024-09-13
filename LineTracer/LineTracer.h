@@ -32,7 +32,7 @@ static std::tuple<int, int> Follow_2(const cv::Mat& morphed);                   
 std::tuple<bool, bool> detectRectangleAndPosition(const cv::Mat& morphed, int min_area);
 static std::tuple<int, int> Follow_3(const cv::Mat& morphed);
 static void PIDMotor(PID &pid);
-static void PIDMotorR(PID &pid)                                                   //PID走行関数
+static void PIDMotorR(PID &pid);                                             //PID走行関数
 static void set_speed(double BASE_SPEED);
 void console_PL();
 static bool detectCheck(const cv::Mat& morphed, int min_area);                    //輪郭検知関数
