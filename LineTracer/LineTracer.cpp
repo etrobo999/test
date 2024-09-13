@@ -61,7 +61,7 @@ uint8_t _scene = 0;
 int frame_center = 220;
 int cX = 0;
 int cY = 0;
-double left_motor_factor = 1.07263;
+double left_motor_factor = 1.08263;
 double right_motor_factor = 1.0;
 double left_speed = 0.0;
 double right_speed = 0.0;
@@ -365,7 +365,7 @@ void* main_thread_func(void* arg) {
             reset_gyro_sensor();
             console_PL();
             std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
-            scene = 31;
+            scene = 21;
             break;
         case 3:
             startTimer(1);
@@ -642,6 +642,7 @@ void* main_thread_func(void* arg) {
             //bitwise_not(mask2, mask2);//白黒反転
             morphed = Morphology2(mask2);//白色モル
             tie(cX, cY) = Follow_2(morphed);
+            PIDMotor(Bcurvetpid);
             console_PL();
             while (contour_ready) {
                 cv::waitKey(10);
@@ -672,7 +673,7 @@ void* main_thread_func(void* arg) {
             break;
         case 36:
             motor_cntrol(-50,-50);
-            if ((_left_motor_counts + _right_motor_counts) - (ev3_motor_get_counts(right_motor) + ev3_motor_get_counts(left_motor)) >= 1200){
+            if ((_left_motor_counts + _right_motor_counts) - (ev3_motor_get_counts(right_motor) + ev3_motor_get_counts(left_motor)) >= 600){
                 {
                     reset_left_motor();
                     reset_right_motor();
@@ -690,6 +691,7 @@ void* main_thread_func(void* arg) {
             //bitwise_not(mask2, mask2);//白黒反転
             morphed = Morphology2(mask2);//白色モル
             tie(cX, cY) = Follow_2(morphed);
+            PIDMotor(Bcurvetpid);
             console_PL();
             while (contour_ready) {
                 cv::waitKey(10);
@@ -720,7 +722,7 @@ void* main_thread_func(void* arg) {
             break;
         case 39:
             motor_cntrol(-50,-50);
-            if ((_left_motor_counts + _right_motor_counts) - (ev3_motor_get_counts(right_motor) + ev3_motor_get_counts(left_motor)) >= 1200){
+            if ((_left_motor_counts + _right_motor_counts) - (ev3_motor_get_counts(right_motor) + ev3_motor_get_counts(left_motor)) >= 600){
                 {
                     reset_left_motor();
                     reset_right_motor();
@@ -738,6 +740,7 @@ void* main_thread_func(void* arg) {
             //bitwise_not(mask2, mask2);//白黒反転
             morphed = Morphology2(mask2);//白色モル
             tie(cX, cY) = Follow_2(morphed);
+            PIDMotor(Bcurvetpid);
             console_PL();
             while (contour_ready) {
                 cv::waitKey(10);
