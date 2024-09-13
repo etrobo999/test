@@ -794,14 +794,15 @@ void* main_thread_func(void* arg) {
             tie(cX, cY) = Follow_3(morphed);
             console_PL();
             PIDMotor(Bcurvetpid);
-            if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 800){
+            if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 500){
                 scene++;
             }
             break;
         case 52:
-            motor_cntrol(-50,-50);
+            motor_cntrol(-50,-60);
             console_PL();
             if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) <= 30){
+                motor_cntrol(0,0);
                 scene = _scene;
             }
             break;
