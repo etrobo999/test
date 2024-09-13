@@ -61,7 +61,7 @@ uint8_t _scene = 0;
 int frame_center = 220;
 int cX = 0;
 int cY = 0;
-double left_motor_factor = 1.05463;
+double left_motor_factor = 1.08263;
 double right_motor_factor = 1.0;
 double left_speed = 0.0;
 double right_speed = 0.0;
@@ -357,6 +357,10 @@ void* main_thread_func(void* arg) {
             //std::cout << ev3_touch_sensor_is_pressed(touch_sensor) << std::endl;
             break;
         case 2:
+            rect_x = 100;
+            rect_y = 180;
+            rect_width = 440;
+            rect_height = 160;
             reset_left_motor();
             reset_right_motor();
             reset_gyro_sensor();
