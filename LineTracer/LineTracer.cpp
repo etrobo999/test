@@ -217,6 +217,8 @@ void* contour_thread_func(void* arg) {
             follow = false;
             left_motor_counts += ev3_motor_get_counts(left_motor);
             right_motor_counts += ev3_motor_get_counts(right_motor);
+            reset_left_motor();
+            reset_right_motor();
             reset_gyro_sensor();
             _scene = scene; 
             //scene = 38;
@@ -224,6 +226,8 @@ void* contour_thread_func(void* arg) {
             follow = true;
             left_motor_counts = ev3_motor_get_counts(left_motor);
             right_motor_counts = ev3_motor_get_counts(right_motor);
+            reset_left_motor();
+            reset_right_motor();
             reset_gyro_sensor();
             _scene = scene; 
             scene = 51;
@@ -626,7 +630,7 @@ void* main_thread_func(void* arg) {
             break;
         case 33:
             motor_cntrol(50,50);
-            if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1500) {
+            if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1300) {
                 {
                     set_speed(50.0);
                     scene++;
@@ -789,27 +793,16 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             tie(cX, cY) = Follow_3(morphed);
             console_PL();
-            if(cX <= frame_center - 20){
-                motor_cntrol(-50,50);
-            } else if (cX >= frame_center + 20){
-                motor_cntrol(50,-50);
-            } else {
-                reset_left_motor();
-                reset_right_motor();
+            PIDMotor(Bcurvetpid);
+            if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 800){
                 scene++;
-                motor_cntrol(0,0);
-                set_speed(50.0);
             }
             break;
         case 52:
-            tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "blue"); //Mask,Mask1
-            morphed = Morphology(mask);
-            tie(cX, cY) = Follow_3(morphed);
-            PIDMotor(straightpid);
+            motor_cntrol(-50,-50);
             console_PL();
-            if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1200){
-                scene++;
+            if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) <= 30){
+                scene = _scene;
             }
             break;
         case 53:
