@@ -679,7 +679,10 @@ void* main_thread_func(void* arg) {
             _right_motor_counts = ev3_motor_get_counts(right_motor);
             motor_cntrol(-50,-50);
             while (true){
-                if ((_left_motor_counts + _right_motor_counts) - (ev3_motor_get_counts(right_motor) + ev3_motor_get_counts(left_motor) >= 1200)){
+                if ((_left_motor_counts + _right_motor_counts) - (ev3_motor_get_counts(right_motor) + ev3_motor_get_counts(left_motor)) >= 1200){
+                    reset_left_motor();
+                    reset_right_motor();
+                    motor_cntrol(0,0);
                     scene++;
                 }
                 cv::waitKey(30);
@@ -698,7 +701,7 @@ void* main_thread_func(void* arg) {
             while (contour_ready) {
                 cv::waitKey(10);
             }
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts >= 7000){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts >= 2000){
                 scene++;
             }
             break;
@@ -725,7 +728,10 @@ void* main_thread_func(void* arg) {
             _right_motor_counts = ev3_motor_get_counts(right_motor);
             motor_cntrol(-50,-50);
             while (true){
-                if ((_left_motor_counts + _right_motor_counts) - (ev3_motor_get_counts(right_motor) + ev3_motor_get_counts(left_motor) >= 1000)){
+                if ((_left_motor_counts + _right_motor_counts) - (ev3_motor_get_counts(right_motor) + ev3_motor_get_counts(left_motor)) >= 1200){
+                    reset_left_motor();
+                    reset_right_motor();
+                    motor_cntrol(0,0);
                     scene++;
                 }
                 cv::waitKey(30);
@@ -744,7 +750,7 @@ void* main_thread_func(void* arg) {
             while (contour_ready) {
                 cv::waitKey(10);
             }
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts >= 12000){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts >= 2000){
                 scene++;
             }
             break;
