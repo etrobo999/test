@@ -199,7 +199,7 @@ void* contour_thread_func(void* arg) {
     sigaddset(&set, SIGPOLL);  // その他のカーネルシグナルをマスク
     sigaddset(&set, SIGALRM);  // タイマーシグナルをマスク
     pthread_sigmask(SIG_BLOCK, &set, NULL);
-    int min_area = 2500;
+    int min_area = 2000;
 
     while (true) {
         // contour_var が通知されるまで待機
@@ -667,7 +667,7 @@ void* main_thread_func(void* arg) {
             tie(cX, cY) = Follow_2(morphed);
             PIDMotorR(Bcurvetpid);
             console_PL();
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts >= 1500){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts <= 1500){
                 {
                     motor_cntrol(0,0);
                     set_speed(50.0);
@@ -802,7 +802,7 @@ void* main_thread_func(void* arg) {
             motor_cntrol(-50,-50);
             console_PL();
             if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) <= 30){
-                scene = _scene;
+                scene = _scene;j
             }
             break;
         case 53:
@@ -1159,7 +1159,7 @@ static std::tuple<int, int> Follow_3(const Mat& morphed) {
 
     std::cout << "Number of contours found: " << contours.size() << std::endl;
 
-    const double min_contour_area = 2500.0; // ピクセル数
+    const double min_contour_area = 2000.0; // ピクセル数
 
     // 最大の輪郭と2番目に大きい輪郭を見つける
     std::vector<cv::Point>* largest_contour = nullptr;
