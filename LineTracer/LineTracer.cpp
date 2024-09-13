@@ -374,7 +374,7 @@ void* main_thread_func(void* arg) {
                 }
             while (true) {
                 ev3_gyro_sensor_reset(gyro_sensor);
-                if (v3_gyro_sensor_get_angle(gyro_sensor) == 0) {
+                if (ev3_gyro_sensor_get_angle(gyro_sensor) == 0) {
                     break;
                 }
                 cv::waitKey(30);
@@ -420,7 +420,7 @@ void* main_thread_func(void* arg) {
                 }
             while (true) {
                 ev3_gyro_sensor_reset(gyro_sensor);
-                if (v3_gyro_sensor_get_angle(gyro_sensor) == 0) {
+                if (ev3_gyro_sensor_get_angle(gyro_sensor) == 0) {
                     break;
                 }
                 cv::waitKey(30);
