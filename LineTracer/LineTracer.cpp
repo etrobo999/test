@@ -310,7 +310,8 @@ void* main_thread_func(void* arg) {
     }
 
     // モータのキャリブレーション
-/*    {
+///*
+    {
         ev3_motor_reset_counts(left_motor);
         ev3_motor_reset_counts(right_motor);
         motor_cntrol(50, 50);  // 両方のモータを同じ速度で動かす
@@ -327,7 +328,7 @@ void* main_thread_func(void* arg) {
         }
         std::cout << "Calibration complete. Left factor: " << left_motor_factor << ", Right factor: " << right_motor_factor << std::endl;
     }
-*/
+//*/
     bool ext = true;
 
     while (ext) {
@@ -678,6 +679,8 @@ void* main_thread_func(void* arg) {
                 if ((_left_motor_counts + _right_motor_counts) - (ev3_motor_get_counts(right_motor) + ev3_motor_get_counts(left_motor) >= 1200)){
                     scene++;
                 }
+                cv::waitKey(30);
+                console_PL();
             }
             break;
         case 37:
@@ -723,6 +726,8 @@ void* main_thread_func(void* arg) {
                 if ((_left_motor_counts + _right_motor_counts) - (ev3_motor_get_counts(right_motor) + ev3_motor_get_counts(left_motor) >= 1000)){
                     scene++;
                 }
+                cv::waitKey(30);
+                console_PL();
             }
             break;
         case 40:
