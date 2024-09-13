@@ -647,7 +647,7 @@ void* main_thread_func(void* arg) {
             while (contour_ready) {
                 cv::waitKey(10);
             }
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts = 4000){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts >= 4000){
                 scene++;
             }
             break;
@@ -692,7 +692,7 @@ void* main_thread_func(void* arg) {
             while (contour_ready) {
                 cv::waitKey(10);
             }
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts = 7000){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts >= 7000){
                 scene++;
             }
             break;
@@ -737,7 +737,7 @@ void* main_thread_func(void* arg) {
             while (contour_ready) {
                 cv::waitKey(10);
             }
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts = 4000){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts >= 12000){
                 scene++;
             }
             break;
