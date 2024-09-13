@@ -533,7 +533,7 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             morphed1 = Morphology(mask1); //青色モル
             tie(cX, cY) = Follow_1(morphed);
-            PIDMotor(Mcurvetpid);
+            PIDMotor(Bcurvetpid);
             if(detectCheck(morphed1,2000)){
                 scene++;
             }
@@ -551,7 +551,7 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             morphed1 = Morphology(mask1); //青色モル
             tie(cX, cY) = Follow_1(morphed);
-            PIDMotor(Mcurvetpid);
+            PIDMotor(Bcurvetpid);
             if(detectCheck(morphed1,2000)){
                 scene++;
             }
@@ -569,9 +569,10 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             morphed1 = Morphology(mask1); //青色モル
             tie(cX, cY) = Follow_1(morphed);
-            PIDMotor(Scurvetpid);
+            PIDMotor(Bcurvetpid);
             if(detectCheck(morphed1,2000)){
-                scene++;
+                motor_cntrol(0,0);
+                scene = 31;
             }
             console_PL();
             break;
@@ -1416,29 +1417,32 @@ void set_cpu_affinity(int core_id) {
 // 右モータのリセット関数
 void reset_right_motor() {
     while (true) {
-        if (ev3_motor_reset_counts(right_motor) == 0) {
+        ev3_motor_reset_counts(right_motor);
+        if (ev3_motor_get_counts(right_motor) == 0) {
             break;
         }
-        cv::waitKey(20);  // 20ms待機
+        cv::waitKey(30);  // 30ms待機
     }
 }
 
 // 左モータのリセット関数
 void reset_left_motor() {
     while (true) {
-        if (ev3_motor_reset_counts(left_motor) == 0) {
+        ev3_motor_reset_counts(left_motor);
+        if (ev3_motor_get_counts(left_motor) == 0) {
             break;
         }
-        cv::waitKey(20);  // 20ms待機
+        cv::waitKey(30);  // 30ms待機
     }
 }
 
 // ジャイロセンサーのリセット関数
 void reset_gyro_sensor() {
     while (true) {
-        if (ev3_gyro_sensor_reset(gyro_sensor) == 0) {
+        ev3_gyro_sensor_reset(gyro_sensor);
+        if (ev3_gyro_sensor_get_angle(gyro_sensor) == 0) {
             break;
         }
-        cv::waitKey(20);  // 20ms待機
+        cv::waitKey(30);  // 30ms待機
     }
 }
