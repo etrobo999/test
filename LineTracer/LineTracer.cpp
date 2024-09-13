@@ -901,11 +901,11 @@ static Mat Morphology(const Mat& mask) {
     return morphed;  // モルフォロジー変換後の画像を返す
 }
 
-static Mat Morphology2(Mat& mask) {
+static Mat Morphology2(const Mat& mask) {
     Mat morphed;
     Mat kernel = getStructuringElement(MORPH_RECT, Size(5, 5));
-    bitwise_not(mask, mask);
     morphologyEx(mask, morphed, MORPH_OPEN, kernel);
+    bitwise_not(morphed, morphed);
     dilate(morphed, morphed, kernel);
     morphologyEx(morphed, morphed, MORPH_CLOSE, kernel);   
     bitwise_not(morphed, morphed); 
