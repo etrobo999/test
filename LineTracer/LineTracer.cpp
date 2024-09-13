@@ -630,7 +630,7 @@ void* main_thread_func(void* arg) {
             break;
         case 33:
             motor_cntrol(50,50);
-            if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1200) {
+            if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1300) {
                 {
                     set_speed(45.0);
                     scene++;
@@ -667,7 +667,7 @@ void* main_thread_func(void* arg) {
             tie(cX, cY) = Follow_2(morphed);
             PIDMotor(Bcurvetpid);
             console_PL();
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts <= 1200){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts <= 1300){
                 {
                     motor_cntrol(0,0);
                     set_speed(45.0);
@@ -1160,7 +1160,7 @@ static std::tuple<int, int> Follow_3(const Mat& morphed) {
 
     std::cout << "Number of contours found: " << contours.size() << std::endl;
 
-    const double min_contour_area = 2000.0; // ピクセル数
+    const double min_contour_area = 2500.0; // ピクセル数
 
     // 最大の輪郭と2番目に大きい輪郭を見つける
     std::vector<cv::Point>* largest_contour = nullptr;
@@ -1174,7 +1174,7 @@ static std::tuple<int, int> Follow_3(const Mat& morphed) {
         std::vector<cv::Point> approx;
 
         // ポリゴン近似で輪郭を四角形として認識できるか確認
-        approxPolyDP(contour, approx, 0.025 * arcLength(contour, true), true);
+        approxPolyDP(contour, approx, 0.02 * arcLength(contour, true), true);
 
         // 四角形（頂点が4つ）のみを対象とする
         if (approx.size() == 4 && area >= min_contour_area) {
