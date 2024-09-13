@@ -612,7 +612,7 @@ void* main_thread_func(void* arg) {
         case 32:
             gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
             if (gyro_counts < 25) {
-            motor_cntrol(50,-50);
+            motor_cntrol(60,-50);
             } else if (gyro_counts >= 25) {
                 {
                     motor_cntrol(0,0);
@@ -662,8 +662,8 @@ void* main_thread_func(void* arg) {
             } else if (gyro_counts >= 80){
                 {
                     motor_cntrol(0,0);
-                    _left_motor_counts = ev3_motor_get_counts(left_motor);
-                    _right_motor_counts = ev3_motor_get_counts(right_motor);
+                    reset_left_motor();
+                    reset_right_motor();
                     scene++;
                 }
                 
@@ -673,11 +673,13 @@ void* main_thread_func(void* arg) {
             break;
         case 36:
             motor_cntrol(-50,-50);
-            if ((_left_motor_counts + _right_motor_counts) - (ev3_motor_get_counts(right_motor) + ev3_motor_get_counts(left_motor)) >= 600){
+            if (ev3_motor_get_counts(right_motor) + ev3_motor_get_counts(left_motor) >= 600){
                 {
+                    motor_cntrol(0,0);
+                    left_motor_counts = 0;
+                    right_motor_counts = 0;
                     reset_left_motor();
                     reset_right_motor();
-                    motor_cntrol(0,0);
                     scene++;
                 }
             }
@@ -711,8 +713,8 @@ void* main_thread_func(void* arg) {
             } else if (gyro_counts >= 80){
                 {
                     motor_cntrol(0,0);
-                    _left_motor_counts = ev3_motor_get_counts(left_motor);
-                    _right_motor_counts = ev3_motor_get_counts(right_motor);
+                    reset_left_motor();
+                    reset_right_motor();
                     scene++;
                 }
                 
@@ -722,8 +724,10 @@ void* main_thread_func(void* arg) {
             break;
         case 39:
             motor_cntrol(-50,-50);
-            if ((_left_motor_counts + _right_motor_counts) - (ev3_motor_get_counts(right_motor) + ev3_motor_get_counts(left_motor)) >= 600){
+            if (ev3_motor_get_counts(right_motor) + ev3_motor_get_counts(left_motor) >= 600){
                 {
+                    left_motor_counts = 0;
+                    right_motor_counts = 0;
                     reset_left_motor();
                     reset_right_motor();
                     motor_cntrol(0,0);
