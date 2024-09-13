@@ -199,7 +199,7 @@ void* contour_thread_func(void* arg) {
     sigaddset(&set, SIGPOLL);  // その他のカーネルシグナルをマスク
     sigaddset(&set, SIGALRM);  // タイマーシグナルをマスク
     pthread_sigmask(SIG_BLOCK, &set, NULL);
-    int min_area = 2000;
+    int min_area = 1500;
 
     while (true) {
         // contour_var が通知されるまで待機
@@ -211,7 +211,7 @@ void* contour_thread_func(void* arg) {
 
         // 輪郭検知処理
         bool is_right_side, is_left_side;
-        std::tie(is_right_side, is_left_side) = detectRectangleAndPosition(morphed1, min_area);
+        std::tie(is_right_side, is_left_side) = detectRectangleAndPosition(mask1, min_area);
         // 左右の検知結果によってシーンを更新
         if (is_right_side) {
             follow = false;
@@ -665,7 +665,7 @@ void* main_thread_func(void* arg) {
             //bitwise_not(mask2, mask2);//白黒反転
             morphed = Morphology2(mask2);//白色モル
             tie(cX, cY) = Follow_2(morphed);
-            PIDMotorR(Bcurvetpid);
+            PIDMotor(Bcurvetpid);
             console_PL();
             if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts <= 1500){
                 {
