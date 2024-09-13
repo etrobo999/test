@@ -18,7 +18,7 @@ raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
 PID straightpid = {0.08, 0, 0.005, 0, 0}; //ストレートPID
-PID Bcurvetpid = {0.13, 0, 0, 0, 0}; //急カーブPID
+PID Bcurvetpid = {0.14, 0, 0, 0, 0}; //急カーブPID
 PID Mcurvetpid = {0.11, 0.004, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.10, 0.002, 0, 0, 0}; //ゆっくりカーブPID
 
@@ -611,14 +611,13 @@ void* main_thread_func(void* arg) {
             break;
         case 32:
             gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-            if (gyro_counts < 27) {
+            if (gyro_counts < 25) {
                 while(true){
                     motor_cntrol(50,-50);
-                    if (gyro_counts >= 27) {
+                    if (gyro_counts >= 25) {
                         motor_cntrol(0,0);
                         break;
                     }
-                    cv::waitKey(30);
                     console_PL();
                     gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
                     std::cout << "gyro " << gyro_counts << std::endl;
@@ -660,15 +659,14 @@ void* main_thread_func(void* arg) {
             motor_cntrol(0,0);
             reset_gyro_sensor();
             gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-            if (gyro_counts < 90){
+            if (gyro_counts < 80){
                 motor_cntrol(50,-50);
                 while (true) {
-                    if (gyro_counts >= 90){
+                    if (gyro_counts >= 80){
                         motor_cntrol(0,0);
                         scene++;
                         break;
                     }
-                    cv::waitKey(30);
                     gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
                     console_PL();
                     std::cout << "gyro " << gyro_counts<< std::endl;
@@ -707,15 +705,14 @@ void* main_thread_func(void* arg) {
             motor_cntrol(0,0);
             reset_gyro_sensor();
             gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-            if (gyro_counts < 90){
+            if (gyro_counts < 80){
                 motor_cntrol(50,-50);
                 while (true) {
-                    if (gyro_counts >= 90){
+                    if (gyro_counts >= 80){
                         motor_cntrol(0,0);
                         scene++;
                         break;
                     }
-                    cv::waitKey(30);
                     gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
                     console_PL();
                     std::cout << "gyro " << gyro_counts<< std::endl;
@@ -754,15 +751,14 @@ void* main_thread_func(void* arg) {
             motor_cntrol(0,0);
             reset_gyro_sensor();
             gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-            if (gyro_counts < 90){
+            if (gyro_counts < 80){
                 motor_cntrol(50,-50);
                 while (true) {
-                    if (gyro_counts >= 90){
+                    if (gyro_counts >= 80){
                         motor_cntrol(0,0);
                         scene++;
                         break;
                     }
-                    cv::waitKey(30);
                     gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
                     console_PL();
                     std::cout << "gyro " << gyro_counts<< std::endl;
@@ -1152,7 +1148,7 @@ std::tuple<bool, bool> detectRectangleAndPosition(const Mat& morphed, int min_ar
         if (area >= min_area) {
             // 輪郭をポリゴン近似し、頂点数を確認する
             std::vector<cv::Point> approx;
-            approxPolyDP(contour, approx, 0.02 * arcLength(contour, true), true);
+            approxPolyDP(contour, approx, 0.015 * arcLength(contour, true), true);
 
             // 頂点の数が4つであれば四角形とみなす
             if (approx.size() == 4) {
@@ -1199,7 +1195,7 @@ static std::tuple<int, int> Follow_3(const Mat& morphed) {
         std::vector<cv::Point> approx;
 
         // ポリゴン近似で輪郭を四角形として認識できるか確認
-        approxPolyDP(contour, approx, 0.02 * arcLength(contour, true), true);
+        approxPolyDP(contour, approx, 0.015 * arcLength(contour, true), true);
 
         // 四角形（頂点が4つ）のみを対象とする
         if (approx.size() == 4 && area >= min_contour_area) {
