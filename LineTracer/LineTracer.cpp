@@ -413,8 +413,11 @@ void* main_thread_func(void* arg) {
             break;
         case 5:
             std::cout << ev3_gyro_sensor_reset(gyro_sensor) << std::endl;
+            cv::waitKey(30);
             std::cout << ev3_motor_reset_counts(right_motor) << std::endl;
+            cv::waitKey(30);
             std::cout << ev3_motor_reset_counts(left_motor) << std::endl;
+            cv::waitKey(30);
             break;
         case 6:
         case 7:
