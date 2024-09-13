@@ -650,82 +650,55 @@ void* main_thread_func(void* arg) {
             if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts >= 4200){
                 {
                     motor_cntrol(0,0);
-                    reset_gyro_sensor();
+                    set_speed(-50.0);
                     scene++;
                 }
             }
             break;
         case 35:
-            gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-            if (gyro_counts < 80){
-                motor_cntrol(50,-50);
-            } else if (gyro_counts >= 80){
+            tie(rectframe, hsv) = RectFrame(frame);
+            createMask(hsv, "blue_white"); //Mask,Mask1
+            //bitwise_not(mask2, mask2);//白黒反転
+            morphed = Morphology2(mask2);//白色モル
+            tie(cX, cY) = Follow_2(morphed);
+            PIDMotorR(Bcurvetpid);
+            console_PL();
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts >= 1500){
                 {
                     motor_cntrol(0,0);
-                    reset_left_motor();
-                    reset_right_motor();
-                    left_motor_counts = 0;
-                    right_motor_counts = 0;
+                    set_speed(50.0);
+                    reset_gyro_sensor();
                     scene++;
                 }
-                
             }
-            console_PL();
-            std::cout << "gyro " << gyro_counts<< std::endl;
             break;
         case 36:
-            tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "blue_white"); //Mask,Mask1
-            contour_ready = true;
-            contour_var.notify_one();
-            //bitwise_not(mask2, mask2);//白黒反転
-            morphed = Morphology2(mask2);//白色モル
-            tie(cX, cY) = Follow_2(morphed);
-            PIDMotor(Bcurvetpid);
-            console_PL();
-            while (contour_ready) {
-                cv::waitKey(10);
-            }
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts >= 1600){
-                {
-                    motor_cntrol(0,0);
-                    reset_gyro_sensor();
-                    scene++;
-                }
-            }
-            break;
-        case 37:
             gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-            if (gyro_counts < 80){
+            if (gyro_counts < 85){
                 motor_cntrol(50,-50);
-            } else if (gyro_counts >= 80){
+            } else if (gyro_counts >= 85){
                 {
                     motor_cntrol(0,0);
                     reset_left_motor();
                     reset_right_motor();
                     left_motor_counts = 0;
                     right_motor_counts = 0;
+                    frame_center = 100;
                     scene++;
                 }
-                
             }
             console_PL();
             std::cout << "gyro " << gyro_counts<< std::endl;
             break;
-        case 38:
-            tie(rectframe, hsv) = RectFrame(frame);
+        case 37:
+             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "blue_white"); //Mask,Mask1
-            contour_ready = true;
-            contour_var.notify_one();
-            //bitwise_not(mask2, mask2);//白黒反転
             morphed = Morphology2(mask2);//白色モル
+            bitwise_not(morphed, morphed);
             tie(cX, cY) = Follow_2(morphed);
             PIDMotor(Bcurvetpid);
             console_PL();
-            while (contour_ready) {
-                cv::waitKey(10);
-            }
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts >= 1600){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1800){
                 {
                     motor_cntrol(0,0);
                     reset_gyro_sensor();
@@ -733,7 +706,7 @@ void* main_thread_func(void* arg) {
                 }
             }
             break;
-        case 39:
+        case 38:
             gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
             if (gyro_counts > -80){
                 motor_cntrol(-50,50);
@@ -744,12 +717,34 @@ void* main_thread_func(void* arg) {
                     reset_right_motor();
                     left_motor_counts = 0;
                     right_motor_counts = 0;
+                    frame_center = 320;
                     scene++;
                 }
                 
             }
             console_PL();
             std::cout << "gyro " << gyro_counts<< std::endl;
+            break;
+        case 39:
+            tie(rectframe, hsv) = RectFrame(frame);
+            createMask(hsv, "blue_white"); //Mask,Mask1
+            contour_ready = true;
+            contour_var.notify_one();
+            //bitwise_not(mask2, mask2);//白黒反転
+            morphed = Morphology2(mask2);//白色モル
+            tie(cX, cY) = Follow_2(morphed);
+            PIDMotor(Bcurvetpid);
+            console_PL();
+            while (contour_ready) {
+                cv::waitKey(10);
+            }
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts >= 1600){
+                {
+                    motor_cntrol(0,0);
+                    set_speed(-50.0);
+                    scene++;
+                }
+            }
             break;
         case 40:
             break;
@@ -1138,7 +1133,7 @@ std::tuple<bool, bool> detectRectangleAndPosition(const Mat& morphed, int min_ar
         if (area >= min_area) {
             // 輪郭をポリゴン近似し、頂点数を確認する
             std::vector<cv::Point> approx;
-            approxPolyDP(contour, approx, 0.015 * arcLength(contour, true), true);
+            approxPolyDP(contour, approx, 0.019 * arcLength(contour, true), true);
 
             // 頂点の数が4つであれば四角形とみなす
             if (approx.size() == 4) {
@@ -1185,7 +1180,7 @@ static std::tuple<int, int> Follow_3(const Mat& morphed) {
         std::vector<cv::Point> approx;
 
         // ポリゴン近似で輪郭を四角形として認識できるか確認
-        approxPolyDP(contour, approx, 0.015 * arcLength(contour, true), true);
+        approxPolyDP(contour, approx, 0.019 * arcLength(contour, true), true);
 
         // 四角形（頂点が4つ）のみを対象とする
         if (approx.size() == 4 && area >= min_contour_area) {
@@ -1259,6 +1254,36 @@ static void PIDMotor(PID &pid) {
         // 左に曲がる場合、右モータを減速し、左モータを加速
         left_motor_speed -= control;
         right_motor_speed += control;
+    }
+
+    // 停止条件が満たされた場合、モータを停止
+    if (stop_count >= 30) {
+        left_motor_speed = 0.0;
+        right_motor_speed = 0.0;
+}
+    // モータ速度を表示
+    std::cout << "Left Motor: " << left_motor_speed << ", Right Motor: " << right_motor_speed << std::endl;
+    motor_cntrol(left_motor_speed, right_motor_speed);
+
+}
+
+static void PIDMotorR(PID &pid) {
+    // エラーベースのPID制御
+    double error = frame_center - cX;
+    double control = pid_control(pid, error);
+
+    // モータ速度の初期化
+    double left_motor_speed = left_speed;
+    double right_motor_speed = right_speed;
+
+    if (control > 0) {
+        // 右に曲がる場合、左モータを減速し、右モータを加速
+        left_motor_speed += control;
+        right_motor_speed -= control;
+    } else if (control < 0) {
+        // 左に曲がる場合、右モータを減速し、左モータを加速
+        left_motor_speed += control;
+        right_motor_speed -= control;
     }
 
     // 停止条件が満たされた場合、モータを停止
