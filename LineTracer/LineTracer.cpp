@@ -1288,7 +1288,7 @@ static void motor_cntrol(double left_motor_speed , double right_motor_speed){
     // 実際のモータ制御関数をここで呼び出す
     left_motor_speed = left_motor_speed * left_motor_factor;
     right_motor_speed = right_motor_speed * right_motor_factor;
-/*    while (true) {
+    while (true) {
         if (ev3_motor_set_power(left_motor, left_motor_speed) == 0) {
             break;
         }
@@ -1300,7 +1300,7 @@ static void motor_cntrol(double left_motor_speed , double right_motor_speed){
         }
         cv::waitKey(20);  // 20ms待機
     }
-*/    return;
+    return;
 }
 
 /* 青検知 */
