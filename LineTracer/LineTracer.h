@@ -36,6 +36,9 @@ static void set_speed(double BASE_SPEED);
 void console_PL();
 static bool detectCheck(const cv::Mat& morphed, int min_area);                    //輪郭検知関数
 void set_cpu_affinity(int core_id) ;
+void reset_right_motor();
+void reset_left_motor();
+void reset_gyro_sensor();
 
 extern std::chrono::high_resolution_clock::time_point start_time1;                //経過時間の箱1
 extern std::chrono::high_resolution_clock::time_point start_time2;                //経過時間の箱2

@@ -56,7 +56,7 @@ std::condition_variable contour_var;
 Mat orizin_frame, frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, morphed2, result_frame;
 
 /*使用する変数の初期化*/
-uint8_t scene = 3;
+uint8_t scene = 5;
 uint8_t _scene = 0;
 int frame_center = 220;
 int cX = 0;
@@ -215,17 +215,17 @@ void* contour_thread_func(void* arg) {
         // 左右の検知結果によってシーンを更新
         if (is_right_side) {
             follow = false;
-            left_motor_counts = ev3_motor_get_counts(left_motor);
-            right_motor_counts = ev3_motor_get_counts(right_motor);
-            ev3_gyro_sensor_reset(gyro_sensor);
+            _left_motor_counts = ev3_motor_get_counts(left_motor);
+            _right_motor_counts = ev3_motor_get_counts(right_motor);
+            _gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
             cv::waitKey(30);
             _scene = scene; 
             //scene = 38;
         } else if (is_left_side) {
             follow = true;
-            left_motor_counts = ev3_motor_get_counts(left_motor);
-            right_motor_counts = ev3_motor_get_counts(right_motor);
-            ev3_gyro_sensor_reset(gyro_sensor);
+            _left_motor_counts = ev3_motor_get_counts(left_motor);
+            _right_motor_counts = ev3_motor_get_counts(right_motor);
+            _gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
             cv::waitKey(30);
             _scene = scene; 
             scene = 51;
@@ -358,27 +358,9 @@ void* main_thread_func(void* arg) {
             //std::cout << ev3_touch_sensor_is_pressed(touch_sensor) << std::endl;
             break;
         case 2:
-            while (true) {
-                ev3_motor_reset_counts(right_motor);
-                if (ev3_motor_reset_counts(right_motor) == 0) {
-                    break;
-                }
-                cv::waitKey(30);
-                }
-            while (true) {
-                ev3_motor_reset_counts(left_motor);
-                if (ev3_motor_get_counts(left_motor) == 0) {
-                    break;
-                }
-                cv::waitKey(30);
-                }
-            while (true) {
-                ev3_gyro_sensor_reset(gyro_sensor);
-                if (ev3_gyro_sensor_get_angle(gyro_sensor) == 0) {
-                    break;
-                }
-                cv::waitKey(30);
-                }
+            reset_left_motor();
+            reset_right_motor();
+            reset_gyro_sensor();
             console_PL();
             std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
             scene = 11;
@@ -430,6 +412,10 @@ void* main_thread_func(void* arg) {
             scene = 21;
             break;
         case 5:
+            std::cout << ev3_gyro_sensor_reset(gyro_sensor) << std::endl;
+            std::cout << ev3_motor_reset_counts(right_motor) << std::endl;
+            std::cout << ev3_motor_reset_counts(left_motor) << std::endl;
+            break;
         case 6:
         case 7:
         case 8:
@@ -674,8 +660,8 @@ void* main_thread_func(void* arg) {
             createMask(hsv, "blue_white"); //Mask,Mask1
             contour_ready = true;
             contour_var.notify_one();
-            bitwise_not(mask2, mask2);//白黒反転
-            morphed = Morphology(mask2);//白色モル
+            //bitwise_not(mask2, mask2);//白黒反転
+            morphed = Morphology2(mask2);//白色モル
             tie(cX, cY) = Follow_2(morphed);
             console_PL();
             while (contour_ready) {
@@ -1334,5 +1320,38 @@ void set_cpu_affinity(int core_id) {
         std::cerr << "Error setting CPU affinity for core " << core_id << std::endl;
     } else {
         std::cout << "CPU affinity set to core " << core_id << std::endl;
+    }
+}
+
+// 右モータのリセット関数
+void reset_right_motor() {
+    while (true) {
+        ev3_motor_reset_counts(right_motor);
+        if (ev3_motor_get_counts(right_motor) == 0) {
+            break;
+        }
+        cv::waitKey(30);  // 30ms待機
+    }
+}
+
+// 左モータのリセット関数
+void reset_left_motor() {
+    while (true) {
+        ev3_motor_reset_counts(left_motor);
+        if (ev3_motor_get_counts(left_motor) == 0) {
+            break;
+        }
+        cv::waitKey(30);  // 30ms待機
+    }
+}
+
+// ジャイロセンサーのリセット関数
+void reset_gyro_sensor() {
+    while (true) {
+        ev3_gyro_sensor_reset(gyro_sensor);
+        if (ev3_gyro_sensor_get_angle(gyro_sensor) == 0) {
+            break;
+        }
+        cv::waitKey(30);  // 30ms待機
     }
 }
