@@ -61,7 +61,7 @@ uint8_t _scene = 0;
 int frame_center = 220;
 int cX = 0;
 int cY = 0;
-double left_motor_factor = 1.08263;
+double left_motor_factor = 1.07263;
 double right_motor_factor = 1.0;
 double left_speed = 0.0;
 double right_speed = 0.0;
@@ -612,32 +612,27 @@ void* main_thread_func(void* arg) {
         case 32:
             gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
             if (gyro_counts < 25) {
-                while(true){
-                    motor_cntrol(50,-50);
-                    if (gyro_counts >= 25) {
-                        motor_cntrol(0,0);
-                        break;
-                    }
-                    console_PL();
-                    gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-                    std::cout << "gyro " << gyro_counts << std::endl;
+            motor_cntrol(50,-50);
+            } else if (gyro_counts >= 25) {
+                {
+                    motor_cntrol(0,0);
+                    reset_left_motor();
+                    reset_right_motor();
+                    scene++;
                 }
             }
-            scene++;
+            console_PL();
+            std::cout << "gyro " << gyro_counts << std::endl;
             break;
         case 33:
-            reset_left_motor();
-            reset_right_motor();
             motor_cntrol(50,50);
-            while(true){
-                if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1800) {
+            if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1800) {
+                {
                     set_speed(50.0);
                     scene++;
-                    break;
                 }
-                cv::waitKey(30);
-                console_PL();
             }
+            console_PL();
             break;
         case 34:
             tie(rectframe, hsv) = RectFrame(frame);
@@ -652,41 +647,40 @@ void* main_thread_func(void* arg) {
                 cv::waitKey(10);
             }
             if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts >= 4000){
-                scene++;
-            }
-            break;
-        case 35:
-            motor_cntrol(0,0);
-            reset_gyro_sensor();
-            gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-            if (gyro_counts < 80){
-                motor_cntrol(50,-50);
-                while (true) {
-                    if (gyro_counts >= 80){
-                        motor_cntrol(0,0);
-                        scene++;
-                        break;
-                    }
-                    gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-                    console_PL();
-                    std::cout << "gyro " << gyro_counts<< std::endl;
+                {
+                    motor_cntrol(0,0);
+                    reset_gyro_sensor();
+                    scene++;
                 }
             }
             break;
+        case 35:
+            gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
+            if (gyro_counts < 80){
+                motor_cntrol(50,-50);
+            } else if (gyro_counts >= 80){
+                {
+                    motor_cntrol(0,0);
+                    _left_motor_counts = ev3_motor_get_counts(left_motor);
+                    _right_motor_counts = ev3_motor_get_counts(right_motor);
+                    scene++;
+                }
+                
+            }
+            console_PL();
+            std::cout << "gyro " << gyro_counts<< std::endl;
+            break;
         case 36:
-            _left_motor_counts = ev3_motor_get_counts(left_motor);
-            _right_motor_counts = ev3_motor_get_counts(right_motor);
             motor_cntrol(-50,-50);
-            while (true){
-                if ((_left_motor_counts + _right_motor_counts) - (ev3_motor_get_counts(right_motor) + ev3_motor_get_counts(left_motor)) >= 1200){
+            if ((_left_motor_counts + _right_motor_counts) - (ev3_motor_get_counts(right_motor) + ev3_motor_get_counts(left_motor)) >= 1200){
+                {
                     reset_left_motor();
                     reset_right_motor();
                     motor_cntrol(0,0);
                     scene++;
                 }
-                cv::waitKey(30);
-                console_PL();
             }
+            console_PL();
             break;
         case 37:
             tie(rectframe, hsv) = RectFrame(frame);
@@ -701,41 +695,40 @@ void* main_thread_func(void* arg) {
                 cv::waitKey(10);
             }
             if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts >= 2000){
-                scene++;
-            }
-            break;
-        case 38:
-            motor_cntrol(0,0);
-            reset_gyro_sensor();
-            gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-            if (gyro_counts < 80){
-                motor_cntrol(50,-50);
-                while (true) {
-                    if (gyro_counts >= 80){
-                        motor_cntrol(0,0);
-                        scene++;
-                        break;
-                    }
-                    gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-                    console_PL();
-                    std::cout << "gyro " << gyro_counts<< std::endl;
+                {
+                    motor_cntrol(0,0);
+                    reset_gyro_sensor();
+                    scene++;
                 }
             }
             break;
+        case 38:
+            gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
+            if (gyro_counts < 80){
+                motor_cntrol(50,-50);
+            } else if (gyro_counts >= 80){
+                {
+                    motor_cntrol(0,0);
+                    _left_motor_counts = ev3_motor_get_counts(left_motor);
+                    _right_motor_counts = ev3_motor_get_counts(right_motor);
+                    scene++;
+                }
+                
+            }
+            console_PL();
+            std::cout << "gyro " << gyro_counts<< std::endl;
+            break;
         case 39:
-            _left_motor_counts = ev3_motor_get_counts(left_motor);
-            _right_motor_counts = ev3_motor_get_counts(right_motor);
             motor_cntrol(-50,-50);
-            while (true){
-                if ((_left_motor_counts + _right_motor_counts) - (ev3_motor_get_counts(right_motor) + ev3_motor_get_counts(left_motor)) >= 1200){
+            if ((_left_motor_counts + _right_motor_counts) - (ev3_motor_get_counts(right_motor) + ev3_motor_get_counts(left_motor)) >= 1200){
+                {
                     reset_left_motor();
                     reset_right_motor();
                     motor_cntrol(0,0);
                     scene++;
                 }
-                cv::waitKey(30);
-                console_PL();
             }
+            console_PL();
             break;
         case 40:
             tie(rectframe, hsv) = RectFrame(frame);
@@ -750,26 +743,28 @@ void* main_thread_func(void* arg) {
                 cv::waitKey(10);
             }
             if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts >= 2000){
-                scene++;
+                {
+                    motor_cntrol(0,0);
+                    reset_gyro_sensor();
+                    scene++;
+                }
             }
             break;
         case 41:
-            motor_cntrol(0,0);
-            reset_gyro_sensor();
             gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
             if (gyro_counts < 80){
                 motor_cntrol(50,-50);
-                while (true) {
-                    if (gyro_counts >= 80){
-                        motor_cntrol(0,0);
-                        scene++;
-                        break;
-                    }
-                    gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-                    console_PL();
-                    std::cout << "gyro " << gyro_counts<< std::endl;
+            } else if (gyro_counts >= 80){
+                {
+                    motor_cntrol(0,0);
+                    _left_motor_counts = ev3_motor_get_counts(left_motor);
+                    _right_motor_counts = ev3_motor_get_counts(right_motor);
+                    scene++;
                 }
+                
             }
+            console_PL();
+            std::cout << "gyro " << gyro_counts<< std::endl;
             break;
         case 42:
             std::cout << "Case 42" << std::endl;
