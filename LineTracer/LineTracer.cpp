@@ -117,7 +117,7 @@ void* opencv_thread_func(void* arg) {
         }
 
         while (true) {
-            startTimer(2);
+            //startTimer(2);
             Camera.grab();
             Mat temp_frame;
             Camera.retrieve(temp_frame);
@@ -141,7 +141,7 @@ void* opencv_thread_func(void* arg) {
                 resetting = false;
                 break;  // 内側のループを抜けて再初期化へ
             }
-            cout << "camera "  << getTime(2) <<endl;
+            //cout << "camera "  << getTime(2) <<endl;
         }
     }
 
@@ -611,9 +611,9 @@ void* main_thread_func(void* arg) {
             break;
         case 32:
             gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-            if (gyro_counts < 25) {
+            if (gyro_counts < 23) {
             motor_cntrol(60,-50);
-            } else if (gyro_counts >= 25) {
+            } else if (gyro_counts >= 23) {
                 {
                     motor_cntrol(0,0);
                     reset_left_motor();
@@ -626,7 +626,7 @@ void* main_thread_func(void* arg) {
             break;
         case 33:
             motor_cntrol(50,50);
-            if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1800) {
+            if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1500) {
                 {
                     set_speed(50.0);
                     scene++;
@@ -647,7 +647,7 @@ void* main_thread_func(void* arg) {
             while (contour_ready) {
                 cv::waitKey(10);
             }
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts >= 4000){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts >= 4200){
                 {
                     motor_cntrol(0,0);
                     reset_gyro_sensor();
@@ -686,7 +686,7 @@ void* main_thread_func(void* arg) {
             while (contour_ready) {
                 cv::waitKey(10);
             }
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts >= 1400){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts >= 1600){
                 {
                     motor_cntrol(0,0);
                     reset_gyro_sensor();
@@ -725,7 +725,7 @@ void* main_thread_func(void* arg) {
             while (contour_ready) {
                 cv::waitKey(10);
             }
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts >= 1400){
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts >= 1600){
                 {
                     motor_cntrol(0,0);
                     reset_gyro_sensor();
