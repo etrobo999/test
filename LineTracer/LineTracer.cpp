@@ -71,8 +71,10 @@ bool display_show = true;
 bool touch_sensor_bool = false;
 int left_motor_counts = 0;
 int right_motor_counts = 0;
+int _left_motor_counts = 0;
+int _right_motor_counts = 0;
 int16_t gyro_counts = 0;
-int16_t gyro_counts2 = 0;
+int16_t _gyro_counts = 0;
 
 // 追従方向の変数[true = 左] [false = 右]
 bool follow = true;
@@ -356,12 +358,27 @@ void* main_thread_func(void* arg) {
             //std::cout << ev3_touch_sensor_is_pressed(touch_sensor) << std::endl;
             break;
         case 2:
-            ev3_motor_reset_counts(left_motor);
-            cv::waitKey(30);
-            ev3_motor_reset_counts(right_motor);
-            cv::waitKey(30);
-            ev3_gyro_sensor_reset(gyro_sensor);
-            cv::waitKey(30);
+            while (true) {
+                ev3_motor_reset_counts(right_motor);
+                if (ev3_motor_reset_counts(right_motor) == 0) {
+                    break;
+                }
+                cv::waitKey(30);
+                }
+            while (true) {
+                ev3_motor_reset_counts(left_motor);
+                if (ev3_motor_get_counts(left_motor) == 0) {
+                    break;
+                }
+                cv::waitKey(30);
+                }
+            while (true) {
+                ev3_gyro_sensor_reset(gyro_sensor);
+                if (v3_gyro_sensor_get_angle(gyro_sensor) == 0) {
+                    break;
+                }
+                cv::waitKey(30);
+                }
             console_PL();
             std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
             scene = 11;
@@ -371,7 +388,7 @@ void* main_thread_func(void* arg) {
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "white");
             //bitwise_not(mask, mask);
-            morphed = Morphology(mask);
+            morphed = Morphology2(mask);
             tie(cX, cY) = Follow_2(morphed);
             console_PL();
             cout << getTime(1) << endl;
@@ -387,12 +404,27 @@ void* main_thread_func(void* arg) {
             rect_y = 180;
             rect_width = 440;
             rect_height = 160;
-            ev3_motor_reset_counts(left_motor);
-            cv::waitKey(30);
-            ev3_motor_reset_counts(right_motor);
-            cv::waitKey(30);
-            ev3_gyro_sensor_reset(gyro_sensor);
-            cv::waitKey(30);
+            while (true) {
+                ev3_motor_reset_counts(right_motor);
+                if (ev3_motor_reset_counts(right_motor) == 0) {
+                    break;
+                }
+                cv::waitKey(30);
+                }
+            while (true) {
+                ev3_motor_reset_counts(left_motor);
+                if (ev3_motor_get_counts(left_motor) == 0) {
+                    break;
+                }
+                cv::waitKey(30);
+                }
+            while (true) {
+                ev3_gyro_sensor_reset(gyro_sensor);
+                if (v3_gyro_sensor_get_angle(gyro_sensor) == 0) {
+                    break;
+                }
+                cv::waitKey(30);
+                }
             console_PL();
             std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
             scene = 21;
@@ -596,12 +628,8 @@ void* main_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
         case 31://設定の読み込み
-            ev3_motor_reset_counts(left_motor);
-            cv::waitKey(30);
-            ev3_motor_reset_counts(right_motor);
-            cv::waitKey(30);
-            ev3_gyro_sensor_reset(gyro_sensor);
-            cv::waitKey(30);
+            _left_motor_counts = ev3_motor_get_counts(left_motor);
+            _right_motor_counts = ev3_motor_get_counts(right_motor);
             rect_x = 0;
             rect_y = 0;  
             rect_width = 640;
@@ -611,38 +639,28 @@ void* main_thread_func(void* arg) {
             std::cout << "Case 31" << std::endl;
             break;
         case 32:
-            gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-            if (gyro_counts < 27) {
+            _gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
+            if (_gyro_counts < _gyro_counts + 27) {
                 while(true){
                     motor_cntrol(50,-50);
-                    if (gyro_counts >= 27) {
+                    if (_gyro_counts >= _gyro_counts + 27) {
                         motor_cntrol(0,0);
                         break;
                     }
                     cv::waitKey(30);
                     console_PL();
                     gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-                    std::cout << "gyro " << gyro_counts << std::endl;
+                    std::cout << "gyro " << _gyro_counts << std::endl;
                 }
             }
             scene++;
             break;
         case 33:
-            while (true) {
-                if (ev3_motor_reset_counts(right_motor) <= 10) {
-                    break;
-                }
-                cv::waitKey(30);
-                }
-            while (true) {
-                if (ev3_motor_reset_counts(left_motor) <= 10) {
-                    break;
-                }
-                cv::waitKey(30);
-                }
+            _left_motor_counts = ev3_motor_get_counts(left_motor);
+            _right_motor_counts = ev3_motor_get_counts(right_motor);
             motor_cntrol(50,50);
             while(true){
-                if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1800) {
+                if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= _left_motor_counts + _right_motor_counts + 1800) {
                     set_speed(50.0);
                     scene++;
                     break;
@@ -656,7 +674,7 @@ void* main_thread_func(void* arg) {
             createMask(hsv, "blue_white"); //Mask,Mask1
             contour_ready = true;
             contour_var.notify_one();
-            //bitwise_not(mask2, mask2);//白黒反転
+            bitwise_not(mask2, mask2);//白黒反転
             morphed = Morphology(mask2);//白色モル
             tie(cX, cY) = Follow_2(morphed);
             console_PL();
@@ -880,6 +898,17 @@ static Mat Morphology(const Mat& mask) {
     Mat kernel = getStructuringElement(MORPH_RECT, Size(5, 5));
     morphologyEx(mask, morphed, MORPH_OPEN, kernel);
     morphologyEx(morphed, morphed, MORPH_CLOSE, kernel);    
+    return morphed;  // モルフォロジー変換後の画像を返す
+}
+
+static Mat Morphology2(const Mat& mask) {
+    Mat morphed;
+    Mat kernel = getStructuringElement(MORPH_RECT, Size(5, 5));
+    bitwise_not(morphed, morphed);
+    morphologyEx(mask, morphed, MORPH_OPEN, kernel);
+    dilate(morphed, morphed, kernel);
+    morphologyEx(morphed, morphed, MORPH_CLOSE, kernel);   
+    bitwise_not(morphed, morphed); 
     return morphed;  // モルフォロジー変換後の画像を返す
 }
 
