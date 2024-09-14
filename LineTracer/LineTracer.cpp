@@ -437,6 +437,7 @@ void* main_thread_func(void* arg) {
             scene = 11;
             break;
         case 8:
+        {
             tie(rectframe, hsv) = RectFrame(frame);
             // 明度 (Vチャンネル) を抽出
             std::vector<Mat> hsv_channels;
@@ -461,6 +462,7 @@ void* main_thread_func(void* arg) {
                     drawContours(result_frame, contours, child_idx, Scalar(0, 0, 255), 2);
                 }
             }
+        }
             break;
         case 9:
         case 10:
