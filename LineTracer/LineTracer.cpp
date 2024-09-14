@@ -29,9 +29,9 @@ PID Scurvetpid = {0.10, 0.002, 0, 0, 0}; //ゆっくりカーブPID
 //int rect_height = 160;
 
 int rect_x = 100;
-int rect_y = 140;
+int rect_y = 110;
 int rect_width = 440;
-int rect_height = 200;
+int rect_height = 230;
 
 
 /*cameraの初期設定*/
@@ -56,7 +56,7 @@ std::condition_variable contour_var;
 Mat orizin_frame, frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, morphed2, result_frame;
 
 /*使用する変数の初期化*/
-uint8_t scene = 3;
+uint8_t scene = 6;
 uint8_t _scene = 0;
 int frame_center = 220;
 int cX = 0;
@@ -408,7 +408,33 @@ void* main_thread_func(void* arg) {
             cv::waitKey(30);
             break;
         case 6:
+            startTimer(1);
+            tie(rectframe, hsv) = RectFrame(frame);
+            createMask(hsv, "blue_black");
+            //bitwise_not(mask2, mask2);
+            morphed = Morphology(mask2);
+            tie(cX, cY) = Follow_4(morphed);
+            console_PL();
+            cout << getTime(1) << endl;
+            if(ev3_touch_sensor_is_pressed(touch_sensor)){
+                scene++;
+            };
+            std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
+            //std::cout << ev3_gyro_sensor_get_angle(gyro_sensor) << std::endl;
+            //std::cout << ev3_touch_sensor_is_pressed(touch_sensor) << std::endl;
+            break;
         case 7:
+            rect_x = 100;
+            rect_y = 180;
+            rect_width = 440;
+            rect_height = 160;
+            reset_left_motor();
+            reset_right_motor();
+            reset_gyro_sensor();
+            console_PL();
+            std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
+            scene = 11;
+            break;
         case 8:
         case 9:
         case 10:
@@ -1058,7 +1084,62 @@ static std::tuple<int, int> Follow_1(cv::Mat& morphed) {
     return std::make_tuple(cX, cY);
 }
 
+static std::tuple<int, int> Follow_4(Mat& morphed, bool follow) {
+    // 輪郭を抽出
+    std::vector<std::vector<cv::Point>> contours;
+    findContours(morphed, contours, RETR_TREE, CHAIN_APPROX_SIMPLE);
 
+    std::cout << "Number of contours found: " << contours.size() << std::endl;
+
+    const double min_contour_area = 2000.0; // ピクセル数
+    // 最大の輪郭と2番目に大きい輪郭を見つける
+    std::vector<cv::Point>* best_contour = nullptr;
+    double best_score = std::numeric_limits<double>::max(); // 中心に近い輪郭を優先するため、最初は大きな値を設定
+
+    for (auto& contour : contours) {
+        double area = contourArea(contour);
+        if (area >= min_contour_area) {
+            // 重心を計算
+            cv::Moments M = cv::moments(contour);
+            int cX = static_cast<int>(M.m10 / M.m00);
+
+            // 中心に近いほど優先 (x座標の距離の二乗)
+            double distance_to_center = std::pow(cX - frame_center, 2);
+
+            // 優先度を調整（左右優先の切り替え）
+            if (follow && cX > frame_center) {
+                distance_to_center *= 2; // 右側なら優先度を下げる
+            } else if (!follow && cX < frame_center) {
+                distance_to_center *= 2; // 左側なら優先度を下げる
+            }
+
+            // 中心に近い輪郭を選択
+            if (distance_to_center < best_score) {
+                best_score = distance_to_center;
+                best_contour = &contour;
+            }
+        }
+    }
+
+    int cX = 0, cY = 0;
+    if (best_contour) {
+        stop_count = 0;
+
+        // 選択された輪郭の重心を計算
+        cv::Moments M = cv::moments(*best_contour);
+        cX = static_cast<int>(M.m10 / M.m00);
+        cY = static_cast<int>(M.m01 / M.m00);
+
+        // 重心を描画
+        result_frame = morphed.clone(); // 描画用にフレームをコピー
+        cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(0, 0, 255), -1);
+    } else {
+        stop_count++;
+    }
+
+    // 結果をタプルで返す (重心のx座標, y座標)
+    return std::make_tuple(cX, cY);
+}
 
 /*最大の輪郭追従関数*/
 static std::tuple<int, int> Follow_2(const Mat& morphed) {
