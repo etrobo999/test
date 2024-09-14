@@ -62,7 +62,7 @@ uint8_t _scene = 0;
 int frame_center = 220;
 int cX = 0;
 int cY = 0;
-double left_motor_factor = 1.06209;
+double left_motor_factor = 1.0;
 double right_motor_factor = 1.0;
 double left_speed = 0.0;
 double right_speed = 0.0;
@@ -313,7 +313,7 @@ void* main_thread_func(void* arg) {
         pthread_exit(NULL);
     }
 
-/*    // モータのキャリブレーション
+///*    // モータのキャリブレーション
 
     {
         ev3_motor_reset_counts(left_motor);
@@ -332,7 +332,7 @@ void* main_thread_func(void* arg) {
         }
         std::cout << "Calibration complete. Left factor: " << left_motor_factor << ", Right factor: " << right_motor_factor << std::endl;
     }
-*/
+//*/
     bool ext = true;
 
     while (ext) {
