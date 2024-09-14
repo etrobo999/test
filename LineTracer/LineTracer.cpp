@@ -56,7 +56,7 @@ std::condition_variable contour_var;
 Mat orizin_frame, frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, morphed2, result_frame;
 
 /*使用する変数の初期化*/
-uint8_t scene = 1;
+uint8_t scene = 3;
 uint8_t _scene = 0;
 int frame_center = 220;
 int cX = 0;
