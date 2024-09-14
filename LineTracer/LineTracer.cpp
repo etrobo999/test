@@ -28,10 +28,10 @@ PID Scurvetpid = {0.10, 0.002, 0, 0, 0}; //ゆっくりカーブPID
 //int rect_width = 440;
 //int rect_height = 160;
 
-int rect_x = 0;
-int rect_y = 0;
-int rect_width = 640;
-int rect_height = 320;
+int rect_x = 100;
+int rect_y = 140;
+int rect_width = 440;
+int rect_height = 200;
 
 
 /*cameraの初期設定*/
