@@ -1084,7 +1084,7 @@ static std::tuple<int, int> Follow_1(cv::Mat& morphed) {
     return std::make_tuple(cX, cY);
 }
 
-static std::tuple<int, int> Follow_4(Mat& morphed, bool follow) {
+static std::tuple<int, int> Follow_4(Mat& morphed) {
     // 輪郭を抽出
     std::vector<std::vector<cv::Point>> contours;
     findContours(morphed, contours, RETR_TREE, CHAIN_APPROX_SIMPLE);
