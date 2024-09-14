@@ -606,6 +606,7 @@ void* main_thread_func(void* arg) {
             console_PL();
             break;
         case 29://設定の読み込み
+            startTimer(1);
             set_speed(45.0);
             follow = !follow;
             scene++;
@@ -618,7 +619,7 @@ void* main_thread_func(void* arg) {
             tie(cX, cY) = Follow_1(morphed);
             PIDMotor(straightpid);
             console_PL();
-            if(getTime(1) >=2){
+            if(getTime(1) >=3){
                 scene++;
                 motor_cntrol(0,0);
             }
@@ -630,29 +631,21 @@ void* main_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
         case 31://設定の読み込み
-            reset_gyro_sensor();
-            rect_x = 0;
-            rect_y = 20;  
-            rect_width = 640;
-            rect_height = 340;
-            frame_center = 280;
+            rect_x = 100;
+            rect_y = 110;
+            rect_width = 440;
+            rect_height = 230;
+            set_speed(40.0);
             scene++;
             std::cout << "Case 31" << std::endl;
             break;
         case 32:
-            gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-            if (gyro_counts < 23) {
-            motor_cntrol(60,-50);
-            } else if (gyro_counts >= 23) {
-                {
-                    motor_cntrol(0,0);
-                    reset_left_motor();
-                    reset_right_motor();
-                    scene++;
-                }
-            }
+            tie(rectframe, hsv) = RectFrame(frame);
+            createMask(hsv, "blue_black");
+            morphed = Morphology(mask2);
+            tie(cX, cY) = Follow_4(morphed);
+            PIDMotor(Bcurvetpid);
             console_PL();
-            std::cout << "gyro " << gyro_counts << std::endl;
             break;
         case 33:
             motor_cntrol(50,50);
@@ -1107,9 +1100,9 @@ static std::tuple<int, int> Follow_4(Mat& morphed) {
             double distance_to_center = std::pow(cX - frame_center, 2);
 
             // 優先度を調整（左右優先の切り替え）
-            if (follow && cX > frame_center) {
+            if (!follow && cX > frame_center) {
                 distance_to_center *= 2; // 右側なら優先度を下げる
-            } else if (!follow && cX < frame_center) {
+            } else if (follow && cX < frame_center) {
                 distance_to_center *= 2; // 左側なら優先度を下げる
             }
 
