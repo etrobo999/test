@@ -313,7 +313,7 @@ void* main_thread_func(void* arg) {
     }
 
     // モータのキャリブレーション
-/*
+///*
     {
         ev3_motor_reset_counts(left_motor);
         ev3_motor_reset_counts(right_motor);
@@ -331,7 +331,7 @@ void* main_thread_func(void* arg) {
         }
         std::cout << "Calibration complete. Left factor: " << left_motor_factor << ", Right factor: " << right_motor_factor << std::endl;
     }
-*/
+//*/
     bool ext = true;
 
     while (ext) {
