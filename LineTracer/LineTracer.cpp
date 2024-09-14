@@ -17,7 +17,7 @@ using namespace cv;
 raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
-PID straightpid = {0.08, 0, 0.006, 0, 0}; //ストレートPID
+PID straightpid = {0.08, 0, 0.008, 0, 0}; //ストレートPID
 PID Bcurvetpid = {0.14, 0, 0, 0, 0}; //急カーブPID
 PID Mcurvetpid = {0.11, 0.004, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.10, 0.002, 0, 0, 0}; //ゆっくりカーブPID
@@ -78,7 +78,7 @@ int16_t gyro_counts = 0;
 int16_t _gyro_counts = 0;
 
 // 追従方向の変数[true = 左] [false = 右]
-bool follow = true;
+bool follow = false;
 bool resize_on = false;
 
 // スレッドの操作のための変数
@@ -448,7 +448,7 @@ void* main_thread_func(void* arg) {
         case 11: //設定の読み込み
             startTimer(2);
             startTimer(1);
-            set_speed(65.0);
+            set_speed(70.0);
             follow = !follow;
             scene++;
             break;
