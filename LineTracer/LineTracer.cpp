@@ -21,7 +21,7 @@ PID straightpid = {0.07, 0, 0.06, 0, 0}; //ストレートPID
 PID Bcurvetpid = {0.14, 0, 0, 0, 0}; //急カーブPID
 PID Mcurvetpid = {0.11, 0.004, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.10, 0.002, 0, 0, 0}; //ゆっくりカーブPID
-PID gacurvetpid = {0.16, 0.0005, 0, 0, 0}; //ゆっくりカーブPID
+PID gcurvetpid = {0.16, 0.0005, 0, 0, 0}; //ゆっくりカーブPID
 
 /*rectの値初期化*/
 //int rect_x = 100;
@@ -54,10 +54,10 @@ std::condition_variable display_var;
 std::condition_variable contour_var;
 
 /*使用する（かもしれない）cv::MATの変数宣言*/
-Mat orizin_frame, frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, morphed2, result_frame;
+Mat orizin_frame, frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, morphed2, result_frame, gray;
 
 /*使用する変数の初期化*/
-uint8_t scene = 1;
+uint8_t scene = 8;
 uint8_t _scene = 0;
 int frame_center = 220;
 int cX = 0;
@@ -437,6 +437,31 @@ void* main_thread_func(void* arg) {
             scene = 11;
             break;
         case 8:
+            tie(rectframe, hsv) = RectFrame(frame);
+            // 明度 (Vチャンネル) を抽出
+            std::vector<Mat> hsv_channels;
+            split(hsv, hsv_channels);
+            gray = hsv_channels[2];  // Vチャンネルのみ使用
+
+            // 輪郭検出と階層情報の取得
+            vector<vector<Point>> contours;
+            vector<Vec4i> hierarchy;
+            findContours(gray, contours, hierarchy, RETR_CCOMP, CHAIN_APPROX_SIMPLE);
+
+            // ドーナツ状の輪郭を探す
+            result_frame = Mat::zeros(gray.size(), CV_8UC3);
+
+            for (int i = 0; i >= 0; i = hierarchy[i][0]) { // 親輪郭をループ
+                if (hierarchy[i][2] != -1) { // 子輪郭を持つ場合（つまり、内側にもう一つの輪郭がある）
+                    // 親輪郭（外側）の描画
+                    drawContours(result_frame, contours, i, Scalar(0, 255, 0), 2);
+                    
+                    // 子輪郭（内側）の描画
+                    int child_idx = hierarchy[i][2];  // 内側の輪郭（子）
+                    drawContours(result_frame, contours, child_idx, Scalar(0, 0, 255), 2);
+                }
+            }
+            break;
         case 9:
         case 10:
             break;
