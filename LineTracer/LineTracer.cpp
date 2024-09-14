@@ -77,7 +77,7 @@ int16_t gyro_counts = 0;
 int16_t _gyro_counts = 0;
 
 // 追従方向の変数[true = 左] [false = 右]
-bool follow = true;
+bool follow = false;
 bool resize_on = false;
 
 // スレッドの操作のための変数
@@ -369,7 +369,7 @@ void* main_thread_func(void* arg) {
             reset_gyro_sensor();
             console_PL();
             std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
-            scene = 21;
+            scene = 11;
             break;
         case 3:
             startTimer(1);
