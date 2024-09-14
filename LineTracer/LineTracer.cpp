@@ -21,6 +21,7 @@ PID straightpid = {0.08, 0, 0.006, 0, 0}; //ストレートPID
 PID Bcurvetpid = {0.14, 0, 0, 0, 0}; //急カーブPID
 PID Mcurvetpid = {0.11, 0.004, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.10, 0.002, 0, 0, 0}; //ゆっくりカーブPID
+PID gacurvetpid = {0.16, 0.0005, 0, 0, 0}; //ゆっくりカーブPID
 
 /*rectの値初期化*/
 //int rect_x = 100;
@@ -447,7 +448,7 @@ void* main_thread_func(void* arg) {
         case 11: //設定の読み込み
             startTimer(2);
             startTimer(1);
-            set_speed(70.0);
+            set_speed(65.0);
             follow = !follow;
             scene++;
             break;
