@@ -17,7 +17,7 @@ using namespace cv;
 raspicam::RaspiCam_Cv Camera;
 
 /*PIDインスタンス生成*/
-PID straightpid = {0.08, 0, 0.005, 0, 0}; //ストレートPID
+PID straightpid = {0.08, 0, 0.006, 0, 0}; //ストレートPID
 PID Bcurvetpid = {0.14, 0, 0, 0, 0}; //急カーブPID
 PID Mcurvetpid = {0.11, 0.004, 0, 0, 0}; //ちょうどいいカーブPID
 PID Scurvetpid = {0.10, 0.002, 0, 0, 0}; //ゆっくりカーブPID
@@ -56,7 +56,7 @@ std::condition_variable contour_var;
 Mat orizin_frame, frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, morphed2, result_frame;
 
 /*使用する変数の初期化*/
-uint8_t scene = 6;
+uint8_t scene = 1;
 uint8_t _scene = 0;
 int frame_center = 220;
 int cX = 0;
