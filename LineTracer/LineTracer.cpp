@@ -77,7 +77,7 @@ int16_t gyro_counts = 0;
 int16_t _gyro_counts = 0;
 
 // 追従方向の変数[true = 左] [false = 右]
-bool follow = false;
+bool follow = true;
 bool resize_on = false;
 
 // スレッドの操作のための変数
