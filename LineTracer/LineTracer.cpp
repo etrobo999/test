@@ -370,7 +370,7 @@ void* main_thread_func(void* arg) {
             reset_gyro_sensor();
             console_PL();
             std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
-            scene = 11;
+            scene = 31;
             break;
         case 3:
             startTimer(1);
@@ -552,7 +552,7 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             tie(cX, cY) = Follow_1(morphed);
             PIDMotor(straightpid);
-            if(getTime(1) >=3){
+            if(getTime(1) >=2){
                 scene = 21;
             }
             console_PL();
@@ -647,7 +647,7 @@ void* main_thread_func(void* arg) {
             tie(cX, cY) = Follow_1(morphed);
             PIDMotor(straightpid);
             console_PL();
-            if(getTime(1) >=1){
+            if(getTime(1) >=3){
                 scene++;
                 motor_cntrol(0,0);
                 reset_left_motor();
