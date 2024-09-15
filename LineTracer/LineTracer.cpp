@@ -94,7 +94,7 @@ int no_detection_count = 0;
 int stop_count = 0;
 
 int prev_cX = 0, prev_cY = 0;
-int threshold = 22;
+int threshold = 50;
 
 int x = 0;
 int y = 0;
@@ -1219,7 +1219,7 @@ static std::tuple<int, int, bool> Follow_5(Mat& morphed, std::string follow_mode
     double best_score = std::numeric_limits<double>::max(); // 中心に近い輪郭を優先するため、最初は大きな値を設定
 
     // 追従範囲を定義（追従していた座標からの一定範囲）
-    int follow_threshold = 50;
+    int threshold = 50;
 
     bool contour_within_range_found = false; // 一定範囲内で見つかったか
     switched++;// 追従先が切り替わったか
