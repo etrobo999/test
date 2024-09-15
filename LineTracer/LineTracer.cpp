@@ -93,13 +93,6 @@ int detection_count = 0;
 int no_detection_count = 0;
 int stop_count = 0;
 
-int prev_cX = 0, prev_cY = 0;
-int threshold = 50;
-
-int x = 0;
-int y = 0;
-int car_xy = 0;
-int switched = 0;
 //////////////////////////////////////////////////////////////////////
 ////////　　　     特殊なcamera処理　　　　　　　　/////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -550,7 +543,7 @@ void* main_thread_func(void* arg) {
         case 19://設定の読み込み
             follow = !follow;
             startTimer(1);
-            set_speed(50.0);
+            set_speed(55.0);
             scene++;
             break;
         case 20: //第三ストレート
@@ -636,7 +629,7 @@ void* main_thread_func(void* arg) {
             PIDMotor(Bcurvetpid);
             if(detectCheck(morphed1,2000)){
                 motor_cntrol(0,0);
-                scene = 31;
+                scene++;
             }
             console_PL();
             break;
@@ -657,8 +650,8 @@ void* main_thread_func(void* arg) {
             if(getTime(1) >=3){
                 scene++;
                 motor_cntrol(0,0);
+                reset_gyro_sensor();
             }
-            
             break;
 
 //////////////////////////////////////////////////////////////////////
@@ -666,185 +659,152 @@ void* main_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
         case 31://設定の読み込み
-            rect_x = 100;
-            rect_y = 110;
-            rect_width = 440;
-            rect_height = 230;
-            set_speed(40.0);
-            scene++;
-            std::cout << "Case 31" << std::endl;
+            gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
+            if (gyro_counts < 165){
+                motor_cntrol(40,-40);
+            } else if (gyro_counts >= 165 || gyro_counts <= -165){
+                    motor_cntrol(0,0);
+                    follow = !follow;
+                    scene++;
+            }
+            console_PL();
             break;
         case 32:
             tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "black");
+            createMask(hsv, "blue_black"); //Mask,Mask1
             morphed = Morphology(mask);
-            tie(cX, cY) = Follow_5(morphed, "senta");
+            morphed1 = Morphology(mask1); //青色モル
+            tie(cX, cY) = Follow_1(morphed);
             PIDMotor(Bcurvetpid);
-            if (switched == 1){
-                switched = 0;
+            if(detectCheck(morphed1,2000)){
                 scene++;
             }
             console_PL();
             break;
         case 33:
             tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "black");
+            createMask(hsv, "blue_black"); //Mask,Mask1
             morphed = Morphology(mask);
-            tie(cX, cY) = Follow_5(morphed, "right");
-            if (switched == 1){
-                switched = 0;
+            morphed1 = Morphology(mask1); //青色モル
+            tie(cX, cY) = Follow_1(morphed);
+            PIDMotor(Bcurvetpid);
+            if(detectCheck(morphed1,3000)){
                 motor_cntrol(0,0);
                 scene++;
-                _scene = scene;
-                scene = 55;
-                startTimer(1);
             }
-            PIDMotor(Bcurvetpid);
             console_PL();
             break;
         case 34:
             tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "black");
+            createMask(hsv, "blue_black"); //Mask,Mask1
             morphed = Morphology(mask);
-            tie(cX, cY) = Follow_5(morphed, "left");
-            PIDMotor(Bcurvetpid);
-            if (switched == 1){
-                switched = 0;
-                scene++;
-            }
+            morphed1 = Morphology(mask1); //青色モル
+            tie(cX, cY) = Follow_1(morphed);
             console_PL();
             break;
         case 35:
             tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "black");
-            morphed = Morphology(mask);
-            tie(cX, cY) = Follow_5(morphed, "right");
-            if (switched == 1){
-                switched = 0;
-                motor_cntrol(0,0);
-                scene++;
-                _scene = scene;
-                scene = 55;
-                startTimer(1);
-            }
+            createMask(hsv, "blue_white"); //Mask,Mask1
+            //bitwise_not(mask2, mask2);//白黒反転
+            morphed = Morphology2(mask2);//白色モル
+            tie(cX, cY) = Follow_2(morphed);
             PIDMotor(Bcurvetpid);
             console_PL();
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts <= 1300){
+                {
+                    motor_cntrol(0,0);
+                    set_speed(45.0);
+                    reset_gyro_sensor();
+                    scene++;
+                }
+            }
             break;
         case 36:
-            tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "black");
-            morphed = Morphology(mask);
-            tie(cX, cY) = Follow_5(morphed, "left");
-            PIDMotor(Bcurvetpid);
-            if (switched == 1){
-                switched = 0;
-                scene++;
+            gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
+            if (gyro_counts < 85){
+                motor_cntrol(50,-50);
+            } else if (gyro_counts >= 85){
+                {
+                    motor_cntrol(0,0);
+                    reset_left_motor();
+                    reset_right_motor();
+                    left_motor_counts = 0;
+                    right_motor_counts = 0;
+                    frame_center = 100;
+                    scene++;
+                }
             }
             console_PL();
+            std::cout << "gyro " << gyro_counts<< std::endl;
             break;
         case 37:
-            tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "black");
-            morphed = Morphology(mask);
-            tie(cX, cY) = Follow_5(morphed, "senta");
+             tie(rectframe, hsv) = RectFrame(frame);
+            createMask(hsv, "blue_white"); //Mask,Mask1
+            morphed = Morphology2(mask2);//白色モル
+            bitwise_not(morphed, morphed);
+            tie(cX, cY) = Follow_2(morphed);
             PIDMotor(Bcurvetpid);
-            if (switched == 1){
-                switched = 0;
-                scene++;
-            }
             console_PL();
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1800){
+                {
+                    motor_cntrol(0,0);
+                    reset_gyro_sensor();
+                    scene++;
+                }
+            }
             break;
         case 38:
-            tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "black");
-            morphed = Morphology(mask);
-            tie(cX, cY) = Follow_5(morphed, "right");
-            if (switched == 1){
-                switched = 0;
-                motor_cntrol(0,0);
-                scene++;
-                _scene = scene;
-                scene = 55;
-                startTimer(1);
+            gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
+            if (gyro_counts > -80){
+                motor_cntrol(-50,50);
+            } else if (gyro_counts <= -80){
+                {
+                    motor_cntrol(0,0);
+                    reset_left_motor();
+                    reset_right_motor();
+                    left_motor_counts = 0;
+                    right_motor_counts = 0;
+                    frame_center = 320;
+                    scene++;
+                }
+                
             }
-            PIDMotor(Bcurvetpid);
             console_PL();
+            std::cout << "gyro " << gyro_counts<< std::endl;
             break;
         case 39:
             tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "black");
-            morphed = Morphology(mask);
-            tie(cX, cY) = Follow_5(morphed, "right");
+            createMask(hsv, "blue_white"); //Mask,Mask1
+            contour_ready = true;
+            contour_var.notify_one();
+            //bitwise_not(mask2, mask2);//白黒反転
+            morphed = Morphology2(mask2);//白色モル
+            tie(cX, cY) = Follow_2(morphed);
             PIDMotor(Bcurvetpid);
-            if (switched == 1){
-                switched = 0;
-                scene++;
-            }
             console_PL();
+            while (contour_ready) {
+                cv::waitKey(10);
+            }
+            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts >= 1600){
+                {
+                    motor_cntrol(0,0);
+                    set_speed(-50.0);
+                    scene++;
+                }
+            }
             break;
         case 40:
-            tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "black");
-            morphed = Morphology(mask);
-            tie(cX, cY) = Follow_5(morphed, "senta");
-            PIDMotor(Bcurvetpid);
-            if (switched == 1){
-                switched = 0;
-                scene++;
-            }
-            console_PL();
             break;
         case 41:
-            tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "black");
-            morphed = Morphology(mask);
-            tie(cX, cY) = Follow_5(morphed, "senta");
-            PIDMotor(Bcurvetpid);
-            if (switched == 1){
-                switched = 0;
-                scene++;
-            }
-            console_PL();
             break;
         case 42:
-            tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "black");
-            morphed = Morphology(mask);
-            tie(cX, cY) = Follow_5(morphed, "senta");
-            if (switched == 1){
-                switched = 0;
-                motor_cntrol(0,0);
-                scene++;
-                _scene = scene;
-                scene = 55;
-                startTimer(1);
-                ev3_gyro_sensor_reset(gyro_sensor);
-            }
-            PIDMotor(Bcurvetpid);
-            console_PL();
+            std::cout << "Case 42" << std::endl;
             break;
         case 43:
-            gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
-            if (gyro_counts > -90){
-                motor_cntrol(-40,40);
-            } else if (gyro_counts <= -90){
-                    motor_cntrol(0,0);
-                    scene++;
-            }
-            console_PL();
+            std::cout << "Case 43" << std::endl;
             break;
         case 44:
-            tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "blue_black"); //Mask,Mask1
-            morphed = Morphology(mask);
-            morphed1 = Morphology(mask1); //青色モル
-            tie(cX, cY) = Follow_6(morphed);
-            PIDMotor(Bcurvetpid);
-            if(detectCheck(morphed1,3000)){
-                scene++;
-                motor_cntrol(0,0);
-            }
-            console_PL();
+            std::cout << "Case 44" << std::endl;
             break;
         case 45:
             std::cout << "Case 45" << std::endl;
@@ -922,19 +882,10 @@ void* main_thread_func(void* arg) {
             }
             break;
         case 55:
-            motor_cntrol(40,40);
-            if (getTime(1) >=1) {
-                motor_cntrol(0,0);
-                scene++;
-                startTimer(1);
-            }
+            std::cout << "Case 55" << std::endl;
             break;
         case 56:
-            motor_cntrol(-40,-40);
-            if (getTime(1) >=1) {
-                motor_cntrol(0,0);
-                scene = _scene;
-            }
+            std::cout << "Case 56" << std::endl;
             break;
         case 57:
             std::cout << "Case 57" << std::endl;
@@ -1137,8 +1088,6 @@ static std::tuple<int, int> Follow_1(cv::Mat& morphed) {
         cv::Moments M = cv::moments(*target_contour);
         cX = static_cast<int>(M.m10 / M.m00);
         cY = static_cast<int>(M.m01 / M.m00);
-    } else {
-        stop_count++;
     }
 
     // 重心を描画
@@ -1199,193 +1148,7 @@ static std::tuple<int, int> Follow_4(Mat& morphed) {
         // 重心を描画
         result_frame = morphed.clone(); // 描画用にフレームをコピー
         cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(0, 0, 255), -1);
-    } else {
-        stop_count++;
     }
-
-    // 結果をタプルで返す (重心のx座標, y座標)
-    return std::make_tuple(cX, cY);
-}
-
-static std::tuple<int, int> Follow_5(Mat& morphed, std::string follow_mode) {
-    // 輪郭を抽出
-    std::vector<std::vector<cv::jPoint>> contours;
-    findContours(morphed, contours, RETR_TREE, CHAIN_APPROX_SIMPLE);
-
-    std::cout << "Number of contours found: " << contours.size() << std::endl;
-
-    const double min_contour_area = 2000.0; // ピクセル数
-    std::vector<cv::Point>* best_contour = nullptr;
-    double best_score = std::numeric_limits<double>::max(); // 中心に近い輪郭を優先するため、最初は大きな値を設定
-
-    // 追従範囲を定義（追従していた座標からの一定範囲）
-    int threshold = 50;
-
-    bool contour_within_range_found = false; // 一定範囲内で見つかったか
-    switched++;// 追従先が切り替わったか
-
-    for (auto& contour : contours) {
-        double area = contourArea(contour);
-        if (area >= min_contour_area) {
-            // 重心を計算
-            cv::Moments M = cv::moments(contour);
-            cX = static_cast<int>(M.m10 / M.m00);
-            cY = static_cast<int>(M.m01 / M.m00);
-
-            // 追従していた座標の範囲内にあるかどうかを確認
-            double distance_to_prev = std::sqrt(std::pow(cX - prev_cX, 2) + std::pow(cY - prev_cY, 2));
-
-            if (distance_to_prev <= threshold) {
-                // 範囲内で最も近い輪郭を選択
-                contour_within_range_found = true;
-                if (distance_to_prev < best_score) {
-                    best_score = distance_to_prev;
-                    best_contour = &contour;
-                }
-            }
-        }
-    }
-
-    // 一定範囲内に追従先が見つからなかった場合
-    if (!contour_within_range_found) {
-        switched = true;  // 追従先が変更されたと判断
-
-        for (auto& contour : contours) {
-            double area = contourArea(contour);
-            if (area >= min_contour_area) {
-                // 重心を計算
-                cv::Moments M = cv::moments(contour);
-                int cX = static_cast<int>(M.m10 / M.m00);
-
-                double distance_to_center;
-
-                if (follow_mode == "left") {
-                    // 左端優先
-                    distance_to_center = std::pow(cX, 2); // 左端に近い輪郭を優先
-                } else if (follow_mode == "right") {
-                    // 右端優先
-                    distance_to_center = std::pow(morphed.cols - cX, 2); // 右端に近い輪郭を優先
-                } else {
-                    // 真ん中優先
-                    distance_to_center = std::pow(cX - frame_center, 2); // 中心に近い輪郭を優先
-                }
-
-                if (distance_to_center < best_score) {
-                    best_score = distance_to_center;
-                    best_contour = &contour;
-                }
-            }
-        }
-    }
-
-    int cX = 0, cY = 0;
-    if (best_contour) {
-        stop_count = 0;
-
-        // 選択された輪郭の重心を計算
-        cv::Moments M = cv::moments(*best_contour);
-        cX = static_cast<int>(M.m10 / M.m00);
-        cY = static_cast<int>(M.m01 / M.m00);
-
-        // 重心を描画
-        result_frame = morphed.clone(); // 描画用にフレームをコピー
-        cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(0, 0, 255), -1);
-    }
-    return std::make_tuple(cX, cY);
-}   
-
-static std::tuple<int, int> Follow_6(cv::Mat& morphed) {
-    // 輪郭を抽出
-    std::vector<std::vector<cv::Point>> contours;
-    findContours(morphed, contours, RETR_TREE, CHAIN_APPROX_SIMPLE);
-
-    const double min_contour_area = 3000.0; // ピクセル数
-
-    // 最大の輪郭と2番目に大きい輪郭を見つける
-    std::vector<cv::Point>* largest_contour = nullptr;
-    std::vector<cv::Point>* second_largest_contour = nullptr;
-    double largest_area = min_contour_area;
-    double second_largest_area = min_contour_area;
-
-    for (auto& contour : contours) {
-        double area = contourArea(contour);
-        if (area >= largest_area) {
-            second_largest_area = largest_area;
-            second_largest_contour = largest_contour;
-
-            largest_area = area;
-            largest_contour = &contour;
-        } else if (area >= second_largest_area) {
-            second_largest_area = area;
-            second_largest_contour = &contour;
-        }
-    }
-
-    int cX = 0, cY = 0; // 初期値として (0, 0) を設定
-    std::vector<cv::Point>* target_contour = nullptr;
-
-    // 輪郭が1つしかない場合、その輪郭を重心で分割し、2つの輪郭として扱う
-    if (largest_contour && second_largest_contour == nullptr) {
-        stop_count = 0;
-        // 重心を計算
-        cv::Moments M = cv::moments(*largest_contour);
-        int cx = static_cast<int>(M.m10 / M.m00);
-
-        // 最大の輪郭以外を黒く塗りつぶす
-        Mat mask = Mat::zeros(morphed.size(), CV_8UC1);  // 真っ黒なマスクを作成
-        std::vector<std::vector<cv::Point>> fillContours = {*largest_contour};
-        
-        // 最大の輪郭を白で塗りつぶす
-        drawContours(mask, fillContours, -1, Scalar(255), FILLED);
-
-        // morphedにmaskを適用し、最大の輪郭だけを残す
-        morphed.setTo(Scalar(0));  // morphed全体を黒くする
-        drawContours(morphed, fillContours, -1, Scalar(255), FILLED);  // 最大輪郭のみ白で描画
-
-        // 垂直な線を描画（疑似的に2つの輪郭があるようにする）
-        cv::line(morphed, cv::Point(cx, 0), cv::Point(cx, morphed.rows), cv::Scalar(0), 2);
-
-        // 再度輪郭を抽出
-        contours.clear();
-        findContours(morphed, contours, RETR_TREE, CHAIN_APPROX_SIMPLE);
-        std::cout << "Number of contours found: " << contours.size() << std::endl;
-
-        largest_contour = nullptr;
-        second_largest_contour = nullptr;
-
-        if (contours.size() >= 2) {
-            largest_contour = &contours[0];
-            second_largest_contour = &contours[1];
-        } else if (contours.size() == 1) {
-            largest_contour = &contours[0];
-            second_largest_contour = nullptr;  // 2つ目の輪郭がない場合はnull
-        }
-    }
-
-    // 2つの輪郭が存在する場合の通常処理
-    if (largest_contour && second_largest_contour) {
-        stop_count = 0;
-        cv::Moments M1 = cv::moments(*largest_contour);
-        cv::Moments M2 = cv::moments(*second_largest_contour);
-        int cX1 = static_cast<int>(M1.m10 / M1.m00);
-        int cX2 = static_cast<int>(M2.m10 / M2.m00);
-
-        if (follow) {
-            target_contour = (cX1 < cX2) ? largest_contour : second_largest_contour;
-        } else {
-            target_contour = (cX1 > cX2) ? largest_contour : second_largest_contour;
-        }
-
-        // 選択された輪郭の重心を計算
-        cv::Moments M = cv::moments(*target_contour);
-        cX = static_cast<int>(M.m10 / M.m00);
-        cY = static_cast<int>(M.m01 / M.m00);
-    }
-
-    // 重心を描画
-    result_frame = morphed.clone(); // 描画用にフレームをコピー
-    cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(0, 0, 255), -1);
-
     // 結果をタプルで返す (重心のx座標, y座標)
     return std::make_tuple(cX, cY);
 }
@@ -1426,8 +1189,6 @@ static std::tuple<int, int> Follow_2(const Mat& morphed) {
         cv::Moments M = cv::moments(*largest_contour);
         cX = static_cast<int>(M.m10 / M.m00);
         cY = static_cast<int>(M.m01 / M.m00);
-    } else {
-        stop_count++;
     }
 
     result_frame = morphed.clone(); // 描画用にフレームをコピー
@@ -1784,4 +1545,3 @@ void reset_gyro_sensor() {
         cv::waitKey(30);  // 30ms待機
     }
 }
-
