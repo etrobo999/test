@@ -78,7 +78,7 @@ int16_t gyro_counts = 0;
 int16_t _gyro_counts = 0;
 
 // 追従方向の変数[true = 左] [false = 右]
-bool follow = false;
+bool follow = true;
 bool resize_on = false;
 
 // スレッドの操作のための変数
@@ -661,7 +661,7 @@ void* main_thread_func(void* arg) {
 
         case 31://設定の読み込み
             motor_cntrol(-50,50);
-            if (ev3_motor_get_counts(left_motor) <= -230 && ev3_motor_get_counts(right_motor) >= 230) {
+            if (ev3_motor_get_counts(left_motor) <= -210 && ev3_motor_get_counts(right_motor) >= 210) {
                 set_speed(45.0);
                 scene++;
                 follow = !follow;
