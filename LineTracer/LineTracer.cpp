@@ -78,7 +78,7 @@ int16_t gyro_counts = 0;
 int16_t _gyro_counts = 0;
 
 // 追従方向の変数[true = 左] [false = 右]
-bool follow = true;
+bool follow = false;
 bool resize_on = false;
 
 // スレッドの操作のための変数
@@ -370,7 +370,7 @@ void* main_thread_func(void* arg) {
             reset_gyro_sensor();
             console_PL();
             std::cout << "gyro " << ev3_gyro_sensor_get_angle(gyro_sensor)<< std::endl;
-            scene = 11;
+            scene = 29;
             break;
         case 3:
             startTimer(1);
@@ -629,7 +629,7 @@ void* main_thread_func(void* arg) {
             PIDMotor(Bcurvetpid);
             if(detectCheck(morphed1,2000)){
                 motor_cntrol(0,0);
-                scene = 31;
+                scene++;
             }
             console_PL();
             break;
@@ -647,11 +647,12 @@ void* main_thread_func(void* arg) {
             tie(cX, cY) = Follow_1(morphed);
             PIDMotor(straightpid);
             console_PL();
-            if(getTime(1) >=3){
+            if(getTime(1) >=1){
                 scene++;
                 motor_cntrol(0,0);
+                reset_left_motor();
+                reset_right_motor();
             }
-            
             break;
 
 //////////////////////////////////////////////////////////////////////
@@ -659,30 +660,33 @@ void* main_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
         case 31://設定の読み込み
-            rect_x = 100;
-            rect_y = 110;
-            rect_width = 440;
-            rect_height = 230;
-            set_speed(40.0);
-            scene++;
-            std::cout << "Case 31" << std::endl;
+            motor_cntrol(50,50);
+            if (ev3_motor_get_counts(left_motor) <= -230 && ev3_motor_get_counts(right_motor) >= 230) {
+                set_speed(45.0);
+                scene++;
+                follow = !follow;
+            }
+            console_PL();
             break;
         case 32:
             tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "blue_black");
-            morphed = Morphology(mask2);
-            tie(cX, cY) = Follow_4(morphed);
+            createMask(hsv, "blue_black"); //Mask,Mask1
+            morphed = Morphology(mask);
+            morphed1 = Morphology(mask1); //青色モル
+            tie(cX, cY) = Follow_1(morphed);
             PIDMotor(Bcurvetpid);
+            if(detectCheck(morphed1,2000)){
+                motor_cntrol(0,0);
+                scene++;
+            }
             console_PL();
             break;
         case 33:
-            motor_cntrol(50,50);
-            if (ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) >= 1300) {
-                {
-                    set_speed(45.0);
-                    scene++;
-                }
-            }
+            tie(rectframe, hsv) = RectFrame(frame);
+            createMask(hsv, "blue_black"); //Mask,Mask1
+            morphed = Morphology(mask);
+            morphed1 = Morphology(mask1); //青色モル
+            tie(cX, cY) = Follow_1(morphed);
             console_PL();
             break;
         case 34:
@@ -1092,8 +1096,6 @@ static std::tuple<int, int> Follow_1(cv::Mat& morphed) {
         cv::Moments M = cv::moments(*target_contour);
         cX = static_cast<int>(M.m10 / M.m00);
         cY = static_cast<int>(M.m01 / M.m00);
-    } else {
-        stop_count++;
     }
 
     // 重心を描画
@@ -1154,10 +1156,7 @@ static std::tuple<int, int> Follow_4(Mat& morphed) {
         // 重心を描画
         result_frame = morphed.clone(); // 描画用にフレームをコピー
         cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(0, 0, 255), -1);
-    } else {
-        stop_count++;
     }
-
     // 結果をタプルで返す (重心のx座標, y座標)
     return std::make_tuple(cX, cY);
 }
@@ -1198,8 +1197,6 @@ static std::tuple<int, int> Follow_2(const Mat& morphed) {
         cv::Moments M = cv::moments(*largest_contour);
         cX = static_cast<int>(M.m10 / M.m00);
         cY = static_cast<int>(M.m01 / M.m00);
-    } else {
-        stop_count++;
     }
 
     result_frame = morphed.clone(); // 描画用にフレームをコピー
