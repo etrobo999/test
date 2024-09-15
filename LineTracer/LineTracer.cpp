@@ -650,8 +650,7 @@ void* main_thread_func(void* arg) {
             if(getTime(1) >=3){
                 scene++;
                 motor_cntrol(0,0);
-                reset_left_motor();
-                reset_right_motor();
+                reset_gyro_sensor();
             }
             break;
 
@@ -660,15 +659,29 @@ void* main_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
         case 31://設定の読み込み
-            motor_cntrol(-45,45);
-            if (ev3_motor_get_counts(left_motor) <= -210 && ev3_motor_get_counts(right_motor) >= 210) {
-                set_speed(45.0);
-                scene++;
-                follow = !follow;
+            gyro_counts = ev3_gyro_sensor_get_angle(gyro_sensor);
+            if (gyro_counts < 165){
+                motor_cntrol(40,-40);
+            } else if (gyro_counts >= 165 || gyro_counts <= -165){
+                    motor_cntrol(0,0);
+                    follow = !follow;
+                    scene++;
             }
             console_PL();
             break;
         case 32:
+            tie(rectframe, hsv) = RectFrame(frame);
+            createMask(hsv, "blue_black"); //Mask,Mask1
+            morphed = Morphology(mask);
+            morphed1 = Morphology(mask1); //青色モル
+            tie(cX, cY) = Follow_1(morphed);
+            PIDMotor(Bcurvetpid);
+            if(detectCheck(morphed1,2000)){
+                scene++;
+            }
+            console_PL();
+            break;
+        case 33:
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "blue_black"); //Mask,Mask1
             morphed = Morphology(mask);
@@ -681,34 +694,13 @@ void* main_thread_func(void* arg) {
             }
             console_PL();
             break;
-        case 33:
+        case 34:
             tie(rectframe, hsv) = RectFrame(frame);
             createMask(hsv, "blue_black"); //Mask,Mask1
             morphed = Morphology(mask);
             morphed1 = Morphology(mask1); //青色モル
             tie(cX, cY) = Follow_1(morphed);
             console_PL();
-            break;
-        case 34:
-            tie(rectframe, hsv) = RectFrame(frame);
-            createMask(hsv, "blue_white"); //Mask,Mask1
-            contour_ready = true;
-            contour_var.notify_one();
-            //bitwise_not(mask2, mask2);//白黒反転
-            morphed = Morphology2(mask2);//白色モル
-            tie(cX, cY) = Follow_2(morphed);
-            PIDMotor(Bcurvetpid);
-            console_PL();
-            while (contour_ready) {
-                cv::waitKey(10);
-            }
-            if(ev3_motor_get_counts(left_motor) + ev3_motor_get_counts(right_motor) + left_motor_counts + right_motor_counts >= 4200){
-                {
-                    motor_cntrol(0,0);
-                    set_speed(-45.0);
-                    scene++;
-                }
-            }
             break;
         case 35:
             tie(rectframe, hsv) = RectFrame(frame);
