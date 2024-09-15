@@ -78,7 +78,7 @@ int16_t gyro_counts = 0;
 int16_t _gyro_counts = 0;
 
 // 追従方向の変数[true = 左] [false = 右]
-bool follow = true;
+bool follow = false;
 bool resize_on = false;
 
 // スレッドの操作のための変数
@@ -688,7 +688,7 @@ void* main_thread_func(void* arg) {
             morphed1 = Morphology(mask1); //青色モル
             tie(cX, cY) = Follow_1(morphed);
             PIDMotor(Bcurvetpid);
-            if(detectCheck(morphed1,2000)){
+            if(detectCheck(morphed1,3000)){
                 motor_cntrol(0,0);
                 scene++;
             }
