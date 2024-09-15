@@ -1209,7 +1209,7 @@ static std::tuple<int, int> Follow_4(Mat& morphed) {
 
 static std::tuple<int, int> Follow_5(Mat& morphed, std::string follow_mode) {
     // 輪郭を抽出
-    std::vector<std::vector<cv::Point>> contours;
+    std::vector<std::vector<cv::jPoint>> contours;
     findContours(morphed, contours, RETR_TREE, CHAIN_APPROX_SIMPLE);
 
     std::cout << "Number of contours found: " << contours.size() << std::endl;
@@ -1291,6 +1291,7 @@ static std::tuple<int, int> Follow_5(Mat& morphed, std::string follow_mode) {
         result_frame = morphed.clone(); // 描画用にフレームをコピー
         cv::circle(result_frame, cv::Point(cX, cY), 5, cv::Scalar(0, 0, 255), -1);
     }
+    return std::make_tuple(cX, cY);
 }   
 
 static std::tuple<int, int> Follow_6(cv::Mat& morphed) {
