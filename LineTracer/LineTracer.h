@@ -32,6 +32,8 @@ static std::tuple<int, int> Follow_2(const cv::Mat& morphed);                   
 std::tuple<bool, bool> detectRectangleAndPosition(const cv::Mat& morphed, int min_area);
 static std::tuple<int, int> Follow_3(const cv::Mat& morphed);
 static std::tuple<int, int> Follow_4(cv::Mat& morphed);
+static std::tuple<int, int> Follow_6(cv::Mat& morphed);
+static std::tuple<int, int, bool> Follow_5(Mat& morphed, std::string follow_mode);
 static void PIDMotor(PID &pid);
 static void PIDMotorR(PID &pid);                                             //PID走行関数
 static void set_speed(double BASE_SPEED);
@@ -41,7 +43,7 @@ void set_cpu_affinity(int core_id) ;
 void reset_right_motor();
 void reset_left_motor();
 void reset_gyro_sensor();
-
+bool detectSwitch();
 extern std::chrono::high_resolution_clock::time_point start_time1;                //経過時間の箱1
 extern std::chrono::high_resolution_clock::time_point start_time2;                //経過時間の箱2
 extern std::chrono::high_resolution_clock::time_point start_time3;                //経過時間の箱3
