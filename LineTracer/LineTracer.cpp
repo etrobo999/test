@@ -57,7 +57,7 @@ std::condition_variable contour_var;
 Mat orizin_frame, frame, rectframe, hsv, mask, mask1, mask2, morphed, morphed1, morphed2, result_frame, gray;
 
 /*使用する変数の初期化*/
-uint8_t scene = 8;
+uint8_t scene = 1;
 uint8_t _scene = 0;
 int frame_center = 220;
 int cX = 0;
@@ -78,7 +78,7 @@ int16_t gyro_counts = 0;
 int16_t _gyro_counts = 0;
 
 // 追従方向の変数[true = 左] [false = 右]
-bool follow = false;
+bool follow = true;
 bool resize_on = false;
 
 // スレッドの操作のための変数
