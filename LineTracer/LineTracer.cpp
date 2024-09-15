@@ -1784,15 +1784,3 @@ void reset_gyro_sensor() {
     }
 }
 
-// 追従先の切り替えを検知する関数（引数なし）
-bool detectSwitch() {
-    // 重心の変化を確認して追従先が切り替わったかどうかを判定
-    if (std::abs(cX - prev_cX) > threshold || std::abs(cY - prev_cY) > threshold) {
-        // 追従先が切り替わった場合、重心を更新してtrueを返す
-        prev_cX = cX;
-        prev_cY = cY;
-        return true;
-    }
-    // 切り替わっていない場合、falseを返す
-    return false;
-}
