@@ -1207,7 +1207,7 @@ static std::tuple<int, int> Follow_4(Mat& morphed) {
     return std::make_tuple(cX, cY);
 }
 
-static std::tuple<int, int, bool> Follow_5(Mat& morphed, std::string follow_mode) {
+static std::tuple<int, int> Follow_5(Mat& morphed, std::string follow_mode) {
     // 輪郭を抽出
     std::vector<std::vector<cv::Point>> contours;
     findContours(morphed, contours, RETR_TREE, CHAIN_APPROX_SIMPLE);
@@ -1229,8 +1229,8 @@ static std::tuple<int, int, bool> Follow_5(Mat& morphed, std::string follow_mode
         if (area >= min_contour_area) {
             // 重心を計算
             cv::Moments M = cv::moments(contour);
-            int cX = static_cast<int>(M.m10 / M.m00);
-            int cY = static_cast<int>(M.m01 / M.m00);
+            cX = static_cast<int>(M.m10 / M.m00);
+            cY = static_cast<int>(M.m01 / M.m00);
 
             // 追従していた座標の範囲内にあるかどうかを確認
             double distance_to_prev = std::sqrt(std::pow(cX - prev_cX, 2) + std::pow(cY - prev_cY, 2));
