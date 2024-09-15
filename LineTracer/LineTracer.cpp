@@ -660,7 +660,7 @@ void* main_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
         case 31://設定の読み込み
-            motor_cntrol(50,50);
+            motor_cntrol(-50,50);
             if (ev3_motor_get_counts(left_motor) <= -230 && ev3_motor_get_counts(right_motor) >= 230) {
                 set_speed(45.0);
                 scene++;
