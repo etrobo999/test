@@ -1235,7 +1235,7 @@ static std::tuple<int, int, bool> Follow_5(Mat& morphed, std::string follow_mode
             // 追従していた座標の範囲内にあるかどうかを確認
             double distance_to_prev = std::sqrt(std::pow(cX - prev_cX, 2) + std::pow(cY - prev_cY, 2));
 
-            if (distance_to_prev <= follow_threshold) {
+            if (distance_to_prev <= threshold) {
                 // 範囲内で最も近い輪郭を選択
                 contour_within_range_found = true;
                 if (distance_to_prev < best_score) {
