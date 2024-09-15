@@ -552,7 +552,7 @@ void* main_thread_func(void* arg) {
             morphed = Morphology(mask);
             tie(cX, cY) = Follow_1(morphed);
             PIDMotor(straightpid);
-            if(getTime(1) >=1){
+            if(getTime(1) >=3){
                 scene = 21;
             }
             console_PL();
@@ -660,7 +660,7 @@ void* main_thread_func(void* arg) {
 //////////////////////////////////////////////////////////////////////
 
         case 31://設定の読み込み
-            motor_cntrol(-50,50);
+            motor_cntrol(-45,45);
             if (ev3_motor_get_counts(left_motor) <= -210 && ev3_motor_get_counts(right_motor) >= 210) {
                 set_speed(45.0);
                 scene++;
